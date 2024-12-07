@@ -1,10 +1,11 @@
 import { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
 import { getIdeasForGiftee, addIdea, updateIdea } from "../lib/ideas";
-import { getGifteeById } from "../lib/giftees";
+import { getGifteeById, updateGiftee } from "../lib/giftees";
 import { Input } from "../components/ui/input";
 import { Button } from "../components/ui/button";
-import { Textarea } from "../components/ui/textarea";
+import { Label } from "@/components/ui/label";
+
 import { Link } from "react-router-dom";
 import {
   Card,
@@ -12,7 +13,16 @@ import {
   CardDescription,
   CardHeader,
   CardTitle,
-} from "../components/ui/card"; // Assuming you have these components
+} from "../components/ui/card";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover.tsx";
+import { Calendar } from "@/components/ui/calendar.tsx"; // Assuming you have these components
+import { Calendar as CalendarIcon } from "lucide-react";
+import { cn } from "@/lib/utils";
+import { format } from "date-fns";
 
 export default function GifteeDetail() {
   const { id: gifteeId } = useParams();
@@ -20,6 +30,7 @@ export default function GifteeDetail() {
   const [ideas, setIdeas] = useState<any[]>([]);
   const [ideaName, setIdeaName] = useState("");
   const [ideaDesc, setIdeaDesc] = useState("");
+  const [newDob, setNewDob] = useState<string>("");
 
   useEffect(() => {
     if (gifteeId) {
@@ -32,6 +43,23 @@ export default function GifteeDetail() {
       getIdeasForGiftee(gifteeId).then(setIdeas).catch(console.error);
     }
   }, [gifteeId]);
+
+  // Generic handler for updating the giftee's date_of_birth
+  const handleSaveDob = async (dob) => {
+    setNewDob(dob);
+    console.log("giftee", giftee);
+
+    if (!gifteeId) return;
+
+    try {
+      await updateGiftee(giftee.id, { date_of_birth: dob, id: giftee.id });
+      setGiftee((prev) =>
+        prev ? { ...prev, date_of_birth: dob, id: giftee.id } : null
+      );
+    } catch (error) {
+      console.error("Error updating date_of_birth:", error.message);
+    }
+  };
 
   const handleAddIdea = async () => {
     if (!gifteeId) return;
@@ -60,8 +88,6 @@ export default function GifteeDetail() {
 
   if (!giftee) return <div>Loading...</div>;
 
-  console.log("ideas", ideas);
-
   return (
     <div>
       {/* Link back to Home */}
@@ -77,8 +103,45 @@ export default function GifteeDetail() {
             {giftee.name || "Loading..."}
           </CardTitle>
           <CardDescription className="text-secondary">
-            You have {ideas.length} ideas
+            Has {ideas.length} ideas
           </CardDescription>
+
+          <div className="mb-8 contents">
+            <Label htmlFor="dateOfBirth" className="mb-2 mt-4">
+              Birthday
+            </Label>
+
+            <Popover>
+              <PopoverTrigger asChild>
+                <Button
+                  variant={"outline"}
+                  className={cn(
+                    "w-[200px] justify-start text-left font-normal",
+                    !giftee?.date_of_birth && "text-muted-foreground"
+                  )}
+                >
+                  <CalendarIcon className="mr-2 h-4 w-4" />
+                  {giftee?.date_of_birth ? (
+                    format(giftee?.date_of_birth, "PP")
+                  ) : (
+                    <span>Birthday</span>
+                  )}
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent className="w-auto p-0 bg-white">
+                <Calendar
+                  mode="single"
+                  selected={giftee?.date_of_birth}
+                  onSelect={(selectedDate) => {
+                    if (selectedDate) {
+                      handleSaveDob(selectedDate.toISOString().split("T")[0]); // Format to 'YYYY-MM-DD'
+                    }
+                  }}
+                  initialFocus
+                />
+              </PopoverContent>
+            </Popover>
+          </div>
         </CardHeader>
         <CardContent>
           <form className="space-y-4" onSubmit={handleSubmit}>
@@ -96,17 +159,17 @@ export default function GifteeDetail() {
       <div className="mt-6 space-y-4">
         {ideas.map((idea) => (
           <Card key={idea.id}>
-            <CardHeader>
-              <CardTitle>{idea.name}</CardTitle>
+            <CardHeader className="py-4">
+              <CardTitle className="text-md">{idea.name}</CardTitle>
             </CardHeader>
             <CardContent>
               <p className="text-gray-600">{idea.description}</p>
-              <div className="mt-4 flex justify-between items-center">
+              <div className="flex justify-between items-center">
                 <Button
                   variant="outline"
                   onClick={() => handleToggleChosen(idea.id, idea.is_chosen)}
                 >
-                  {idea.is_chosen ? "Mark Unchosen" : "Mark Chosen"}
+                  {idea.is_chosen ? "Mark as unchosen" : "Mark as chosen"}
                 </Button>
                 <div className="flex space-x-2">
                   <span>Rating:</span>
