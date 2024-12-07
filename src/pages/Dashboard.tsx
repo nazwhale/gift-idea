@@ -18,19 +18,26 @@ export default function Dashboard() {
     setNewGifteeName("");
   };
 
+  const handleSubmit = (e) => {
+    e.preventDefault(); // Prevent page reload on form submission
+    if (newGifteeName.trim()) {
+      handleAddGiftee(); // Trigger the add giftee function
+    }
+  };
+
   return (
     <div className="p-4">
       <h1 className="text-xl mb-4">Your Giftees</h1>
-      <div className="mb-4 flex space-x-2">
+      <form onSubmit={handleSubmit} className="mb-4 flex space-x-2">
         <Input
           placeholder="Giftee name"
           value={newGifteeName}
           onChange={(e) => setNewGifteeName(e.target.value)}
         />
-        <Button variant="outline" onClick={handleAddGiftee}>
+        <Button type="submit" variant="outline">
           Add Giftee
         </Button>
-      </div>
+      </form>
       <ul>
         {giftees.map((g) => (
           <li key={g.id}>

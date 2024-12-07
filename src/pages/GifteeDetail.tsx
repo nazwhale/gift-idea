@@ -9,6 +9,7 @@ import { Link } from "react-router-dom";
 import {
   Card,
   CardContent,
+  CardDescription,
   CardHeader,
   CardTitle,
 } from "../components/ui/card"; // Assuming you have these components
@@ -50,9 +51,16 @@ export default function GifteeDetail() {
     setIdeas(ideas.map((i) => (i.id === ideaId ? updated : i)));
   };
 
-  console.log(giftee);
+  const handleSubmit = (e) => {
+    e.preventDefault(); // Prevent page reload on form submission
+    if (ideaName.trim()) {
+      handleAddIdea(); // Trigger the add giftee function
+    }
+  };
 
   if (!giftee) return <div>Loading...</div>;
+
+  console.log("ideas", ideas);
 
   return (
     <div>
@@ -64,20 +72,23 @@ export default function GifteeDetail() {
       </div>
       {/* Giftee Header */}
       <Card>
-        <CardHeader className="bg-blue-500 text-white rounded-t-md mb-8">
+        <CardHeader>
           <CardTitle className="text-2xl">
             {giftee.name || "Loading..."}
           </CardTitle>
+          <CardDescription className="text-secondary">
+            You have {ideas.length} ideas
+          </CardDescription>
         </CardHeader>
         <CardContent>
-          <div className="space-y-4">
+          <form className="space-y-4" onSubmit={handleSubmit}>
             <Input
               placeholder="Idea name"
               value={ideaName}
               onChange={(e) => setIdeaName(e.target.value)}
             />
-            <Button onClick={handleAddIdea}>Add Idea</Button>
-          </div>
+            <Button type="submit">Add Idea</Button>
+          </form>
         </CardContent>
       </Card>
 
