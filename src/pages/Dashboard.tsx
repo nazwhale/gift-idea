@@ -29,13 +29,33 @@ export default function Dashboard() {
   };
 
   const daysToChristmas = calculateDaysToChristmas();
+  const birthdays = birthdaysInNextNDays(giftees, 14);
 
   return (
     <div className="p-4">
       {/* Days to Christmas */}
-      <div className="text-gray-600 mb-4">
-        🎄 <strong>{daysToChristmas}</strong> day
-        {daysToChristmas === 1 ? "" : "s"} until Christmas! 🎅
+      <div className="text-gray-500 mb-4">
+        <div>
+          🎄 <strong>{daysToChristmas}</strong> day
+          {daysToChristmas === 1 ? "" : "s"} til Christmas
+        </div>
+        <div>
+          <ul>
+            {birthdays.map((g) => (
+              <li key={g.id}>
+                🍰{" "}
+                <strong>
+                  {Math.ceil(
+                    (new Date(g.date_of_birth).getTime() -
+                      new Date().getTime()) /
+                      (1000 * 60 * 60 * 24)
+                  )}{" "}
+                </strong>
+                days til {g.name}'s birthday
+              </li>
+            ))}
+          </ul>
+        </div>
       </div>
 
       <h1 className="text-xl mb-4">Your Giftees</h1>
@@ -81,4 +101,15 @@ function calculateDaysToChristmas(): number {
   }
 
   return Math.ceil(timeDiff / (1000 * 60 * 60 * 24));
+}
+
+function birthdaysInNextNDays(giftees: any[], n: number): any[] {
+  const today = new Date();
+  const nextNDays = new Date(today);
+  nextNDays.setDate(today.getDate() + n);
+
+  return giftees.filter((g) => {
+    const dob = new Date(g.date_of_birth);
+    return dob >= today && dob <= nextNDays;
+  });
 }
