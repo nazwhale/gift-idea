@@ -100,7 +100,7 @@ export default function Ideas() {
               <DropdownMenuItem
                 onClick={() => handleViewRecipient(ogRow.giftee_id)}
               >
-                View recipient
+                View person
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>

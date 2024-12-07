@@ -113,7 +113,7 @@ export default function GifteeDetail() {
         </Link>
       </div>
       {/* Giftee Header */}
-      <Card>
+      <Card className="mb-6">
         <CardHeader>
           <CardTitle className="text-2xl">
             {giftee.name || "Loading..."}
@@ -121,7 +121,8 @@ export default function GifteeDetail() {
           <CardDescription className="text-secondary">
             Has {ideas.length} ideas
           </CardDescription>
-
+        </CardHeader>
+        <CardContent>
           <div className="space-y-4">
             <div className="flex space-x-2">
               <Input
@@ -153,8 +154,10 @@ export default function GifteeDetail() {
               Save Date of Birth
             </Button>
           </div>
-        </CardHeader>
-        <CardContent>
+        </CardContent>
+      </Card>
+      <Card>
+        <CardHeader>
           <form className="space-y-4" onSubmit={handleSubmit}>
             <Input
               placeholder="Idea name"
@@ -163,51 +166,50 @@ export default function GifteeDetail() {
             />
             <Button type="submit">Add Idea</Button>
           </form>
+        </CardHeader>
+        <CardContent>
+          {/* Gift Ideas List */}
+          <div className="mt-6 space-y-4">
+            {ideas.map((idea) => (
+              <div key={idea.id}>
+                <h3 className="text-md">{idea.name}</h3>
+                <div className="flex justify-between items-center">
+                  <Button
+                    variant="outline"
+                    onClick={() =>
+                      handleToggleChosen(idea.id, idea.purchased_at)
+                    }
+                  >
+                    {idea.purchased_at == null
+                      ? "I bought this"
+                      : "Mark as not bought"}
+                  </Button>
+                </div>
+
+                {idea.purchased_at != null && (
+                  <div className="flex flex-col">
+                    <Label htmlFor="dateOfBirth" className="mb-2 mt-4">
+                      Giftee's rating
+                    </Label>
+                    <div className="space-x-2">
+                      {[1, 2, 3, 4, 5].map((num) => (
+                        <Button
+                          key={num}
+                          size="sm"
+                          variant={idea.rating === num ? "default" : "outline"}
+                          onClick={() => handleRating(idea.id, num)}
+                        >
+                          {num}
+                        </Button>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
+            ))}
+          </div>
         </CardContent>
       </Card>
-
-      {/* Gift Ideas List */}
-      <div className="mt-6 space-y-4">
-        {ideas.map((idea) => (
-          <Card key={idea.id}>
-            <CardHeader className="py-4">
-              <CardTitle className="text-md">{idea.name}</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="flex justify-between items-center">
-                <Button
-                  variant="outline"
-                  onClick={() => handleToggleChosen(idea.id, idea.purchased_at)}
-                >
-                  {idea.purchased_at == null
-                    ? "I bought this"
-                    : "Mark as not bought"}
-                </Button>
-              </div>
-
-              {idea.purchased_at != null && (
-                <div className="flex flex-col">
-                  <Label htmlFor="dateOfBirth" className="mb-2 mt-4">
-                    Giftee's rating
-                  </Label>
-                  <div className="space-x-2">
-                    {[1, 2, 3, 4, 5].map((num) => (
-                      <Button
-                        key={num}
-                        size="sm"
-                        variant={idea.rating === num ? "default" : "outline"}
-                        onClick={() => handleRating(idea.id, num)}
-                      >
-                        {num}
-                      </Button>
-                    ))}
-                  </div>
-                </div>
-              )}
-            </CardContent>
-          </Card>
-        ))}
-      </div>
     </div>
   );
 }
