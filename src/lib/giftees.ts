@@ -2,7 +2,10 @@
 import { supabase } from "./supabaseClient";
 
 export async function getGiftees() {
-  const { data, error } = await supabase.from("giftees").select("*");
+  const { data, error } = await supabase.from("giftees").select(`
+      *, 
+      ideas (id, name, purchased_at)  -- Fetch related idea details
+    `);
   if (error) throw error;
   return data;
 }

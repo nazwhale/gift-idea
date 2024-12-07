@@ -9,6 +9,7 @@ import Login from "./pages/Login";
 import Dashboard from "./pages/Dashboard"; // a landing page after login
 import { useAuth } from "./hooks/useAuth";
 import "./index.css";
+import Ideas from "@/pages/Ideas.tsx";
 
 function ProtectedRoute({ children }: { children: JSX.Element }) {
   const { session, loading } = useAuth();
@@ -23,7 +24,6 @@ function ProtectedRoute({ children }: { children: JSX.Element }) {
     return <Navigate to="/login" replace />;
   }
 
-  console.log("found session");
   return children;
 }
 
@@ -46,6 +46,14 @@ export default function App() {
             element={
               <ProtectedRoute>
                 <GifteeDetail />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/ideas/"
+            element={
+              <ProtectedRoute>
+                <Ideas />
               </ProtectedRoute>
             }
           />

@@ -3,9 +3,8 @@ import { useEffect, useState } from "react";
 import { getGiftees, addGiftee } from "../lib/giftees";
 import { Input } from "../components/ui/input";
 import { Button } from "../components/ui/button";
-import { Separator } from "@/components/ui/separator.tsx";
-
-const christmas = new Date("2021-12-25");
+import { Badge } from "../components/ui/badge";
+import { Link } from "react-router-dom";
 
 export default function Dashboard() {
   const [giftees, setGiftees] = useState<any[]>([]);
@@ -31,8 +30,16 @@ export default function Dashboard() {
   const daysToChristmas = calculateDaysToChristmas();
   const birthdays = birthdaysInNextNDays(giftees, 14);
 
+  console.log(giftees);
+  const today = new Date();
+
   return (
     <div className="p-4">
+      <div className="mb-4">
+        <Link to="/ideas" className="text-sm text-primary underline">
+          All ideas
+        </Link>
+      </div>
       {/* Days to Christmas */}
       <div className="text-gray-500 mb-4">
         <div>
@@ -46,8 +53,10 @@ export default function Dashboard() {
                 🍰{" "}
                 <strong>
                   {Math.ceil(
-                    (new Date(g.date_of_birth).getTime() -
-                      new Date().getTime()) /
+                    (new Date(g.date_of_birth).setFullYear(
+                      today.getFullYear()
+                    ) -
+                      today.getTime()) /
                       (1000 * 60 * 60 * 24)
                   )}{" "}
                 </strong>
@@ -58,15 +67,15 @@ export default function Dashboard() {
         </div>
       </div>
 
-      <h1 className="text-xl mb-4">Your Giftees</h1>
+      <h1 className="text-xl mb-4">Your People</h1>
       <form onSubmit={handleSubmit} className="mb-4 flex space-x-2">
         <Input
-          placeholder="Giftee name"
+          placeholder="Their name"
           value={newGifteeName}
           onChange={(e) => setNewGifteeName(e.target.value)}
         />
         <Button type="submit" variant="outline">
-          Add Giftee
+          Add person
         </Button>
       </form>
       <ul>
@@ -74,7 +83,21 @@ export default function Dashboard() {
           <li key={g.id}>
             <a href={`/giftee/${g.id}`} className="text-blue-600 underline">
               {g.name}
-            </a>
+            </a>{" "}
+            <span className="text-gray-500">
+              - {g.ideas.length} ideas /{" "}
+              {g.ideas.filter((i) => i.purchased_at != null).length} bought
+            </span>
+            {g.on_christmas && (
+              <Badge variant="outline" className="ml-2">
+                Christmas
+              </Badge>
+            )}
+            {g.on_birthday && (
+              <Badge variant="outline" className="ml-2">
+                Birthday
+              </Badge>
+            )}
           </li>
         ))}
       </ul>
@@ -104,12 +127,14 @@ function calculateDaysToChristmas(): number {
 }
 
 function birthdaysInNextNDays(giftees: any[], n: number): any[] {
+  // Ignore year, just compare month and day
   const today = new Date();
-  const nextNDays = new Date(today);
+  const nextNDays = new Date();
   nextNDays.setDate(today.getDate() + n);
 
   return giftees.filter((g) => {
     const dob = new Date(g.date_of_birth);
+    dob.setFullYear(today.getFullYear());
     return dob >= today && dob <= nextNDays;
   });
 }

@@ -1,6 +1,15 @@
 // src/lib/ideas.ts
 import { supabase } from "./supabaseClient";
 
+export async function getAllIdeas() {
+  const { data, error } = await supabase.from("ideas").select(`
+      *, 
+      giftees (id, name, date_of_birth)  -- Fetch related giftee details
+    `);
+  if (error) throw error;
+  return data;
+}
+
 export async function getIdeasForGiftee(gifteeId: string) {
   const { data, error } = await supabase
     .from("ideas")
@@ -23,15 +32,14 @@ export async function addIdea(
   return data[0];
 }
 
-export async function updateIdea(
-  id: string,
-  updates: Partial<{ is_chosen: boolean; rating: number }>
-) {
+export async function updateIdea(id: string, updates: Partial<any>) {
   const { data, error } = await supabase
     .from("ideas")
     .update(updates)
-    .eq("id", id)
-    .select("*");
+    .eq("id", id).select(`
+      *, 
+      giftees (id, name, date_of_birth)  -- Fetch related giftee details
+    `);
   if (error) throw error;
   return data[0];
 }

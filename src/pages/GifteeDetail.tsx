@@ -14,14 +14,6 @@ import {
   CardHeader,
   CardTitle,
 } from "../components/ui/card";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover.tsx";
-import { Calendar } from "@/components/ui/calendar.tsx"; // Assuming you have these components
-import { Calendar as CalendarIcon } from "lucide-react";
-import { cn } from "@/lib/utils";
 import { format } from "date-fns";
 
 export default function GifteeDetail() {
@@ -30,13 +22,22 @@ export default function GifteeDetail() {
   const [ideas, setIdeas] = useState<any[]>([]);
   const [ideaName, setIdeaName] = useState("");
   const [ideaDesc, setIdeaDesc] = useState("");
-  const [newDob, setNewDob] = useState<string>("");
+  // dob
+  const [day, setDay] = useState<string>("");
+  const [month, setMonth] = useState<string>("");
+  const [year, setYear] = useState<string>("");
 
   useEffect(() => {
     if (gifteeId) {
       // Fetch giftee's name
       getGifteeById(gifteeId)
-        .then((giftee) => setGiftee(giftee))
+        .then((giftee) => {
+          setGiftee(giftee);
+          setDay(giftee.date_of_birth?.split("-")[2] || "");
+          setMonth(giftee.date_of_birth?.split("-")[1] || "");
+          setYear(giftee.date_of_birth?.split("-")[0] || "");
+        })
+
         .catch(console.error);
 
       // Fetch gift ideas for this giftee
@@ -45,8 +46,18 @@ export default function GifteeDetail() {
   }, [gifteeId]);
 
   // Generic handler for updating the giftee's date_of_birth
-  const handleSaveDob = async (dob) => {
-    setNewDob(dob);
+  const handleSaveDob = async () => {
+    console.log("SAVEIHNG");
+    // Validate and combine the inputs
+    if (!day || !month || !year) {
+      alert("Please fill out all fields");
+      return;
+    }
+    const dob = `${year.padStart(4, "0")}-${month.padStart(
+      2,
+      "0"
+    )}-${day.padStart(2, "0")}`;
+
     console.log("giftee", giftee);
 
     if (!gifteeId) return;
@@ -69,8 +80,13 @@ export default function GifteeDetail() {
     setIdeaDesc("");
   };
 
-  const handleToggleChosen = async (ideaId: string, currentVal: boolean) => {
-    const updated = await updateIdea(ideaId, { is_chosen: !currentVal });
+  const handleToggleChosen = async (ideaId: string, current: Date | null) => {
+    const purchasedAt = current ? null : new Date();
+
+    const updated = await updateIdea(ideaId, {
+      purchased_at: purchasedAt,
+    });
+
     setIdeas(ideas.map((i) => (i.id === ideaId ? updated : i)));
   };
 
@@ -106,41 +122,36 @@ export default function GifteeDetail() {
             Has {ideas.length} ideas
           </CardDescription>
 
-          <div className="mb-8 contents">
-            <Label htmlFor="dateOfBirth" className="mb-2 mt-4">
-              Birthday
-            </Label>
-
-            <Popover>
-              <PopoverTrigger asChild>
-                <Button
-                  variant={"outline"}
-                  className={cn(
-                    "w-[200px] justify-start text-left font-normal",
-                    !giftee?.date_of_birth && "text-muted-foreground"
-                  )}
-                >
-                  <CalendarIcon className="mr-2 h-4 w-4" />
-                  {giftee?.date_of_birth ? (
-                    format(giftee?.date_of_birth, "PP")
-                  ) : (
-                    <span>Birthday</span>
-                  )}
-                </Button>
-              </PopoverTrigger>
-              <PopoverContent className="w-auto p-0 bg-white">
-                <Calendar
-                  mode="single"
-                  selected={giftee?.date_of_birth}
-                  onSelect={(selectedDate) => {
-                    if (selectedDate) {
-                      handleSaveDob(selectedDate.toISOString().split("T")[0]); // Format to 'YYYY-MM-DD'
-                    }
-                  }}
-                  initialFocus
-                />
-              </PopoverContent>
-            </Popover>
+          <div className="space-y-4">
+            <div className="flex space-x-2">
+              <Input
+                type="text"
+                placeholder="DD"
+                maxLength={2}
+                value={day}
+                onChange={(e) => setDay(e.target.value.replace(/\D/g, ""))} // Allow only numbers
+                className="w-16"
+              />
+              <Input
+                type="text"
+                placeholder="MM"
+                maxLength={2}
+                value={month}
+                onChange={(e) => setMonth(e.target.value.replace(/\D/g, ""))} // Allow only numbers
+                className="w-16"
+              />
+              <Input
+                type="text"
+                placeholder="YYYY"
+                maxLength={4}
+                value={year}
+                onChange={(e) => setYear(e.target.value.replace(/\D/g, ""))} // Allow only numbers
+                className="w-24"
+              />
+            </div>
+            <Button variant="outline" onClick={handleSaveDob}>
+              Save Date of Birth
+            </Button>
           </div>
         </CardHeader>
         <CardContent>
@@ -163,28 +174,36 @@ export default function GifteeDetail() {
               <CardTitle className="text-md">{idea.name}</CardTitle>
             </CardHeader>
             <CardContent>
-              <p className="text-gray-600">{idea.description}</p>
               <div className="flex justify-between items-center">
                 <Button
                   variant="outline"
-                  onClick={() => handleToggleChosen(idea.id, idea.is_chosen)}
+                  onClick={() => handleToggleChosen(idea.id, idea.purchased_at)}
                 >
-                  {idea.is_chosen ? "Mark as unchosen" : "Mark as chosen"}
+                  {idea.purchased_at == null
+                    ? "I bought this"
+                    : "Mark as not bought"}
                 </Button>
-                <div className="flex space-x-2">
-                  <span>Rating:</span>
-                  {[1, 2, 3, 4, 5].map((num) => (
-                    <Button
-                      key={num}
-                      size="sm"
-                      variant={idea.rating === num ? "default" : "outline"}
-                      onClick={() => handleRating(idea.id, num)}
-                    >
-                      {num}
-                    </Button>
-                  ))}
-                </div>
               </div>
+
+              {idea.purchased_at != null && (
+                <div className="flex flex-col">
+                  <Label htmlFor="dateOfBirth" className="mb-2 mt-4">
+                    Giftee's rating
+                  </Label>
+                  <div className="space-x-2">
+                    {[1, 2, 3, 4, 5].map((num) => (
+                      <Button
+                        key={num}
+                        size="sm"
+                        variant={idea.rating === num ? "default" : "outline"}
+                        onClick={() => handleRating(idea.id, num)}
+                      >
+                        {num}
+                      </Button>
+                    ))}
+                  </div>
+                </div>
+              )}
             </CardContent>
           </Card>
         ))}
