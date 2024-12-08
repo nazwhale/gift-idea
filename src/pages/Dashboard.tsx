@@ -12,6 +12,8 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip.tsx";
 
+const daysInFuture = 21;
+
 export default function Dashboard() {
   const [giftees, setGiftees] = useState<any[]>([]);
   const [newGifteeName, setNewGifteeName] = useState("");
@@ -34,7 +36,7 @@ export default function Dashboard() {
   };
 
   const daysToChristmas = calculateDaysToChristmas();
-  const birthdays = birthdaysInNextNDays(giftees, 14);
+  const birthdays = birthdaysInNextNDays(giftees, daysInFuture);
   const today = new Date();
 
   const christmasGiftees = getChristmasGiftees(giftees);
@@ -92,7 +94,7 @@ export default function Dashboard() {
         ))}
       </ul>
 
-      <div>---</div>
+      <div className="text-gray-300">---</div>
 
       <h3>All people</h3>
       <ul>
@@ -111,7 +113,7 @@ function Giftee({ g, keyprefix }) {
         {g.name}
       </a>{" "}
       <span className="text-gray-400">
-        -
+        -{" "}
         <TooltipProvider>
           <Tooltip>
             <TooltipTrigger>
