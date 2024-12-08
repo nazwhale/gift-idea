@@ -95,7 +95,7 @@ export default function Ideas() {
               <DropdownMenuItem
                 onClick={() => handleToggleChosen(ogRow.id, ogRow.purchased_at)}
               >
-                {ogRow.purchased_at ? "Mark as not bought" : "I've bought this"}
+                {ogRow.purchased_at ? "Not bought" : "Bought"}
               </DropdownMenuItem>
               <DropdownMenuItem
                 onClick={() => handleViewRecipient(ogRow.giftee_id)}

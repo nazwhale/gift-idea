@@ -5,6 +5,12 @@ import { Input } from "../components/ui/input";
 import { Button } from "../components/ui/button";
 import { Badge } from "../components/ui/badge";
 import { Link } from "react-router-dom";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip.tsx";
 
 export default function Dashboard() {
   const [giftees, setGiftees] = useState<any[]>([]);
@@ -29,9 +35,9 @@ export default function Dashboard() {
 
   const daysToChristmas = calculateDaysToChristmas();
   const birthdays = birthdaysInNextNDays(giftees, 14);
-
-  console.log(giftees);
   const today = new Date();
+
+  const christmasGiftees = getChristmasGiftees(giftees);
 
   return (
     <div className="p-4">
@@ -49,7 +55,7 @@ export default function Dashboard() {
         <div>
           <ul>
             {birthdays.map((g) => (
-              <li key={g.id}>
+              <li key={"birthdays" + g.id}>
                 🍰{" "}
                 <strong>
                   {Math.ceil(
@@ -78,30 +84,101 @@ export default function Dashboard() {
           Add person
         </Button>
       </form>
+
+      <h3>Christmas '24</h3>
+      <ul>
+        {christmasGiftees.map((g) => (
+          <Giftee g={g} keyprefix="christmas" />
+        ))}
+      </ul>
+
+      <div>---</div>
+
+      <h3>All people</h3>
       <ul>
         {giftees.map((g) => (
-          <li key={g.id}>
-            <a href={`/giftee/${g.id}`} className="text-blue-600 underline">
-              {g.name}
-            </a>{" "}
-            <span className="text-gray-500">
-              - {g.ideas.length} ideas /{" "}
-              {g.ideas.filter((i) => i.purchased_at != null).length} bought
-            </span>
-            {g.on_christmas && (
-              <Badge variant="outline" className="ml-2">
-                Christmas
-              </Badge>
-            )}
-            {g.on_birthday && (
-              <Badge variant="outline" className="ml-2">
-                Birthday
-              </Badge>
-            )}
-          </li>
+          <Giftee g={g} keyprefix="all" />
         ))}
       </ul>
     </div>
+  );
+}
+
+function Giftee({ g, keyprefix }) {
+  return (
+    <li key={keyprefix + g.id}>
+      <a href={`/giftee/${g.id}`} className="text-blue-600 underline">
+        {g.name}
+      </a>{" "}
+      <span className="text-gray-400">
+        -
+        <TooltipProvider>
+          <Tooltip>
+            <TooltipTrigger>
+              {g.ideas.filter((i) => i.purchased_at != null).length} bought
+            </TooltipTrigger>
+            <TooltipContent className="bg-white">
+              {g.ideas.map((i) => {
+                if (i.purchased_at != null) {
+                  return (
+                    <div key={i.id}>
+                      <a
+                        href={i.url}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="text-blue-600 underline"
+                      >
+                        {i.name}
+                      </a>
+                    </div>
+                  );
+                }
+
+                return null;
+              })}
+            </TooltipContent>
+          </Tooltip>
+          <Tooltip>
+            <TooltipTrigger>
+              , {g.ideas.filter((i) => i.purchased_at == null).length} idea
+              {g.ideas.filter((i) => i.purchased_at == null).length === 1
+                ? ""
+                : "s"}{" "}
+            </TooltipTrigger>
+            <TooltipContent className="bg-white">
+              {g.ideas.map((i) => {
+                if (i.purchased_at == null) {
+                  return (
+                    <div key={i.id}>
+                      <a
+                        href={i.url}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="text-blue-600 underline"
+                      >
+                        {i.name}
+                      </a>
+                    </div>
+                  );
+                }
+
+                return null;
+              })}
+            </TooltipContent>
+          </Tooltip>
+        </TooltipProvider>
+      </span>
+      {g.on_christmas && (
+        <Badge variant="outline" className="ml-2">
+          Christmas
+        </Badge>
+      )}
+      {g.on_birthday && (
+        <Badge variant="outline" className="ml-2">
+          Birthday
+        </Badge>
+      )}
+    </li>
   );
 }
 
@@ -124,6 +201,18 @@ function calculateDaysToChristmas(): number {
   }
 
   return Math.ceil(timeDiff / (1000 * 60 * 60 * 24));
+}
+
+function getChristmasGiftees(giftees: any[]): any[] {
+  const filtered = giftees.filter((g) => g.on_christmas);
+  // order by 0 gifts bought first
+  const sorted = filtered.sort((a, b) => {
+    return (
+      a.ideas.filter((i) => i.purchased_at != null).length -
+      b.ideas.filter((i) => i.purchased_at != null).length
+    );
+  });
+  return sorted;
 }
 
 function birthdaysInNextNDays(giftees: any[], n: number): any[] {

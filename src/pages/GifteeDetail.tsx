@@ -21,7 +21,6 @@ export default function GifteeDetail() {
   const [giftee, setGiftee] = useState<any | null>(null);
   const [ideas, setIdeas] = useState<any[]>([]);
   const [ideaName, setIdeaName] = useState("");
-  const [ideaDesc, setIdeaDesc] = useState("");
   // dob
   const [day, setDay] = useState<string>("");
   const [month, setMonth] = useState<string>("");
@@ -74,25 +73,9 @@ export default function GifteeDetail() {
 
   const handleAddIdea = async () => {
     if (!gifteeId) return;
-    const idea = await addIdea(gifteeId, ideaName, ideaDesc);
+    const idea = await addIdea(gifteeId, ideaName);
     setIdeas([...ideas, idea]);
     setIdeaName("");
-    setIdeaDesc("");
-  };
-
-  const handleToggleChosen = async (ideaId: string, current: Date | null) => {
-    const purchasedAt = current ? null : new Date();
-
-    const updated = await updateIdea(ideaId, {
-      purchased_at: purchasedAt,
-    });
-
-    setIdeas(ideas.map((i) => (i.id === ideaId ? updated : i)));
-  };
-
-  const handleRating = async (ideaId: string, rating: number) => {
-    const updated = await updateIdea(ideaId, { rating });
-    setIdeas(ideas.map((i) => (i.id === ideaId ? updated : i)));
   };
 
   const handleSubmit = (e) => {
@@ -171,45 +154,111 @@ export default function GifteeDetail() {
           {/* Gift Ideas List */}
           <div className="mt-6 space-y-4">
             {ideas.map((idea) => (
-              <div key={idea.id}>
-                <h3 className="text-md">{idea.name}</h3>
-                <div className="flex justify-between items-center">
-                  <Button
-                    variant="outline"
-                    onClick={() =>
-                      handleToggleChosen(idea.id, idea.purchased_at)
-                    }
-                  >
-                    {idea.purchased_at == null
-                      ? "I bought this"
-                      : "Mark as not bought"}
-                  </Button>
-                </div>
-
-                {idea.purchased_at != null && (
-                  <div className="flex flex-col">
-                    <Label htmlFor="dateOfBirth" className="mb-2 mt-4">
-                      Giftee's rating
-                    </Label>
-                    <div className="space-x-2">
-                      {[1, 2, 3, 4, 5].map((num) => (
-                        <Button
-                          key={num}
-                          size="sm"
-                          variant={idea.rating === num ? "default" : "outline"}
-                          onClick={() => handleRating(idea.id, num)}
-                        >
-                          {num}
-                        </Button>
-                      ))}
-                    </div>
-                  </div>
-                )}
-              </div>
+              <Idea
+                idea={idea}
+                key={idea.id}
+                setIdeas={setIdeas}
+                ideas={ideas}
+              />
             ))}
           </div>
         </CardContent>
       </Card>
+    </div>
+  );
+}
+
+function Idea({ idea, setIdeas, ideas }) {
+  const [url, setUrl] = useState("");
+
+  useEffect(() => {
+    setUrl(idea.url || "");
+  }, [idea]);
+
+  const handleToggleChosen = async (ideaId: string, current: Date | null) => {
+    const purchasedAt = current ? null : new Date();
+
+    const updated = await updateIdea(ideaId, {
+      purchased_at: purchasedAt,
+    });
+
+    setIdeas(ideas.map((i) => (i.id === ideaId ? updated : i)));
+  };
+
+  const handleUpdateUrl = async () => {
+    await updateIdea(idea.id, {
+      url,
+    });
+  };
+
+  const handleRating = async (ideaId: string, rating: number) => {
+    const updated = await updateIdea(ideaId, { rating });
+    setIdeas(ideas.map((i) => (i.id === ideaId ? updated : i)));
+  };
+
+  const handleSubmitUrl = (e) => {
+    e.preventDefault(); // Prevent page reload on form submission
+    if (url.trim()) {
+      handleUpdateUrl(); // Trigger the add url function
+    }
+  };
+  return (
+    <div key={idea.id}>
+      {/*// open in new tab*/}
+
+      <div className="flex space-x-2">
+        <h3 className="text-md">{idea.name}</h3>
+        {url && (
+          <a
+            href={url}
+            target="_blank"
+            rel="noreferrer"
+            className="text-secondary text-blue-500"
+          >
+            <span>link</span>
+          </a>
+        )}
+      </div>
+
+      <div className="flex justify-between items-center">
+        <Button
+          variant="outline"
+          onClick={() => handleToggleChosen(idea.id, idea.purchased_at)}
+        >
+          {idea.purchased_at == null ? "Bought" : "Not bought"}
+        </Button>
+      </div>
+
+      <form onSubmit={handleSubmitUrl} className="mb-4 flex space-x-2">
+        <Input
+          placeholder="www.amazon.com"
+          value={url}
+          onChange={(e) => setUrl(e.target.value)}
+        />
+        <Button type="submit" variant="outline">
+          Add link
+        </Button>
+      </form>
+
+      {idea.purchased_at != null && (
+        <div className="flex flex-col">
+          <Label htmlFor="dateOfBirth" className="mb-2 mt-4">
+            Giftee's rating
+          </Label>
+          <div className="space-x-2">
+            {[1, 2, 3, 4, 5].map((num) => (
+              <Button
+                key={num}
+                size="sm"
+                variant={idea.rating === num ? "default" : "outline"}
+                onClick={() => handleRating(idea.id, num)}
+              >
+                {num}
+              </Button>
+            ))}
+          </div>
+        </div>
+      )}
     </div>
   );
 }

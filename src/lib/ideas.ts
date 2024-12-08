@@ -19,14 +19,10 @@ export async function getIdeasForGiftee(gifteeId: string) {
   return data;
 }
 
-export async function addIdea(
-  gifteeId: string,
-  name: string,
-  description: string
-) {
+export async function addIdea(gifteeId: string, name: string) {
   const { data, error } = await supabase
     .from("ideas")
-    .insert({ giftee_id: gifteeId, name, description })
+    .insert({ giftee_id: gifteeId, name })
     .select("*");
   if (error) throw error;
   return data[0];
