@@ -1,4 +1,3 @@
-// src/pages/Dashboard.tsx
 import { useEffect, useState } from "react";
 import { getGiftees, addGiftee } from "../lib/giftees";
 import { Input } from "../components/ui/input";
@@ -11,10 +10,9 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip.tsx";
+import { Giftee } from "@/types.tsx";
 
 const daysInFuture = 21;
-
-type Giftee = any;
 
 export default function Dashboard() {
   const [giftees, setGiftees] = useState<Giftee[]>([]);
@@ -92,7 +90,7 @@ export default function Dashboard() {
       <h3>Christmas '24</h3>
       <ul>
         {christmasGiftees.map((g) => (
-          <Giftee g={g} keyprefix="christmas" />
+          <GifteeRow g={g} keyprefix="christmas" />
         ))}
       </ul>
 
@@ -101,7 +99,7 @@ export default function Dashboard() {
       <h3>All people</h3>
       <ul>
         {giftees.map((g) => (
-          <Giftee g={g} keyprefix="all" />
+          <GifteeRow g={g} keyprefix="all" />
         ))}
       </ul>
     </div>
@@ -113,7 +111,7 @@ type GifteeProps = {
   keyprefix: string;
 };
 
-function Giftee({ g, keyprefix }: GifteeProps) {
+function GifteeRow({ g, keyprefix }: GifteeProps) {
   return (
     <li key={keyprefix + g.id}>
       <a href={`/giftee/${g.id}`} className="text-blue-600 underline">
@@ -212,7 +210,7 @@ function calculateDaysToChristmas(): number {
   return Math.ceil(timeDiff / (1000 * 60 * 60 * 24));
 }
 
-function getChristmasGiftees(giftees: any[]): any[] {
+function getChristmasGiftees(giftees: Giftee[]): Giftee[] {
   const filtered = giftees.filter((g) => g.on_christmas);
   // order by 0 gifts bought first
   const sorted = filtered.sort((a, b) => {
@@ -224,7 +222,7 @@ function getChristmasGiftees(giftees: any[]): any[] {
   return sorted;
 }
 
-function birthdaysInNextNDays(giftees: any[], n: number): any[] {
+function birthdaysInNextNDays(giftees: Giftee[], n: number): any[] {
   // Ignore year, just compare month and day
   const today = new Date();
   const nextNDays = new Date();
