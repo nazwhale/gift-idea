@@ -14,6 +14,7 @@ import {
   CardHeader,
   CardTitle,
 } from "../components/ui/card";
+import { Giftee } from "@/types.tsx";
 
 export default function GifteeDetail() {
   const { id: gifteeId } = useParams();
@@ -62,7 +63,7 @@ export default function GifteeDetail() {
 
     try {
       await updateGiftee(giftee.id, { date_of_birth: dob, id: giftee.id });
-      setGiftee((prev) =>
+      setGiftee((prev: Giftee) =>
         prev ? { ...prev, date_of_birth: dob, id: giftee.id } : null
       );
     } catch (error) {
