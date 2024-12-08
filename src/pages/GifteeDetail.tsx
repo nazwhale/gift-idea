@@ -14,7 +14,6 @@ import {
   CardHeader,
   CardTitle,
 } from "../components/ui/card";
-import { format } from "date-fns";
 
 export default function GifteeDetail() {
   const { id: gifteeId } = useParams();

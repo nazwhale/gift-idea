@@ -25,7 +25,7 @@ export default function Login() {
   };
 
   const handleSignUp = async () => {
-    const { data, error } = await supabase.auth.signUp({ email, password });
+    const { error } = await supabase.auth.signUp({ email, password });
     if (error) {
       setError(error.message);
     } else {

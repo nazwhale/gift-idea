@@ -14,8 +14,10 @@ import {
 
 const daysInFuture = 21;
 
+type Giftee = any;
+
 export default function Dashboard() {
-  const [giftees, setGiftees] = useState<any[]>([]);
+  const [giftees, setGiftees] = useState<Giftee[]>([]);
   const [newGifteeName, setNewGifteeName] = useState("");
 
   useEffect(() => {
@@ -28,7 +30,7 @@ export default function Dashboard() {
     setNewGifteeName("");
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault(); // Prevent page reload on form submission
     if (newGifteeName.trim()) {
       handleAddGiftee(); // Trigger the add giftee function
@@ -106,7 +108,12 @@ export default function Dashboard() {
   );
 }
 
-function Giftee({ g, keyprefix }) {
+type GifteeProps = {
+  g: Giftee;
+  keyprefix: string;
+};
+
+function Giftee({ g, keyprefix }: GifteeProps) {
   return (
     <li key={keyprefix + g.id}>
       <a href={`/giftee/${g.id}`} className="text-blue-600 underline">

@@ -160,7 +160,6 @@ import {
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuLabel,
-  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 
@@ -174,7 +173,6 @@ import {
 } from "@/components/ui/table";
 import { ArrowUpDown } from "lucide-react";
 import { Input } from "@/components/ui/input.tsx";
-import { Badge } from "@/components/ui/badge.tsx";
 
 export function DataTable({ columns, data }) {
   const [sorting, setSorting] = useState<SortingState>([]);
