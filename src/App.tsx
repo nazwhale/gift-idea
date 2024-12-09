@@ -10,6 +10,7 @@ import Dashboard from "./pages/Dashboard"; // a landing page after login
 import { useAuth } from "./hooks/useAuth";
 import "./index.css";
 import Ideas from "@/pages/Ideas.tsx";
+import Navbar from "@/components/Navbar.tsx";
 
 function ProtectedRoute({ children }: { children: JSX.Element }) {
   const { session, loading } = useAuth();
@@ -37,6 +38,7 @@ export default function App() {
             path="/"
             element={
               <ProtectedRoute>
+                <Navbar />
                 <Dashboard />
               </ProtectedRoute>
             }
