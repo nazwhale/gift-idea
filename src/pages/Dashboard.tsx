@@ -14,7 +14,6 @@ import { Giftee } from "@/types.tsx";
 import {
   Dialog,
   DialogContent,
-  DialogFooter,
   DialogHeader,
   DialogTitle,
   DialogTrigger,
@@ -99,7 +98,7 @@ export default function Dashboard() {
       <h3>Christmas '24</h3>
       <ul>
         {christmasGiftees.map((g) => (
-          <GifteeRow g={g} keyprefix="christmas" />
+          <GifteeRow g={g} key={"christmas" + g.id} />
         ))}
       </ul>
 
@@ -108,7 +107,7 @@ export default function Dashboard() {
       <h3>All people</h3>
       <ul>
         {giftees.map((g) => (
-          <GifteeRow g={g} keyprefix="all" />
+          <GifteeRow g={g} key={"all" + g.id} />
         ))}
       </ul>
     </div>
@@ -117,10 +116,9 @@ export default function Dashboard() {
 
 type GifteeProps = {
   g: Giftee;
-  keyprefix: string;
 };
 
-function GifteeRow({ g, keyprefix }: GifteeProps) {
+function GifteeRow({ g }: GifteeProps) {
   const [ideas, setIdeas] = useState(g.ideas);
   const [ideaName, setIdeaName] = useState("");
   const [isDialogOpen, setIsDialogOpen] = useState(false); // State to manage dialog open/close
@@ -137,7 +135,7 @@ function GifteeRow({ g, keyprefix }: GifteeProps) {
   };
 
   return (
-    <li key={keyprefix + g.id}>
+    <li>
       <a href={`/giftee/${g.id}`} className="text-blue-600 underline">
         {g.name}
       </a>{" "}
@@ -263,13 +261,12 @@ function calculateDaysToChristmas(): number {
 function getChristmasGiftees(giftees: Giftee[]): Giftee[] {
   const filtered = giftees.filter((g) => g.on_christmas);
   // order by 0 gifts bought first
-  const sorted = filtered.sort((a, b) => {
+  return filtered.sort((a, b) => {
     return (
       a.ideas.filter((i) => i.purchased_at != null).length -
       b.ideas.filter((i) => i.purchased_at != null).length
     );
   });
-  return sorted;
 }
 
 function birthdaysInNextNDays(giftees: Giftee[], n: number): any[] {
