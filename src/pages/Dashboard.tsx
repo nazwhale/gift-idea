@@ -121,15 +121,19 @@ type GifteeProps = {
 };
 
 function GifteeRow({ g, keyprefix }: GifteeProps) {
+  const [ideas, setIdeas] = useState(g.ideas);
   const [ideaName, setIdeaName] = useState("");
   const [isDialogOpen, setIsDialogOpen] = useState(false); // State to manage dialog open/close
 
   const handleAddIdea = async (e) => {
     e.preventDefault(); // Prevent page reload on form submission
     if (!g.id) return;
-    await addIdea(g.id, ideaName);
+    const newIdea = await addIdea(g.id, ideaName);
     setIdeaName("");
     setIsDialogOpen(false);
+
+    // Update the ideas list
+    setIdeas([...ideas, newIdea]);
   };
 
   return (
@@ -142,10 +146,10 @@ function GifteeRow({ g, keyprefix }: GifteeProps) {
         <TooltipProvider>
           <Tooltip>
             <TooltipTrigger>
-              {g.ideas?.filter((i) => i.purchased_at != null).length} bought
+              {ideas.filter((i) => i.purchased_at != null).length} bought
             </TooltipTrigger>
             <TooltipContent className="bg-white">
-              {g.ideas?.map((i) => {
+              {ideas.map((i) => {
                 if (i.purchased_at != null) {
                   return (
                     <div key={i.id}>
@@ -167,13 +171,13 @@ function GifteeRow({ g, keyprefix }: GifteeProps) {
           </Tooltip>
           <Tooltip>
             <TooltipTrigger>
-              , {g.ideas?.filter((i) => i.purchased_at == null).length} idea
-              {g.ideas?.filter((i) => i.purchased_at == null).length === 1
+              , {ideas.filter((i) => i.purchased_at == null).length} idea
+              {ideas.filter((i) => i.purchased_at == null).length === 1
                 ? ""
                 : "s"}{" "}
             </TooltipTrigger>
             <TooltipContent className="bg-white">
-              {g.ideas?.map((i) => {
+              {ideas.map((i) => {
                 if (i.purchased_at == null) {
                   return (
                     <div key={i.id}>
@@ -209,9 +213,9 @@ function GifteeRow({ g, keyprefix }: GifteeProps) {
       <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
         <DialogTrigger asChild>
           <Button
-            variant="outline"
+            variant="ghost"
             size="xs"
-            className="px-2"
+            className="px-2 ml-2"
             onClick={() => setIsDialogOpen(true)}
           >
             + Idea

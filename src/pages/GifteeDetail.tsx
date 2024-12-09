@@ -107,8 +107,15 @@ export default function GifteeDetail() {
       {/* Giftee Header */}
       <Card className="mb-6">
         <CardHeader>
-          <CardTitle className="text-2xl">
-            {giftee.name || "Loading..."}
+          <CardTitle className="text-2xl flex justify-between">
+            <div>{giftee.name || "Loading..."}</div>
+            <Button
+              size="sm"
+              variant="outline"
+              onClick={() => handleDeleteGiftee(giftee.id)}
+            >
+              Delete person
+            </Button>
           </CardTitle>
           <CardDescription className="text-secondary">
             Has {ideas.length} ideas
@@ -139,17 +146,11 @@ export default function GifteeDetail() {
                 maxLength={4}
                 value={year}
                 onChange={(e) => setYear(e.target.value.replace(/\D/g, ""))} // Allow only numbers
-                className="w-24"
+                className="w-20"
               />
             </div>
-            <Button variant="outline" onClick={handleSaveDob}>
+            <Button variant="outline" size="sm" onClick={handleSaveDob}>
               Save Date of Birth
-            </Button>
-            <Button
-              variant="outline"
-              onClick={() => handleDeleteGiftee(giftee.id)}
-            >
-              Delete person
             </Button>
           </div>
         </CardContent>
@@ -165,20 +166,13 @@ export default function GifteeDetail() {
             <Button type="submit">Add Idea</Button>
           </form>
         </CardHeader>
-        <CardContent>
-          {/* Gift Ideas List */}
-          <div className="mt-6 space-y-4">
-            {ideas?.map((idea) => (
-              <Idea
-                idea={idea}
-                key={idea.id}
-                setIdeas={setIdeas}
-                ideas={ideas}
-              />
-            ))}
-          </div>
-        </CardContent>
       </Card>
+      {/* Gift Ideas List */}
+      <div className="mt-6 space-y-4">
+        {ideas?.map((idea) => (
+          <Idea idea={idea} key={idea.id} setIdeas={setIdeas} ideas={ideas} />
+        ))}
+      </div>
     </div>
   );
 }
@@ -224,33 +218,33 @@ function Idea({ idea, setIdeas, ideas }) {
   };
 
   return (
-    <div key={idea.id}>
+    <Card key={idea.id} className="p-6">
       {/*// open in new tab*/}
 
-      <div className="flex space-x-2">
-        <h3 className="text-md">{idea.name}</h3>
-        {url && (
-          <a
-            href={url}
-            target="_blank"
-            rel="noreferrer"
-            className="text-secondary text-blue-500"
-          >
-            <span>link</span>
-          </a>
-        )}
-      </div>
-
       <div className="flex justify-between items-center">
+        <div>
+          <h3 className="text-md">{idea.name}</h3>
+          {url && (
+            <a
+              href={url}
+              target="_blank"
+              rel="noreferrer"
+              className="text-secondary text-blue-500"
+            >
+              <span>link</span>
+            </a>
+          )}
+        </div>
         <Button
           variant="outline"
-          onClick={() => handleToggleChosen(idea.id, idea.purchased_at)}
+          size="sm"
+          onClick={() => handleDeleteIdea(idea.id)}
         >
-          {idea.purchased_at == null ? "Bought" : "Not bought"}
+          Delete
         </Button>
       </div>
 
-      <form onSubmit={handleSubmitUrl} className="mb-4 flex space-x-2">
+      <form onSubmit={handleSubmitUrl} className="mb-4 flex space-x-2 my-4">
         <Input
           placeholder="www.amazon.com"
           value={url}
@@ -261,13 +255,9 @@ function Idea({ idea, setIdeas, ideas }) {
         </Button>
       </form>
 
-      <Button variant="outline" onClick={() => handleDeleteIdea(idea.id)}>
-        Delete
-      </Button>
-
       {idea.purchased_at != null && (
-        <div className="flex flex-col">
-          <Label htmlFor="dateOfBirth" className="mb-2 mt-4">
+        <div className="flex flex-col my-4">
+          <Label htmlFor="dateOfBirth" className="mb-2">
             Giftee's rating
           </Label>
           <div className="space-x-2">
@@ -284,6 +274,16 @@ function Idea({ idea, setIdeas, ideas }) {
           </div>
         </div>
       )}
-    </div>
+
+      <div className="flex justify-between items-center my-4">
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={() => handleToggleChosen(idea.id, idea.purchased_at)}
+        >
+          {idea.purchased_at == null ? "Bought" : "Not bought"}
+        </Button>
+      </div>
+    </Card>
   );
 }
