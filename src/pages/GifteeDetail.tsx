@@ -168,7 +168,7 @@ export default function GifteeDetail() {
         <CardContent>
           {/* Gift Ideas List */}
           <div className="mt-6 space-y-4">
-            {ideas.map((idea) => (
+            {ideas?.map((idea) => (
               <Idea
                 idea={idea}
                 key={idea.id}

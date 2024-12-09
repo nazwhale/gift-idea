@@ -220,16 +220,14 @@ function GifteeRow({ g, keyprefix }: GifteeProps) {
           <DialogHeader>
             <DialogTitle>Add Idea for {g.name}</DialogTitle>
           </DialogHeader>
-          <div className="space-y-4">
+          <form className="space-y-4" onSubmit={handleAddIdea}>
             <Input
               placeholder="Enter idea name"
               value={ideaName}
               onChange={(e) => setIdeaName(e.target.value)}
             />
-          </div>
-          <DialogFooter>
-            <Button onClick={handleAddIdea}>Submit</Button>
-          </DialogFooter>
+            <Button type="submit">Submit</Button>
+          </form>
         </DialogContent>
       </Dialog>
     </li>
