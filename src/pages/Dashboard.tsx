@@ -124,7 +124,8 @@ function GifteeRow({ g, keyprefix }: GifteeProps) {
   const [ideaName, setIdeaName] = useState("");
   const [isDialogOpen, setIsDialogOpen] = useState(false); // State to manage dialog open/close
 
-  const handleAddIdea = async () => {
+  const handleAddIdea = async (e) => {
+    e.preventDefault(); // Prevent page reload on form submission
     if (!g.id) return;
     await addIdea(g.id, ideaName);
     setIdeaName("");
