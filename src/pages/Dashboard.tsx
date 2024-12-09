@@ -197,23 +197,13 @@ function GifteeRow({ g }: GifteeProps) {
           </Tooltip>
         </TooltipProvider>
       </span>
-      {g.on_christmas && (
-        <Badge variant="outline" className="ml-2">
-          Christmas
-        </Badge>
-      )}
-      {g.on_birthday && (
-        <Badge variant="outline" className="ml-2">
-          Birthday
-        </Badge>
-      )}
       {/* [+ Idea] Button with Dialog */}
       <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
         <DialogTrigger asChild>
           <Button
             variant="ghost"
             size="xs"
-            className="px-2 ml-2"
+            className="px-2 ml-2 text-blue-500"
             onClick={() => setIsDialogOpen(true)}
           >
             + Idea

@@ -20,6 +20,7 @@ import {
   CardTitle,
 } from "../components/ui/card";
 import { Giftee } from "@/types.tsx";
+import { Badge } from "@/components/ui/badge.tsx";
 
 export default function GifteeDetail() {
   const { id: gifteeId } = useParams();
@@ -108,13 +109,27 @@ export default function GifteeDetail() {
       <Card className="mb-6">
         <CardHeader>
           <CardTitle className="text-2xl flex justify-between">
-            <div>{giftee.name || "Loading..."}</div>
+            <div className="flex items-center">
+              <div className="mr-2">{giftee.name || "Loading..."} </div>
+              {giftee.on_christmas && (
+                <Badge variant="outline" className="ml-1 bg-green-100">
+                  Christmas
+                </Badge>
+              )}
+              {giftee.on_birthday && (
+                <Badge variant="outline" className="ml-1 bg-blue-100">
+                  Birthday
+                </Badge>
+              )}
+            </div>
+
             <Button
               size="sm"
               variant="outline"
+              className="text-red-500"
               onClick={() => handleDeleteGiftee(giftee.id)}
             >
-              Delete person
+              Delete
             </Button>
           </CardTitle>
           <CardDescription className="text-secondary">
@@ -239,18 +254,19 @@ function Idea({ idea, setIdeas, ideas }) {
           variant="outline"
           size="sm"
           onClick={() => handleDeleteIdea(idea.id)}
+          className="text-red-500"
         >
           Delete
         </Button>
       </div>
 
-      <form onSubmit={handleSubmitUrl} className="mb-4 flex space-x-2 my-4">
+      <form onSubmit={handleSubmitUrl} className="flex my-4">
         <Input
           placeholder="www.amazon.com"
           value={url}
           onChange={(e) => setUrl(e.target.value)}
         />
-        <Button type="submit" variant="outline">
+        <Button type="submit" variant="ghost">
           Add link
         </Button>
       </form>
@@ -280,6 +296,7 @@ function Idea({ idea, setIdeas, ideas }) {
           variant="outline"
           size="sm"
           onClick={() => handleToggleChosen(idea.id, idea.purchased_at)}
+          className={idea.purchased_at == null ? "text-blue-500" : "text-black"}
         >
           {idea.purchased_at == null ? "Bought" : "Not bought"}
         </Button>
