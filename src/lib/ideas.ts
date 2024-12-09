@@ -20,6 +20,7 @@ export async function getIdeasForGiftee(gifteeId: string) {
 }
 
 export async function addIdea(gifteeId: string, name: string) {
+  console.log("adding");
   const { data, error } = await supabase
     .from("ideas")
     .insert({ giftee_id: gifteeId, name })
@@ -38,4 +39,9 @@ export async function updateIdea(id: string, updates: Partial<any>) {
     `);
   if (error) throw error;
   return data[0];
+}
+
+export async function deleteIdea(id: string) {
+  const { error } = await supabase.from("ideas").delete().eq("id", id);
+  if (error) throw error;
 }

@@ -11,6 +11,15 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip.tsx";
 import { Giftee } from "@/types.tsx";
+import {
+  Dialog,
+  DialogContent,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog.tsx";
+import { addIdea } from "@/lib/ideas.ts";
 
 const daysInFuture = 21;
 
@@ -112,6 +121,16 @@ type GifteeProps = {
 };
 
 function GifteeRow({ g, keyprefix }: GifteeProps) {
+  const [ideaName, setIdeaName] = useState("");
+  const [isDialogOpen, setIsDialogOpen] = useState(false); // State to manage dialog open/close
+
+  const handleAddIdea = async () => {
+    if (!g.id) return;
+    await addIdea(g.id, ideaName);
+    setIdeaName("");
+    setIsDialogOpen(false);
+  };
+
   return (
     <li key={keyprefix + g.id}>
       <a href={`/giftee/${g.id}`} className="text-blue-600 underline">
@@ -185,6 +204,34 @@ function GifteeRow({ g, keyprefix }: GifteeProps) {
           Birthday
         </Badge>
       )}
+      {/* [+ Idea] Button with Dialog */}
+      <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+        <DialogTrigger asChild>
+          <Button
+            variant="outline"
+            size="xs"
+            className="px-2"
+            onClick={() => setIsDialogOpen(true)}
+          >
+            + Idea
+          </Button>
+        </DialogTrigger>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Add Idea for {g.name}</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4">
+            <Input
+              placeholder="Enter idea name"
+              value={ideaName}
+              onChange={(e) => setIdeaName(e.target.value)}
+            />
+          </div>
+          <DialogFooter>
+            <Button onClick={handleAddIdea}>Submit</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </li>
   );
 }

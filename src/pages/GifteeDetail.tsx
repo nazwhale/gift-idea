@@ -1,6 +1,11 @@
 import { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
-import { getIdeasForGiftee, addIdea, updateIdea } from "../lib/ideas";
+import {
+  getIdeasForGiftee,
+  addIdea,
+  updateIdea,
+  deleteIdea,
+} from "../lib/ideas";
 import { getGifteeById, updateGiftee } from "../lib/giftees";
 import { Input } from "../components/ui/input";
 import { Button } from "../components/ui/button";
@@ -76,6 +81,11 @@ export default function GifteeDetail() {
     const idea = await addIdea(gifteeId, ideaName);
     setIdeas([...ideas, idea]);
     setIdeaName("");
+  };
+
+  const handleDeleteIdea = async (ideaId: string) => {
+    await deleteIdea(ideaId);
+    setIdeas(ideas.filter((i) => i.id !== ideaId));
   };
 
   const handleSubmit = (e) => {
@@ -191,6 +201,11 @@ function Idea({ idea, setIdeas, ideas }) {
     });
   };
 
+  const handleDeleteIdea = async (ideaId: string) => {
+    await deleteIdea(ideaId);
+    setIdeas(ideas.filter((i) => i.id !== ideaId));
+  };
+
   const handleRating = async (ideaId: string, rating: number) => {
     const updated = await updateIdea(ideaId, { rating });
     setIdeas(ideas.map((i) => (i.id === ideaId ? updated : i)));
@@ -202,6 +217,7 @@ function Idea({ idea, setIdeas, ideas }) {
       handleUpdateUrl(); // Trigger the add url function
     }
   };
+
   return (
     <div key={idea.id}>
       {/*// open in new tab*/}
@@ -239,6 +255,10 @@ function Idea({ idea, setIdeas, ideas }) {
           Add link
         </Button>
       </form>
+
+      <Button variant="outline" onClick={() => handleDeleteIdea(idea.id)}>
+        Delete
+      </Button>
 
       {idea.purchased_at != null && (
         <div className="flex flex-col">
