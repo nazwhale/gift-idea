@@ -95,3 +95,31 @@ export async function updateGiftee(
 
   return data;
 }
+
+export async function deleteGiftee(gifteeId: string) {
+  // Fetch the current user
+  const {
+    data: { session },
+    error: sessionError,
+  } = await supabase.auth.getSession();
+
+  if (sessionError) {
+    throw new Error(`Failed to retrieve session: ${sessionError.message}`);
+  }
+
+  if (!session || !session.user || !session.user.id) {
+    throw new Error("No authenticated user found");
+  }
+
+  const userId = session.user.id; // Get the authenticated user's ID
+
+  const { error } = await supabase
+    .from("giftees")
+    .delete()
+    .eq("id", gifteeId)
+    .eq("user_id", userId);
+
+  if (error) {
+    throw new Error(`Failed to delete giftee: ${error.message}`);
+  }
+}

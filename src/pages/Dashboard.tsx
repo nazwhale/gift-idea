@@ -141,10 +141,10 @@ function GifteeRow({ g, keyprefix }: GifteeProps) {
         <TooltipProvider>
           <Tooltip>
             <TooltipTrigger>
-              {g.ideas.filter((i) => i.purchased_at != null).length} bought
+              {g.ideas?.filter((i) => i.purchased_at != null).length} bought
             </TooltipTrigger>
             <TooltipContent className="bg-white">
-              {g.ideas.map((i) => {
+              {g.ideas?.map((i) => {
                 if (i.purchased_at != null) {
                   return (
                     <div key={i.id}>
@@ -166,13 +166,13 @@ function GifteeRow({ g, keyprefix }: GifteeProps) {
           </Tooltip>
           <Tooltip>
             <TooltipTrigger>
-              , {g.ideas.filter((i) => i.purchased_at == null).length} idea
-              {g.ideas.filter((i) => i.purchased_at == null).length === 1
+              , {g.ideas?.filter((i) => i.purchased_at == null).length} idea
+              {g.ideas?.filter((i) => i.purchased_at == null).length === 1
                 ? ""
                 : "s"}{" "}
             </TooltipTrigger>
             <TooltipContent className="bg-white">
-              {g.ideas.map((i) => {
+              {g.ideas?.map((i) => {
                 if (i.purchased_at == null) {
                   return (
                     <div key={i.id}>

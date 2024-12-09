@@ -6,7 +6,7 @@ import {
   updateIdea,
   deleteIdea,
 } from "../lib/ideas";
-import { getGifteeById, updateGiftee } from "../lib/giftees";
+import { deleteGiftee, getGifteeById, updateGiftee } from "../lib/giftees";
 import { Input } from "../components/ui/input";
 import { Button } from "../components/ui/button";
 import { Label } from "@/components/ui/label";
@@ -83,9 +83,8 @@ export default function GifteeDetail() {
     setIdeaName("");
   };
 
-  const handleDeleteIdea = async (ideaId: string) => {
-    await deleteIdea(ideaId);
-    setIdeas(ideas.filter((i) => i.id !== ideaId));
+  const handleDeleteGiftee = async (gifteeId: string) => {
+    await deleteGiftee(gifteeId);
   };
 
   const handleSubmit = (e) => {
@@ -145,6 +144,12 @@ export default function GifteeDetail() {
             </div>
             <Button variant="outline" onClick={handleSaveDob}>
               Save Date of Birth
+            </Button>
+            <Button
+              variant="outline"
+              onClick={() => handleDeleteGiftee(giftee.id)}
+            >
+              Delete person
             </Button>
           </div>
         </CardContent>
