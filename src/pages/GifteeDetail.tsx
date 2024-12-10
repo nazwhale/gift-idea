@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useParams } from "react-router-dom";
+import { useParams, Link } from "react-router-dom";
 import {
   getIdeasForGiftee,
   addIdea,
@@ -10,8 +10,6 @@ import { deleteGiftee, getGifteeById, updateGiftee } from "../lib/giftees";
 import { Input } from "../components/ui/input";
 import { Button } from "../components/ui/button";
 import { Label } from "@/components/ui/label";
-
-import { Link } from "react-router-dom";
 import {
   Card,
   CardContent,
@@ -19,79 +17,118 @@ import {
   CardHeader,
   CardTitle,
 } from "../components/ui/card";
-import { Giftee } from "@/types.tsx";
-import { Badge } from "@/components/ui/badge.tsx";
+import { Giftee } from "@/types";
+import { Badge } from "@/components/ui/badge";
+import { getSuggestionsForGiftee } from "../lib/chatgpt"; // Import from your chatgpt file
 
 export default function GifteeDetail() {
   const { id: gifteeId } = useParams();
-  const [giftee, setGiftee] = useState<any | null>(null);
+  const [giftee, setGiftee] = useState<Giftee | null>(null);
   const [ideas, setIdeas] = useState<any[]>([]);
   const [ideaName, setIdeaName] = useState("");
-  // dob
+
+  // DOB state
   const [day, setDay] = useState<string>("");
   const [month, setMonth] = useState<string>("");
   const [year, setYear] = useState<string>("");
 
+  // Bio state
+  const [bio, setBio] = useState<string>("");
+
+  // ChatGPT suggestions
+  const [suggestions, setSuggestions] = useState<string[]>([]);
+  const [isFetchingSuggestions, setIsFetchingSuggestions] = useState(false);
+
   useEffect(() => {
     if (gifteeId) {
-      // Fetch giftee's name
       getGifteeById(gifteeId)
-        .then((giftee) => {
-          setGiftee(giftee);
-          setDay(giftee.date_of_birth?.split("-")[2] || "");
-          setMonth(giftee.date_of_birth?.split("-")[1] || "");
-          setYear(giftee.date_of_birth?.split("-")[0] || "");
+        .then((fetchedGiftee) => {
+          setGiftee(fetchedGiftee);
+          if (fetchedGiftee.date_of_birth) {
+            const [y, m, d] = fetchedGiftee.date_of_birth.split("-");
+            setDay(d || "");
+            setMonth(m || "");
+            setYear(y || "");
+          }
+          if (fetchedGiftee.bio) {
+            setBio(fetchedGiftee.bio);
+          }
         })
-
         .catch(console.error);
 
-      // Fetch gift ideas for this giftee
       getIdeasForGiftee(gifteeId).then(setIdeas).catch(console.error);
     }
   }, [gifteeId]);
 
-  // Generic handler for updating the giftee's date_of_birth
   const handleSaveDob = async () => {
-    console.log("SAVEIHNG");
-    // Validate and combine the inputs
+    if (!gifteeId || !giftee) return;
+
     if (!day || !month || !year) {
       alert("Please fill out all fields");
       return;
     }
+
     const dob = `${year.padStart(4, "0")}-${month.padStart(
       2,
       "0"
     )}-${day.padStart(2, "0")}`;
 
-    console.log("giftee", giftee);
-
-    if (!gifteeId) return;
-
     try {
       await updateGiftee(giftee.id, { date_of_birth: dob, id: giftee.id });
-      setGiftee((prev: Giftee) =>
-        prev ? { ...prev, date_of_birth: dob, id: giftee.id } : null
+      setGiftee((prev: Giftee | null) =>
+        prev ? { ...prev, date_of_birth: dob } : null
       );
-    } catch (error) {
+    } catch (error: any) {
       console.error("Error updating date_of_birth:", error.message);
     }
   };
 
-  const handleAddIdea = async () => {
+  const handleSaveBio = async () => {
+    if (!gifteeId || !giftee) return;
+
+    try {
+      await updateGiftee(giftee.id, { bio, id: giftee.id });
+      setGiftee((prev: Giftee | null) => (prev ? { ...prev, bio: bio } : null));
+    } catch (error: any) {
+      console.error("Error updating bio:", error.message);
+    }
+  };
+
+  const handleAddIdea = async (name: string) => {
     if (!gifteeId) return;
-    const idea = await addIdea(gifteeId, ideaName);
-    setIdeas([...ideas, idea]);
-    setIdeaName("");
+    const idea = await addIdea(gifteeId, name);
+    setIdeas((prev) => [...prev, idea]);
   };
 
-  const handleDeleteGiftee = async (gifteeId: string) => {
-    await deleteGiftee(gifteeId);
+  const handleDeleteGiftee = async (deleteId: string) => {
+    await deleteGiftee(deleteId);
+    // Optionally redirect back home after deletion
+    window.location.href = "/";
   };
 
-  const handleSubmit = (e) => {
-    e.preventDefault(); // Prevent page reload on form submission
+  const handleSubmitIdeaForm = (e: React.FormEvent) => {
+    e.preventDefault();
     if (ideaName.trim()) {
-      handleAddIdea(); // Trigger the add giftee function
+      handleAddIdea(ideaName);
+      setIdeaName("");
+    }
+  };
+
+  const handleFetchSuggestions = async () => {
+    if (!giftee?.name) return;
+    setIsFetchingSuggestions(true);
+    setSuggestions([]);
+    try {
+      // Pass the bio along to the GPT function
+      const newSuggestions = await getSuggestionsForGiftee(
+        giftee.name,
+        giftee.bio
+      );
+      setSuggestions(newSuggestions);
+    } catch (error) {
+      console.error("Error fetching suggestions:", error);
+    } finally {
+      setIsFetchingSuggestions(false);
     }
   };
 
@@ -105,6 +142,7 @@ export default function GifteeDetail() {
           ← Home
         </Link>
       </div>
+
       {/* Giftee Header */}
       <Card className="mb-6">
         <CardHeader>
@@ -138,13 +176,14 @@ export default function GifteeDetail() {
         </CardHeader>
         <CardContent>
           <div className="space-y-4">
+            {/* DOB Fields */}
             <div className="flex space-x-2">
               <Input
                 type="text"
                 placeholder="DD"
                 maxLength={2}
                 value={day}
-                onChange={(e) => setDay(e.target.value.replace(/\D/g, ""))} // Allow only numbers
+                onChange={(e) => setDay(e.target.value.replace(/\D/g, ""))}
                 className="w-16"
               />
               <Input
@@ -152,7 +191,7 @@ export default function GifteeDetail() {
                 placeholder="MM"
                 maxLength={2}
                 value={month}
-                onChange={(e) => setMonth(e.target.value.replace(/\D/g, ""))} // Allow only numbers
+                onChange={(e) => setMonth(e.target.value.replace(/\D/g, ""))}
                 className="w-16"
               />
               <Input
@@ -160,19 +199,35 @@ export default function GifteeDetail() {
                 placeholder="YYYY"
                 maxLength={4}
                 value={year}
-                onChange={(e) => setYear(e.target.value.replace(/\D/g, ""))} // Allow only numbers
+                onChange={(e) => setYear(e.target.value.replace(/\D/g, ""))}
                 className="w-20"
               />
+              <Button variant="outline" size="sm" onClick={handleSaveDob}>
+                Save Date of Birth
+              </Button>
             </div>
-            <Button variant="outline" size="sm" onClick={handleSaveDob}>
-              Save Date of Birth
-            </Button>
+
+            {/* Bio Field */}
+            <div className="space-y-2">
+              <Label>Bio</Label>
+              <Input
+                type="text"
+                placeholder="Add some bio information"
+                value={bio}
+                onChange={(e) => setBio(e.target.value)}
+              />
+              <Button variant="outline" size="sm" onClick={handleSaveBio}>
+                Save Bio
+              </Button>
+            </div>
           </div>
         </CardContent>
       </Card>
-      <Card>
+
+      {/* Add Idea Form */}
+      <Card className="mb-6">
         <CardHeader>
-          <form className="space-y-4" onSubmit={handleSubmit}>
+          <form className="space-y-4" onSubmit={handleSubmitIdeaForm}>
             <Input
               placeholder="Idea name"
               value={ideaName}
@@ -182,9 +237,43 @@ export default function GifteeDetail() {
           </form>
         </CardHeader>
       </Card>
+
+      {/* Fetch Suggestions from ChatGPT */}
+      <div className="mb-6">
+        <Button
+          className="bg-gradient-to-r from-purple-500 via-pink-500 to-red-500 text-white"
+          onClick={handleFetchSuggestions}
+          disabled={isFetchingSuggestions}
+        >
+          {isFetchingSuggestions ? "Fetching..." : "Get Suggestions"}
+        </Button>
+        {suggestions.length > 0 && (
+          <div className="mt-4 space-y-2">
+            {suggestions.map((suggestion, idx) => (
+              <ul
+                key={idx}
+                className="flex items-center justify-between list-disc list-inside"
+              >
+                <li>
+                  <span>{suggestion}</span>
+                  <Button
+                    variant="ghost"
+                    className="text-blue-500"
+                    size="sm"
+                    onClick={() => handleAddIdea(suggestion)}
+                  >
+                    Add idea
+                  </Button>
+                </li>
+              </ul>
+            ))}
+          </div>
+        )}
+      </div>
+
       {/* Gift Ideas List */}
       <div className="mt-6 space-y-4">
-        {ideas?.map((idea) => (
+        {ideas.map((idea) => (
           <Idea idea={idea} key={idea.id} setIdeas={setIdeas} ideas={ideas} />
         ))}
       </div>
@@ -201,18 +290,15 @@ function Idea({ idea, setIdeas, ideas }) {
 
   const handleToggleChosen = async (ideaId: string, current: Date | null) => {
     const purchasedAt = current ? null : new Date();
-
     const updated = await updateIdea(ideaId, {
       purchased_at: purchasedAt,
     });
-
     setIdeas(ideas.map((i) => (i.id === ideaId ? updated : i)));
   };
 
   const handleUpdateUrl = async () => {
-    await updateIdea(idea.id, {
-      url,
-    });
+    const updated = await updateIdea(idea.id, { url });
+    setIdeas(ideas.map((i) => (i.id === idea.id ? updated : i)));
   };
 
   const handleDeleteIdea = async (ideaId: string) => {
@@ -225,17 +311,15 @@ function Idea({ idea, setIdeas, ideas }) {
     setIdeas(ideas.map((i) => (i.id === ideaId ? updated : i)));
   };
 
-  const handleSubmitUrl = (e) => {
-    e.preventDefault(); // Prevent page reload on form submission
+  const handleSubmitUrl = (e: React.FormEvent) => {
+    e.preventDefault();
     if (url.trim()) {
-      handleUpdateUrl(); // Trigger the add url function
+      handleUpdateUrl();
     }
   };
 
   return (
     <Card key={idea.id} className="p-6">
-      {/*// open in new tab*/}
-
       <div className="flex justify-between items-center">
         <div>
           <h3 className="text-md">{idea.name}</h3>
@@ -260,7 +344,7 @@ function Idea({ idea, setIdeas, ideas }) {
         </Button>
       </div>
 
-      <form onSubmit={handleSubmitUrl} className="flex my-4">
+      <form onSubmit={handleSubmitUrl} className="flex my-4 space-x-2">
         <Input
           placeholder="www.amazon.com"
           value={url}
@@ -273,9 +357,7 @@ function Idea({ idea, setIdeas, ideas }) {
 
       {idea.purchased_at != null && (
         <div className="flex flex-col my-4">
-          <Label htmlFor="dateOfBirth" className="mb-2">
-            Giftee's rating
-          </Label>
+          <Label className="mb-2">Giftee's rating</Label>
           <div className="space-x-2">
             {[1, 2, 3, 4, 5].map((num) => (
               <Button
