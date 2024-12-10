@@ -184,7 +184,7 @@ export default function GifteeDetail() {
                 maxLength={2}
                 value={day}
                 onChange={(e) => setDay(e.target.value.replace(/\D/g, ""))}
-                className="w-16"
+                className="w-16 h-9"
               />
               <Input
                 type="text"
@@ -192,7 +192,7 @@ export default function GifteeDetail() {
                 maxLength={2}
                 value={month}
                 onChange={(e) => setMonth(e.target.value.replace(/\D/g, ""))}
-                className="w-16"
+                className="w-16 h-9"
               />
               <Input
                 type="text"
@@ -200,10 +200,10 @@ export default function GifteeDetail() {
                 maxLength={4}
                 value={year}
                 onChange={(e) => setYear(e.target.value.replace(/\D/g, ""))}
-                className="w-20"
+                className="w-20 h-9"
               />
               <Button variant="outline" size="sm" onClick={handleSaveDob}>
-                Save Date of Birth
+                Save date of birth
               </Button>
             </div>
 
@@ -212,7 +212,7 @@ export default function GifteeDetail() {
               <Label>Bio</Label>
               <Input
                 type="text"
-                placeholder="Add some bio information"
+                placeholder="Add bio info for better suggestions"
                 value={bio}
                 onChange={(e) => setBio(e.target.value)}
               />
@@ -357,24 +357,6 @@ function Idea({ idea, setIdeas, ideas }) {
           Add link
         </Button>
       </form>
-
-      {idea.purchased_at != null && (
-        <div className="flex flex-col my-4">
-          <Label className="mb-2">Giftee's rating</Label>
-          <div className="space-x-2">
-            {[1, 2, 3, 4, 5].map((num) => (
-              <Button
-                key={num}
-                size="sm"
-                variant={idea.rating === num ? "default" : "outline"}
-                onClick={() => handleRating(idea.id, num)}
-              >
-                {num}
-              </Button>
-            ))}
-          </div>
-        </div>
-      )}
 
       <div className="flex justify-between items-center my-4">
         <Button
