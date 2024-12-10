@@ -163,7 +163,7 @@ export default function GifteeDetail() {
 
             <Button
               size="sm"
-              variant="outline"
+              variant="ghost"
               className="text-red-500"
               onClick={() => handleDeleteGiftee(giftee.id)}
             >
@@ -233,43 +233,46 @@ export default function GifteeDetail() {
               value={ideaName}
               onChange={(e) => setIdeaName(e.target.value)}
             />
-            <Button type="submit">Add Idea</Button>
+            <Button type="submit" size="sm">
+              Add Idea
+            </Button>
           </form>
+          {/* Fetch Suggestions from ChatGPT */}
+          <div className="mb-6">
+            <Button
+              size="sm"
+              variant="outline"
+              className="bg-gradient-to-r from-purple-300 via-pink-300 to-red-300"
+              onClick={handleFetchSuggestions}
+              disabled={isFetchingSuggestions}
+            >
+              {isFetchingSuggestions ? "Fetching..." : "Get Suggestions"}
+            </Button>
+            {suggestions.length > 0 && (
+              <div className="mt-4 space-y-2">
+                {suggestions.map((suggestion, idx) => (
+                  <ul
+                    key={idx}
+                    className="flex items-center justify-between list-disc list-inside"
+                  >
+                    <li className="flex justify-between">
+                      <span>{suggestion}</span>
+                      <Button
+                        variant="ghost"
+                        className="text-blue-500"
+                        size="sm"
+                        onClick={() => handleAddIdea(suggestion)}
+                      >
+                        Add idea
+                      </Button>
+                    </li>
+                  </ul>
+                ))}
+              </div>
+            )}
+          </div>
         </CardHeader>
       </Card>
-
-      {/* Fetch Suggestions from ChatGPT */}
-      <div className="mb-6">
-        <Button
-          className="bg-gradient-to-r from-purple-500 via-pink-500 to-red-500 text-white"
-          onClick={handleFetchSuggestions}
-          disabled={isFetchingSuggestions}
-        >
-          {isFetchingSuggestions ? "Fetching..." : "Get Suggestions"}
-        </Button>
-        {suggestions.length > 0 && (
-          <div className="mt-4 space-y-2">
-            {suggestions.map((suggestion, idx) => (
-              <ul
-                key={idx}
-                className="flex items-center justify-between list-disc list-inside"
-              >
-                <li className="flex justify-between">
-                  <span>{suggestion}</span>
-                  <Button
-                    variant="ghost"
-                    className="text-blue-500"
-                    size="sm"
-                    onClick={() => handleAddIdea(suggestion)}
-                  >
-                    Add idea
-                  </Button>
-                </li>
-              </ul>
-            ))}
-          </div>
-        )}
-      </div>
 
       {/* Gift Ideas List */}
       <div className="mt-6 space-y-4">
@@ -335,7 +338,7 @@ function Idea({ idea, setIdeas, ideas }) {
           )}
         </div>
         <Button
-          variant="outline"
+          variant="ghost"
           size="sm"
           onClick={() => handleDeleteIdea(idea.id)}
           className="text-red-500"
