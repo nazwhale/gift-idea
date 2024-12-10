@@ -2,8 +2,18 @@ import { supabase } from "../lib/supabaseClient";
 import { useState } from "react";
 import { Input } from "../components/ui/input";
 import { Button } from "../components/ui/button";
+import {
+  ToastProvider,
+  Toast,
+  ToastTitle,
+  ToastDescription,
+  ToastAction,
+} from "@/components/ui/toast";
+import { useToast } from "@/hooks/use-toast.ts";
 
 export default function Login() {
+  const { toast } = useToast();
+
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
@@ -29,13 +39,15 @@ export default function Login() {
     if (error) {
       setError(error.message);
     } else {
-      // on sign up success, automatically log them in or redirect
-      window.location.href = "/";
+      toast({
+        title: "Email confirmation sent",
+        description: "Please check your email to confirm your account.",
+      });
     }
   };
 
   return (
-    <div className="max-w-md mx-auto mt-10">
+    <div className="max-w-md mx-auto mt-10 space-y-2 ">
       {error && <div className="text-red-500">{error}</div>}
       <Input
         placeholder="Email"
@@ -48,10 +60,12 @@ export default function Login() {
         value={password}
         onChange={(e) => setPassword(e.target.value)}
       />
-      <Button onClick={handleLogin}>Login</Button>
-      <Button variant="secondary" onClick={handleSignUp}>
-        Sign Up
-      </Button>
+      <div className="space-x-2">
+        <Button onClick={handleLogin}>Login</Button>
+        <Button variant="outline" onClick={handleSignUp}>
+          Sign Up
+        </Button>
+      </div>
     </div>
   );
 }

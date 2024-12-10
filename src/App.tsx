@@ -11,6 +11,7 @@ import { useAuth } from "./hooks/useAuth";
 import "./index.css";
 import Ideas from "@/pages/Ideas.tsx";
 import Navbar from "@/components/Navbar.tsx";
+import { Toaster } from "@/components/ui/toaster.tsx";
 
 function ProtectedRoute({ children }: { children: JSX.Element }) {
   const { session, loading } = useAuth();
@@ -33,7 +34,15 @@ export default function App() {
     <div className="p-6 max-w-2xl mx-auto">
       <Router>
         <Routes>
-          <Route path="/login" element={<Login />} />
+          <Route
+            path="/login"
+            element={
+              <>
+                <Navbar isLoggedOut />
+                <Login />
+              </>
+            }
+          />
           <Route
             path="/"
             element={
@@ -61,6 +70,7 @@ export default function App() {
           />
         </Routes>
       </Router>
+      <Toaster />
     </div>
   );
 }
