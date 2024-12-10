@@ -47,7 +47,7 @@ export default function Login() {
   };
 
   return (
-    <div className="max-w-md mx-auto mt-10 space-y-2 ">
+    <div className="max-w-xs mx-auto mt-10 space-y-2 ">
       {error && <div className="text-red-500">{error}</div>}
       <Input
         placeholder="Email"
@@ -60,12 +60,12 @@ export default function Login() {
         value={password}
         onChange={(e) => setPassword(e.target.value)}
       />
-      <div className="space-x-2">
-        <Button onClick={handleLogin}>Login</Button>
-        <Button variant="outline" onClick={handleSignUp}>
-          Sign Up
-        </Button>
-      </div>
+      <Button onClick={handleLogin} className="w-full">
+        Login
+      </Button>
+      <Button variant="outline" className="w-full" onClick={handleSignUp}>
+        Sign Up
+      </Button>
     </div>
   );
 }
