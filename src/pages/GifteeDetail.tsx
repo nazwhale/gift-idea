@@ -255,7 +255,7 @@ export default function GifteeDetail() {
                     key={idx}
                     className="flex items-center justify-between list-disc list-inside"
                   >
-                    <li className="flex justify-between">
+                    <li className="flex justify-between items-center">
                       <span>{suggestion}</span>
                       <Button
                         variant="ghost"
