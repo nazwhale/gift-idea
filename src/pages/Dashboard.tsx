@@ -2,7 +2,6 @@ import { useEffect, useState } from "react";
 import { getGiftees, addGiftee } from "../lib/giftees";
 import { Input } from "../components/ui/input";
 import { Button } from "../components/ui/button";
-import { Badge } from "../components/ui/badge";
 import { Link } from "react-router-dom";
 import {
   Tooltip,
