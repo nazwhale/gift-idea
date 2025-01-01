@@ -57,10 +57,13 @@ export default function Dashboard() {
       </div>
       {/* Days to Christmas */}
       <div className="text-gray-500 mb-4">
-        <div>
-          🎄 <strong>{daysToChristmas}</strong> day
-          {daysToChristmas === 1 ? "" : "s"} til Christmas
-        </div>
+        {/*If Christmas is a long time away, don't show*/}
+        {daysToChristmas < 51 && (
+          <div>
+            🎄 <strong>{daysToChristmas}</strong> day
+            {daysToChristmas === 1 ? "" : "s"} til Christmas
+          </div>
+        )}
         <div>
           <ul>
             {birthdays.map((g) => (
