@@ -6,6 +6,7 @@ import {
   updateIdea,
   deleteIdea,
 } from "../lib/ideas";
+import { useToast } from "@/hooks/use-toast"; // Import toast hook
 import { deleteGiftee, getGifteeById, updateGiftee } from "../lib/giftees";
 import { Input } from "../components/ui/input";
 import { Button } from "../components/ui/button";
@@ -22,6 +23,8 @@ import { Badge } from "@/components/ui/badge";
 import { getSuggestionsForGiftee } from "../lib/chatgpt"; // Import from your chatgpt file
 
 export default function GifteeDetail() {
+  const { toast } = useToast(); // Initialize toast
+
   const { id: gifteeId } = useParams();
   const [giftee, setGiftee] = useState<Giftee | null>(null);
   const [ideas, setIdeas] = useState<any[]>([]);
@@ -78,6 +81,11 @@ export default function GifteeDetail() {
       setGiftee((prev: Giftee | null) =>
         prev ? { ...prev, date_of_birth: dob } : null
       );
+
+      toast({
+        title: "Date of Birth Saved",
+        description: `Date of birth for ${giftee.name} has been updated.`,
+      });
     } catch (error: any) {
       console.error("Error updating date_of_birth:", error.message);
     }
@@ -89,6 +97,10 @@ export default function GifteeDetail() {
     try {
       await updateGiftee(giftee.id, { bio, id: giftee.id });
       setGiftee((prev: Giftee | null) => (prev ? { ...prev, bio: bio } : null));
+      toast({
+        title: "Bio Saved",
+        description: `Bio for ${giftee.name} has been updated.`,
+      });
     } catch (error: any) {
       console.error("Error updating bio:", error.message);
     }
@@ -98,10 +110,18 @@ export default function GifteeDetail() {
     if (!gifteeId) return;
     const idea = await addIdea(gifteeId, name);
     setIdeas((prev) => [...prev, idea]);
+    toast({
+      title: "Idea Added",
+      description: `A new idea, "${name}", has been added for ${giftee.name}.`,
+    });
   };
 
   const handleDeleteGiftee = async (deleteId: string) => {
     await deleteGiftee(deleteId);
+    toast({
+      title: "Giftee Deleted",
+      description: `${giftee.name} has been removed.`,
+    });
     // Optionally redirect back home after deletion
     window.location.href = "/";
   };
@@ -285,40 +305,68 @@ export default function GifteeDetail() {
 }
 
 function Idea({ idea, setIdeas, ideas }) {
+  const { toast } = useToast();
   const [url, setUrl] = useState("");
 
   useEffect(() => {
     setUrl(idea.url || "");
   }, [idea]);
 
-  const handleToggleChosen = async (ideaId: string, current: Date | null) => {
+  const handleToggleChosen = async (ideaId, current) => {
     const purchasedAt = current ? null : new Date();
     const updated = await updateIdea(ideaId, {
       purchased_at: purchasedAt,
     });
     setIdeas(ideas.map((i) => (i.id === ideaId ? updated : i)));
+
+    toast({
+      title: "Status Updated",
+      description: `"${idea.name}" marked as ${
+        purchasedAt ? "Bought" : "Not Bought"
+      }`,
+    });
   };
 
   const handleUpdateUrl = async () => {
     const updated = await updateIdea(idea.id, { url });
     setIdeas(ideas.map((i) => (i.id === idea.id ? updated : i)));
+
+    toast({
+      title: "Link Updated",
+      description: `Link has been updated for "${idea.name}".`,
+    });
   };
 
-  const handleDeleteIdea = async (ideaId: string) => {
+  const handleDeleteIdea = async (ideaId) => {
     await deleteIdea(ideaId);
     setIdeas(ideas.filter((i) => i.id !== ideaId));
+
+    toast({
+      title: "Idea Deleted",
+      description: `The idea "${idea.name}" has been removed.`,
+    });
   };
 
-  const handleRating = async (ideaId: string, rating: number) => {
+  const handleRating = async (ideaId, rating) => {
     const updated = await updateIdea(ideaId, { rating });
     setIdeas(ideas.map((i) => (i.id === ideaId ? updated : i)));
   };
 
-  const handleSubmitUrl = (e: React.FormEvent) => {
+  const handleSubmitUrl = (e) => {
     e.preventDefault();
     if (url.trim()) {
       handleUpdateUrl();
     }
+  };
+
+  // Generate Amazon search link with Associate ID
+  const generateAmazonSearchUrl = (searchQuery) => {
+    const baseUrl = "https://www.amazon.co.uk/s";
+    const queryParams = new URLSearchParams({
+      k: searchQuery,
+      tag: "giftgoats-21", // Your Associate ID
+    });
+    return `${baseUrl}?${queryParams.toString()}`;
   };
 
   return (
@@ -337,14 +385,41 @@ function Idea({ idea, setIdeas, ideas }) {
             </a>
           )}
         </div>
-        <Button
-          variant="ghost"
-          size="sm"
-          onClick={() => handleDeleteIdea(idea.id)}
-          className="text-red-500"
-        >
-          Delete
-        </Button>
+        <div>
+          {/* "Search Amazon" Button */}
+          <Button
+            className="text-green-600"
+            variant="primary"
+            size="sm"
+            onClick={() =>
+              window.open(
+                generateAmazonSearchUrl(idea.name),
+                "_blank",
+                "noopener,noreferrer"
+              )
+            }
+          >
+            Search Amazon
+          </Button>
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => handleDeleteIdea(idea.id)}
+            className="text-red-500"
+          >
+            Delete
+          </Button>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => handleToggleChosen(idea.id, idea.purchased_at)}
+            className={
+              idea.purchased_at == null ? "text-blue-500" : "text-black"
+            }
+          >
+            {idea.purchased_at == null ? "Bought" : "Not bought"}
+          </Button>
+        </div>
       </div>
 
       <form onSubmit={handleSubmitUrl} className="flex my-4 space-x-2">
@@ -357,17 +432,6 @@ function Idea({ idea, setIdeas, ideas }) {
           Add link
         </Button>
       </form>
-
-      <div className="flex justify-between items-center my-4">
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={() => handleToggleChosen(idea.id, idea.purchased_at)}
-          className={idea.purchased_at == null ? "text-blue-500" : "text-black"}
-        >
-          {idea.purchased_at == null ? "Bought" : "Not bought"}
-        </Button>
-      </div>
     </Card>
   );
 }

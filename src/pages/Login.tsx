@@ -2,13 +2,6 @@ import { supabase } from "../lib/supabaseClient";
 import { useState } from "react";
 import { Input } from "../components/ui/input";
 import { Button } from "../components/ui/button";
-import {
-  ToastProvider,
-  Toast,
-  ToastTitle,
-  ToastDescription,
-  ToastAction,
-} from "@/components/ui/toast";
 import { useToast } from "@/hooks/use-toast.ts";
 
 export default function Login() {
