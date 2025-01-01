@@ -194,69 +194,11 @@ export default function GifteeDetail() {
             Has {ideas.length} ideas
           </CardDescription>
         </CardHeader>
-        <CardContent>
-          <div className="space-y-4">
-            {/* DOB Fields */}
-            <div className="flex space-x-2">
-              <Input
-                type="text"
-                placeholder="DD"
-                maxLength={2}
-                value={day}
-                onChange={(e) => setDay(e.target.value.replace(/\D/g, ""))}
-                className="w-16 h-9"
-              />
-              <Input
-                type="text"
-                placeholder="MM"
-                maxLength={2}
-                value={month}
-                onChange={(e) => setMonth(e.target.value.replace(/\D/g, ""))}
-                className="w-16 h-9"
-              />
-              <Input
-                type="text"
-                placeholder="YYYY"
-                maxLength={4}
-                value={year}
-                onChange={(e) => setYear(e.target.value.replace(/\D/g, ""))}
-                className="w-20 h-9"
-              />
-              <Button variant="outline" size="sm" onClick={handleSaveDob}>
-                Save date of birth
-              </Button>
-            </div>
-
-            {/* Bio Field */}
-            <div className="space-y-2">
-              <Label>Bio</Label>
-              <Input
-                type="text"
-                placeholder="Add bio info for better suggestions"
-                value={bio}
-                onChange={(e) => setBio(e.target.value)}
-              />
-              <Button variant="outline" size="sm" onClick={handleSaveBio}>
-                Save Bio
-              </Button>
-            </div>
-          </div>
-        </CardContent>
       </Card>
 
       {/* Add Idea Form */}
       <Card className="mb-6">
         <CardHeader>
-          <form className="space-y-4" onSubmit={handleSubmitIdeaForm}>
-            <Input
-              placeholder="Idea name"
-              value={ideaName}
-              onChange={(e) => setIdeaName(e.target.value)}
-            />
-            <Button type="submit" size="sm">
-              Add Idea
-            </Button>
-          </form>
           {/* Fetch Suggestions from ChatGPT */}
           <div className="mb-6">
             <Button
