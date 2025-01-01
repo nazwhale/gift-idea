@@ -8,23 +8,33 @@ import {
   TooltipContent,
   TooltipProvider,
   TooltipTrigger,
-} from "@/components/ui/tooltip.tsx";
-import { Giftee } from "@/types.tsx";
+} from "@/components/ui/tooltip";
+import { Giftee } from "@/types";
 import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from "@/components/ui/dialog.tsx";
-import { addIdea } from "@/lib/ideas.ts";
+} from "@/components/ui/dialog";
+import { addIdea, updateIdea, deleteIdea } from "@/lib/ideas";
 import { useToast } from "@/hooks/use-toast"; // Import toast hook
+
+// Import these from Shadcn UI or your local dropdown menu component.
+import {
+  DropdownMenu,
+  DropdownMenuTrigger,
+  DropdownMenuContent,
+  DropdownMenuLabel,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+} from "@/components/ui/dropdown-menu";
+import { MoreVertical } from "lucide-react"; // A common 3-dot icon
 
 const daysInFuture = 21;
 
 export default function Dashboard() {
-  const { toast } = useToast(); // Initialize toast
-
+  const { toast } = useToast();
   const [giftees, setGiftees] = useState<Giftee[]>([]);
   const [newGifteeName, setNewGifteeName] = useState("");
 
@@ -34,7 +44,7 @@ export default function Dashboard() {
 
   const handleAddGiftee = async () => {
     const giftee = await addGiftee(newGifteeName);
-    setGiftees([...giftees, giftee]);
+    setGiftees((prev) => [...prev, giftee]);
     setNewGifteeName("");
     toast({
       title: "Person Added",
@@ -43,16 +53,15 @@ export default function Dashboard() {
   };
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault(); // Prevent page reload on form submission
+    e.preventDefault();
     if (newGifteeName.trim()) {
-      handleAddGiftee(); // Trigger the add giftee function
+      handleAddGiftee();
     }
   };
 
   const daysToChristmas = calculateDaysToChristmas();
   const birthdays = birthdaysInNextNDays(giftees, daysInFuture);
   const today = new Date();
-
   const christmasGiftees = getChristmasGiftees(giftees);
 
   return (
@@ -128,25 +137,48 @@ type GifteeProps = {
 };
 
 function GifteeRow({ g }: GifteeProps) {
-  const { toast } = useToast(); // Initialize toast
-
+  const { toast } = useToast();
   const [ideas, setIdeas] = useState(g.ideas || []);
+
+  // For new idea creation
   const [ideaName, setIdeaName] = useState("");
-  const [isDialogOpen, setIsDialogOpen] = useState(false); // State to manage dialog open/close
 
-  const handleAddIdea = async (e) => {
-    e.preventDefault(); // Prevent page reload on form submission
+  // Dialog state to open/close the modal that lists ideas
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
+
+  // Handle adding a new idea (small form in the modal)
+  const handleAddIdea = async (e: React.FormEvent) => {
+    e.preventDefault();
     if (!g.id) return;
+
     const newIdea = await addIdea(g.id, ideaName);
+    setIdeas((prev) => [...prev, newIdea]);
     setIdeaName("");
-    setIsDialogOpen(false);
-
-    // Update the ideas list
-    setIdeas([...ideas, newIdea]);
-
     toast({
       title: "Idea Added",
-      description: `${ideaName} added.`,
+      description: `${newIdea.name} added for ${g.name}.`,
+    });
+  };
+
+  // Demo function to mark an idea as purchased
+  const handleMarkAsBought = async (ideaId: string) => {
+    // For example:
+    const purchasedAt = new Date();
+    const updated = await updateIdea(ideaId, { purchased_at: purchasedAt });
+    setIdeas((prev) => prev.map((i) => (i.id === ideaId ? updated : i)));
+    toast({
+      title: "Marked as Bought",
+      description: `Idea purchased.`,
+    });
+  };
+
+  // Demo function to delete an idea
+  const handleDeleteIdea = async (ideaId: string) => {
+    await deleteIdea(ideaId);
+    setIdeas((prev) => prev.filter((i) => i.id !== ideaId));
+    toast({
+      title: "Idea Deleted",
+      description: `Idea removed.`,
     });
   };
 
@@ -178,7 +210,6 @@ function GifteeRow({ g }: GifteeProps) {
                     </div>
                   );
                 }
-
                 return null;
               })}
             </TooltipContent>
@@ -206,14 +237,13 @@ function GifteeRow({ g }: GifteeProps) {
                     </div>
                   );
                 }
-
                 return null;
               })}
             </TooltipContent>
           </Tooltip>
         </TooltipProvider>
       </span>
-      {/* [+ Idea] Button with Dialog */}
+      {/* Button to Open the "Ideas" Modal */}
       <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
         <DialogTrigger asChild>
           <Button
@@ -222,20 +252,72 @@ function GifteeRow({ g }: GifteeProps) {
             className="px-2 ml-2 text-blue-500"
             onClick={() => setIsDialogOpen(true)}
           >
-            + Idea
+            View Ideas
           </Button>
         </DialogTrigger>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Add Idea for {g.name}</DialogTitle>
+            <DialogTitle>{g.name}'s Ideas</DialogTitle>
           </DialogHeader>
-          <form className="space-y-4" onSubmit={handleAddIdea}>
+
+          {/* List existing ideas in the modal */}
+          {ideas.length > 0 ? (
+            <ul className="space-y-2 mb-4 overflow-y-scroll max-h-96">
+              {ideas.map((idea) => (
+                <li
+                  key={idea.id}
+                  className="flex items-center justify-between border-b p-2 rounded"
+                >
+                  <div>
+                    <p>{idea.name}</p>
+                    {idea.purchased_at && (
+                      <span className="ml-2 text-sm text-green-600">
+                        (bought)
+                      </span>
+                    )}
+                  </div>
+
+                  {/* 3-dot Icon Dropdown Menu */}
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Button variant="ghost" size="icon">
+                        <MoreVertical className="h-4 w-4" />
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent className="bg-white">
+                      <DropdownMenuLabel>Actions</DropdownMenuLabel>
+                      <DropdownMenuSeparator />
+                      {!idea.purchased_at && (
+                        <DropdownMenuItem
+                          className="cursor-pointer"
+                          onClick={() => handleMarkAsBought(idea.id)}
+                        >
+                          Mark as bought
+                        </DropdownMenuItem>
+                      )}
+                      <DropdownMenuItem
+                        className="cursor-pointer"
+                        onClick={() => handleDeleteIdea(idea.id)}
+                      >
+                        Delete
+                      </DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+                </li>
+              ))}
+            </ul>
+          ) : (
+            <p className="text-sm text-gray-500">No ideas yet.</p>
+          )}
+
+          {/* Add new idea form */}
+          <form onSubmit={handleAddIdea} className="flex space-x-2">
             <Input
-              placeholder="Enter idea name"
+              placeholder="Add new idea"
               value={ideaName}
               onChange={(e) => setIdeaName(e.target.value)}
             />
-            <Button type="submit">Submit</Button>
+            <Button type="submit">Add</Button>
           </form>
         </DialogContent>
       </Dialog>
@@ -245,7 +327,6 @@ function GifteeRow({ g }: GifteeProps) {
 
 /**
  * Calculate days to Christmas
- * @returns {number} Number of days until the next Christmas
  */
 function calculateDaysToChristmas(): number {
   const today = new Date();
@@ -266,7 +347,7 @@ function calculateDaysToChristmas(): number {
 
 function getChristmasGiftees(giftees: Giftee[]): Giftee[] {
   const filtered = giftees.filter((g) => g.on_christmas);
-  // order by 0 gifts bought first
+  // Sort by purchased count
   return filtered.sort((a, b) => {
     return (
       a.ideas.filter((i) => i.purchased_at != null).length -
@@ -275,14 +356,14 @@ function getChristmasGiftees(giftees: Giftee[]): Giftee[] {
   });
 }
 
-function birthdaysInNextNDays(giftees: Giftee[], n: number): any[] {
-  // Ignore year, just compare month and day
+function birthdaysInNextNDays(giftees: Giftee[], n: number): Giftee[] {
   const today = new Date();
   const nextNDays = new Date();
   nextNDays.setDate(today.getDate() + n);
 
   return giftees.filter((g) => {
     const dob = new Date(g.date_of_birth);
+    // Compare only mm/dd in the current year
     dob.setFullYear(today.getFullYear());
     return dob >= today && dob <= nextNDays;
   });
