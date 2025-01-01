@@ -18,10 +18,13 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog.tsx";
 import { addIdea } from "@/lib/ideas.ts";
+import { useToast } from "@/hooks/use-toast"; // Import toast hook
 
 const daysInFuture = 21;
 
 export default function Dashboard() {
+  const { toast } = useToast(); // Initialize toast
+
   const [giftees, setGiftees] = useState<Giftee[]>([]);
   const [newGifteeName, setNewGifteeName] = useState("");
 
@@ -33,6 +36,10 @@ export default function Dashboard() {
     const giftee = await addGiftee(newGifteeName);
     setGiftees([...giftees, giftee]);
     setNewGifteeName("");
+    toast({
+      title: "Person Added",
+      description: `${giftee.name} has been successfully added.`,
+    });
   };
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
@@ -121,7 +128,9 @@ type GifteeProps = {
 };
 
 function GifteeRow({ g }: GifteeProps) {
-  const [ideas, setIdeas] = useState(g.ideas);
+  const { toast } = useToast(); // Initialize toast
+
+  const [ideas, setIdeas] = useState(g.ideas || []);
   const [ideaName, setIdeaName] = useState("");
   const [isDialogOpen, setIsDialogOpen] = useState(false); // State to manage dialog open/close
 
@@ -134,6 +143,11 @@ function GifteeRow({ g }: GifteeProps) {
 
     // Update the ideas list
     setIdeas([...ideas, newIdea]);
+
+    toast({
+      title: "Idea Added",
+      description: `${ideaName} added.`,
+    });
   };
 
   return (
