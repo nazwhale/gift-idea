@@ -20,7 +20,6 @@ export async function getIdeasForGiftee(gifteeId: string) {
 }
 
 export async function addIdea(gifteeId: string, name: string) {
-  console.log("adding");
   const { data, error } = await supabase
     .from("ideas")
     .insert({ giftee_id: gifteeId, name })

@@ -13,13 +13,15 @@ import { MoreVertical } from "lucide-react"; // A common 3-dot icon
 
 export default function ActionList({
   ideaId,
+  ideaName,
   isBought,
-  onMarkAsBought,
+  onToggleBought,
   onDelete,
 }: {
   ideaId: string;
+  ideaName: string;
   isBought: boolean;
-  onMarkAsBought: (ideaId: string) => void;
+  onToggleBought: (ideaId: string) => void;
   onDelete: (ideaId: string) => void;
 }) {
   return (
@@ -33,10 +35,27 @@ export default function ActionList({
         <DropdownMenuLabel>Actions</DropdownMenuLabel>
         <DropdownMenuSeparator />
         {!isBought && (
-          <DropdownMenuItem onClick={() => onMarkAsBought(ideaId)}>
+          <DropdownMenuItem onClick={() => onToggleBought(ideaId)}>
             Mark as bought
           </DropdownMenuItem>
         )}
+        {isBought && (
+          <DropdownMenuItem onClick={() => onToggleBought(ideaId)}>
+            Mark as not bought
+          </DropdownMenuItem>
+        )}
+        {/* "Search Amazon" Button */}
+        <DropdownMenuItem
+          onClick={() =>
+            window.open(
+              generateAmazonSearchUrl(ideaName),
+              "_blank",
+              "noopener,noreferrer"
+            )
+          }
+        >
+          Search Amazon
+        </DropdownMenuItem>
         <DropdownMenuItem onClick={() => onDelete(ideaId)}>
           Delete
         </DropdownMenuItem>
@@ -44,3 +63,13 @@ export default function ActionList({
     </DropdownMenu>
   );
 }
+
+// Generate Amazon search link with Associate ID
+const generateAmazonSearchUrl = (searchQuery) => {
+  const baseUrl = "https://www.amazon.co.uk/s";
+  const queryParams = new URLSearchParams({
+    k: searchQuery,
+    tag: "giftgoats-21", // Your Associate ID
+  });
+  return `${baseUrl}?${queryParams.toString()}`;
+};

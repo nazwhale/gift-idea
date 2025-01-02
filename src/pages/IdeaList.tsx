@@ -2,30 +2,31 @@ import ActionList from "@/pages/ActionList.tsx";
 
 export default function IdeaList({
   ideas,
-  onMarkAsBought,
+  onToggleBought,
   onDelete,
 }: {
   ideas: any[];
-  onMarkAsBought: (ideaId: string) => void;
+  onToggleBought: (ideaId: string) => void;
   onDelete: (ideaId: string) => void;
 }) {
   return ideas.length > 0 ? (
-    <ul className="space-y-2 overflow-y-scroll max-h-96">
+    <ul className="overflow-y-scroll max-h-96">
       {ideas.map((idea) => (
         <li
           key={idea.id}
-          className="flex items-center justify-between border-b p-2 rounded"
+          className="flex items-center justify-between border-b rounded"
         >
-          <div>
+          <div className="flex items-center text-sm">
             <p>{idea.name}</p>
             {idea.purchased_at && (
-              <span className="ml-2 text-sm text-green-600">(bought)</span>
+              <span className="ml-2 text-green-600">bought</span>
             )}
           </div>
           <ActionList
             ideaId={idea.id}
+            ideaName={idea.name}
             isBought={!!idea.purchased_at}
-            onMarkAsBought={onMarkAsBought}
+            onToggleBought={onToggleBought}
             onDelete={onDelete}
           />
         </li>
