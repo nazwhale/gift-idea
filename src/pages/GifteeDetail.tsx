@@ -7,10 +7,9 @@ import {
   deleteIdea,
 } from "../lib/ideas";
 import { useToast } from "@/hooks/use-toast"; // Import toast hook
-import { deleteGiftee, getGifteeById, updateGiftee } from "../lib/giftees";
+import { deleteGiftee, getGifteeById } from "../lib/giftees";
 import { Input } from "../components/ui/input";
 import { Button } from "../components/ui/button";
-import { Label } from "@/components/ui/label";
 import {
   Card,
   CardDescription,
@@ -19,7 +18,6 @@ import {
 } from "../components/ui/card";
 import { Giftee } from "@/types";
 import { Badge } from "@/components/ui/badge";
-import { getSuggestionsForGiftee } from "../lib/chatgpt"; // Import from your chatgpt file
 
 export default function GifteeDetail() {
   const { toast } = useToast(); // Initialize toast
@@ -27,15 +25,6 @@ export default function GifteeDetail() {
   const { id: gifteeId } = useParams();
   const [giftee, setGiftee] = useState<Giftee | null>(null);
   const [ideas, setIdeas] = useState<any[]>([]);
-  const [ideaName, setIdeaName] = useState("");
-
-  // DOB state
-  const [day, setDay] = useState<string>("");
-  const [month, setMonth] = useState<string>("");
-  const [year, setYear] = useState<string>("");
-
-  // Bio state
-  const [bio, setBio] = useState<string>("");
 
   useEffect(() => {
     if (gifteeId) {
@@ -57,16 +46,6 @@ export default function GifteeDetail() {
       getIdeasForGiftee(gifteeId).then(setIdeas).catch(console.error);
     }
   }, [gifteeId]);
-
-  const handleAddIdea = async (name: string) => {
-    if (!gifteeId) return;
-    const idea = await addIdea(gifteeId, name);
-    setIdeas((prev) => [...prev, idea]);
-    toast({
-      title: "Idea Added",
-      description: `A new idea, "${name}", has been added for ${giftee.name}.`,
-    });
-  };
 
   const handleDeleteGiftee = async (deleteId: string) => {
     await deleteGiftee(deleteId);
