@@ -42,13 +42,14 @@ export default function HomePage() {
       <div className="space-y-2">
         <h1 className="text-4xl font-bold">Never miss a gift again</h1>
         <p className="text-lg text-gray-600">
-          Track birthdays, and store ideas, and get handy reminders.
+          Track ideas, stay reminded, and get AI-powered gift suggestions for
+          every occasion.
         </p>
       </div>
 
       <div className="flex flex-col sm:flex-row sm:space-x-2 space-y-2 sm:space-y-0">
         <a href="/signup" className="w-full sm:w-1/2">
-          <Button className="w-full">Signup</Button>
+          <Button className="w-full">Get started for free</Button>
         </a>
         <a href="/login" className="w-full sm:w-1/2">
           <Button className="w-full" variant="outline">
