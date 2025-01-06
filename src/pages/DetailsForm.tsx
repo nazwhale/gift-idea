@@ -58,7 +58,9 @@ export default function DetailsForm({ giftee }: { giftee: Giftee }) {
           rows={3}
         />
       </div>
-      <Button onClick={handleSave}>Save Details</Button>
+      <Button onClick={handleSave} className="w-full">
+        Save Details
+      </Button>
     </div>
   );
 }

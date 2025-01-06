@@ -86,16 +86,6 @@ export default function Dashboard() {
         </Button>
       </form>
 
-      <h3>Christmas '24</h3>
-      <ul>
-        {getChristmasGiftees(giftees).map((g) => (
-          <GifteeRow key={g.id} g={g} />
-        ))}
-      </ul>
-
-      <div className="text-gray-300">---</div>
-
-      <h3>All people</h3>
       <ul>
         {giftees.map((g) => (
           <GifteeRow key={g.id} g={g} />

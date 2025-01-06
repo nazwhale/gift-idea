@@ -78,9 +78,7 @@ export default function GifteeRow({ g }: GifteeProps) {
   return (
     <li className="flex items-center justify-between mb-2">
       <span>
-        <a href={`/giftee/${g.id}`} className="text-blue-600 underline">
-          {g.name}
-        </a>
+        <a href={`/giftee/${g.id}`}>{g.name}</a>
       </span>
       <div className="flex space-x-2">
         {/* View Ideas Dialog */}
