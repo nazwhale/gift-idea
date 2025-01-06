@@ -42,7 +42,7 @@ export default function HomePage() {
       <div className="space-y-2">
         <h1 className="text-4xl font-bold">Never miss a gift again</h1>
         <p className="text-lg text-gray-600">
-          Track ideas, stay reminded, and get AI-powered gift suggestions for
+          Track ideas, stay reminded, and get Ai-powered gift suggestions for
           every occasion.
         </p>
       </div>
