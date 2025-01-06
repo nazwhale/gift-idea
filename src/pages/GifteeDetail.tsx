@@ -54,7 +54,7 @@ export default function GifteeDetail() {
       description: `${giftee.name} has been removed.`,
     });
     // Optionally redirect back home after deletion
-    window.location.href = "/";
+    window.location.href = "/dashboard";
   };
 
   if (!giftee) return <div>Loading...</div>;
@@ -63,7 +63,7 @@ export default function GifteeDetail() {
     <div>
       {/* Link back to Home */}
       <div className="mb-4">
-        <Link to="/" className="text-sm text-primary underline">
+        <Link to="/dashboard" className="text-sm text-primary underline">
           ← Home
         </Link>
       </div>

@@ -2,25 +2,24 @@ import { supabase } from "../lib/supabaseClient";
 import { useState } from "react";
 import { Input } from "../components/ui/input";
 import { Button } from "../components/ui/button";
+import { useToast } from "@/hooks/use-toast.ts";
 
-export default function Login() {
+export default function Signup() {
+  const { toast } = useToast();
+
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
 
-  const handleLogin = async () => {
-    console.log("handleLogin invoked...");
-    const { data, error } = await supabase.auth.signInWithPassword({
-      email,
-      password,
-    });
-    console.log("called login");
+  const handleSignUp = async () => {
+    const { error } = await supabase.auth.signUp({ email, password });
     if (error) {
-      console.log("login error");
       setError(error.message);
     } else {
-      console.log("login success");
-      window.location.href = "/";
+      toast({
+        title: "Email confirmation sent",
+        description: "Please check your email to confirm your account.",
+      });
     }
   };
 
@@ -38,12 +37,12 @@ export default function Login() {
         value={password}
         onChange={(e) => setPassword(e.target.value)}
       />
-      <Button onClick={handleLogin} className="w-full">
-        Login
+      <Button className="w-full" onClick={handleSignUp}>
+        Sign Up
       </Button>
-      {/*link to signup if don't have an account*/}
-      <a href="/signup" className="text-center block text-sm text-blue-500">
-        New to Gift Goats? Sign Up
+      {/*link to login if already have an account*/}
+      <a href="/login" className="text-center block text-sm text-blue-500">
+        Already have an account? Login
       </a>
     </div>
   );

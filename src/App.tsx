@@ -6,14 +6,16 @@ import {
 } from "react-router-dom";
 import GifteeDetail from "./pages/GifteeDetail";
 import Login from "./pages/Login";
+import Signup from "./pages/Signup";
 import Dashboard from "./pages/Dashboard"; // a landing page after login
 import { useAuth } from "./hooks/useAuth";
 import "./index.css";
 import Ideas from "@/pages/Ideas.tsx";
 import Navbar from "@/components/Navbar.tsx";
 import { Toaster } from "@/components/ui/toaster.tsx";
+import HomePage from "@/pages/HomePage.tsx";
 
-function ProtectedRoute({ children }: { children: JSX.Element }) {
+function ProtectedRoute({ children }: { children: Element }) {
   const { session, loading } = useAuth();
 
   if (loading) {
@@ -44,7 +46,25 @@ export default function App() {
             }
           />
           <Route
+            path="/signup"
+            element={
+              <>
+                <Navbar isLoggedOut />
+                <Signup />
+              </>
+            }
+          />
+          <Route
             path="/"
+            element={
+              <>
+                <Navbar isLoggedOut />
+                <HomePage />
+              </>
+            }
+          />
+          <Route
+            path="/dashboard"
             element={
               <ProtectedRoute>
                 <Navbar />

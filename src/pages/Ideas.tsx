@@ -112,7 +112,7 @@ export default function Ideas() {
   return (
     <>
       <div className="mb-4">
-        <Link to="/" className="text-sm text-primary underline">
+        <Link to="/dashboard" className="text-sm text-primary underline">
           ← Home
         </Link>
       </div>
