@@ -24,26 +24,31 @@ export default function Signup() {
   };
 
   return (
-    <div className="max-w-xs mx-auto mt-10 space-y-2 ">
+    <div className="max-w-xs mx-auto mt-4 space-y-4">
+      <div className="space-y-2">
+        <Input
+          placeholder="Email"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+        />
+        <Input
+          type="password"
+          placeholder="Password"
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+        />
+      </div>
       {error && <div className="text-red-500">{error}</div>}
-      <Input
-        placeholder="Email"
-        value={email}
-        onChange={(e) => setEmail(e.target.value)}
-      />
-      <Input
-        type="password"
-        placeholder="Password"
-        value={password}
-        onChange={(e) => setPassword(e.target.value)}
-      />
-      <Button className="w-full" onClick={handleSignUp}>
-        Sign Up
-      </Button>
-      {/*link to login if already have an account*/}
-      <a href="/login" className="text-center block text-sm text-blue-500">
-        Already have an account? Login
-      </a>
+
+      <div className="space-y-2">
+        <Button className="w-full" onClick={handleSignUp}>
+          Sign Up
+        </Button>
+        {/*link to login if already have an account*/}
+        <a href="/login" className="text-center block text-sm text-blue-500">
+          Already have an account? Login
+        </a>
+      </div>
     </div>
   );
 }

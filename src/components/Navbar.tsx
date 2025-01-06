@@ -4,9 +4,15 @@ import { handleLogout } from "../lib/logout";
 export default function Navbar({ isLoggedOut }) {
   return (
     <nav className="p-4 flex justify-between items-center bg-[#e0daff]">
-      <h1 className="text-lg font-bold">Gift GOATs</h1>
+      <h1 className="text-lg font-bold">
+        <a href="/">Gift GOATs</a>
+      </h1>
       {!isLoggedOut && (
-        <Button variant="ghost" onClick={handleLogout}>
+        <Button
+          variant="ghost"
+          className="text-gray-500"
+          onClick={handleLogout}
+        >
           Logout
         </Button>
       )}

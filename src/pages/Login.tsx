@@ -25,26 +25,31 @@ export default function Login() {
   };
 
   return (
-    <div className="max-w-xs mx-auto mt-10 space-y-2 ">
+    <div className="max-w-xs mx-auto mt-4 space-y-4">
+      <div className="space-y-2">
+        <Input
+          placeholder="Email"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+        />
+        <Input
+          type="password"
+          placeholder="Password"
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+        />
+      </div>
       {error && <div className="text-red-500">{error}</div>}
-      <Input
-        placeholder="Email"
-        value={email}
-        onChange={(e) => setEmail(e.target.value)}
-      />
-      <Input
-        type="password"
-        placeholder="Password"
-        value={password}
-        onChange={(e) => setPassword(e.target.value)}
-      />
-      <Button onClick={handleLogin} className="w-full">
-        Login
-      </Button>
-      {/*link to signup if don't have an account*/}
-      <a href="/signup" className="text-center block text-sm text-blue-500">
-        New to Gift Goats? Sign Up
-      </a>
+
+      <div className="space-y-2">
+        <Button onClick={handleLogin} className="w-full">
+          Login
+        </Button>
+        {/*link to signup if don't have an account*/}
+        <a href="/signup" className="text-center block text-sm text-blue-500">
+          New to Gift Goats? Sign Up
+        </a>
+      </div>
     </div>
   );
 }

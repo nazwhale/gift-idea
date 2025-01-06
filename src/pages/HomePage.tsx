@@ -13,13 +13,11 @@ export default function HomePage() {
       </div>
 
       <div className="flex flex-col sm:flex-row sm:space-x-2 space-y-2 sm:space-y-0">
-        <a href="/signup" className="text-center block text-sm">
-          <Button className="w-full sm:w-1/2" size="sm">
-            Signup
-          </Button>
+        <a href="/signup" className="w-full sm:w-1/2">
+          <Button className="w-full">Signup</Button>
         </a>
-        <a href="/login" className="text-center block text-sm">
-          <Button className="w-full sm:w-1/2" size="sm" variant="outline">
+        <a href="/login" className="w-full sm:w-1/2">
+          <Button className="w-full" variant="outline">
             Login
           </Button>
         </a>
