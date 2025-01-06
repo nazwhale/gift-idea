@@ -1,6 +1,40 @@
 import { ReactNode } from "react";
 import { Button } from "../components/ui/button";
-import { Gift, CheckCircle2, Users, Heart } from "lucide-react"; // Example icons from Lucide
+import { Gift, Rabbit, WandSparkles, Bell } from "lucide-react"; // lucide.dev/icons
+
+const features = [
+  {
+    id: 1,
+    title: "Store Ideas & People",
+    description: "Keep track of gift ideas and the people you care about.",
+    icon: <Gift size={20} />,
+    bgColor: "bg-blue-50",
+  },
+  {
+    id: 2,
+    title: "Ai Gift Suggestions",
+    description:
+      "Personalized gift ideas based on biography and age, powered by Ai.",
+    icon: <WandSparkles size={20} />,
+    bgColor: "bg-purple-50",
+  },
+  {
+    id: 3,
+    title: "Never Miss a Birthday",
+    description:
+      "Automated reminders for birthdays and key events keep you prepared.",
+    icon: <Bell size={20} />,
+    bgColor: "bg-yellow-50",
+  },
+  {
+    id: 4,
+    title: "Fast Amazon Search",
+    description:
+      "Find and buy gifts in seconds with direct Amazon search integration.",
+    icon: <Rabbit size={20} />,
+    bgColor: "bg-green-50",
+  },
+];
 
 export default function HomePage() {
   return (
@@ -23,31 +57,17 @@ export default function HomePage() {
         </a>
       </div>
 
+      {/* Features */}
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-8 mb-16">
-        <FeatureCard
-          title="Thoughtful Gift Planning"
-          description="Compile meaningful gift ideas for your loved ones, personalized for every occasion. No more last-minute stress."
-          icon={<Gift size={20} />}
-          bgColor="bg-yellow-50"
-        />
-        <FeatureCard
-          title="Organize Your Giftees"
-          description="Easily keep track of all the people you care about and their special occasions, all in one place."
-          icon={<Users size={20} />}
-          bgColor="bg-purple-50"
-        />
-        <FeatureCard
-          title="Track What’s Been Chosen"
-          description="Mark gift ideas as bought and keep a record of which gifts were a hit. Stay organized and always on top of things."
-          icon={<CheckCircle2 size={20} />}
-          bgColor="bg-green-50"
-        />
-        <FeatureCard
-          title="Memories That Matter"
-          description="Cherish the joy of giving and reflect on what they loved most. Gift-giving made simpler, more intentional, and fun."
-          icon={<Heart size={20} />}
-          bgColor="bg-red-50"
-        />
+        {features.map((feature) => (
+          <FeatureCard
+            key={feature.id}
+            title={feature.title}
+            description={feature.description}
+            icon={feature.icon}
+            bgColor={feature.bgColor}
+          />
+        ))}
       </div>
     </div>
   );
