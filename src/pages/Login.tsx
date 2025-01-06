@@ -20,7 +20,7 @@ export default function Login() {
       setError(error.message);
     } else {
       console.log("login success");
-      window.location.href = "/";
+      window.location.href = "/dashboard";
     }
   };
 

@@ -13,16 +13,16 @@ export default function HomePage() {
       </div>
 
       <div className="flex flex-col sm:flex-row sm:space-x-2 space-y-2 sm:space-y-0">
-        <Button className="w-full sm:w-1/2" size="sm">
-          <a href="/signup" className="text-center block text-sm">
+        <a href="/signup" className="text-center block text-sm">
+          <Button className="w-full sm:w-1/2" size="sm">
             Signup
-          </a>
-        </Button>
-        <Button className="w-full sm:w-1/2" size="sm" variant="outline">
-          <a href="/login" className="text-center block text-sm">
+          </Button>
+        </a>
+        <a href="/login" className="text-center block text-sm">
+          <Button className="w-full sm:w-1/2" size="sm" variant="outline">
             Login
-          </a>
-        </Button>
+          </Button>
+        </a>
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-8 mb-16">
