@@ -38,7 +38,7 @@ export default function Dashboard() {
   const birthdays = birthdaysInNextNDays(giftees, 21);
 
   return (
-    <div className="p-4">
+    <div className="py-4">
       <div className="mb-4">
         <Link to="/ideas" className="text-sm text-primary underline">
           All ideas

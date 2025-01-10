@@ -1,12 +1,16 @@
 import { Button } from "../components/ui/button";
 import { handleLogout } from "../lib/logout";
+import logo from "/logo.png";
 
 export default function Navbar({ isLoggedOut }) {
   return (
-    <nav className="p-4 flex justify-between items-center bg-[#e0daff]">
-      <h1 className="text-lg font-bold">
-        <a href="/">Gift GOATs</a>
-      </h1>
+    <nav className="flex justify-between items-center">
+      <div className="flex items-center space-x-2 w-full">
+        <img src={logo} alt="Logo" className="h-8 w-8" /> {/* Logo image */}
+        <h1 className="text-lg font-semibold text-gray-700">
+          <a href="/">giftgoats</a>
+        </h1>
+      </div>
       {!isLoggedOut && (
         <Button
           variant="ghost"

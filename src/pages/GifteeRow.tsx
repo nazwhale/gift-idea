@@ -88,7 +88,8 @@ export default function GifteeRow({ g }: GifteeProps) {
               View Ideas
             </Button>
           </DialogTrigger>
-          <DialogContent>
+
+          <DialogContent className="overflow-y-scroll">
             <DialogHeader>
               <DialogTitle>
                 {g.name}'s {ideas.length} Ideas
@@ -111,7 +112,7 @@ export default function GifteeRow({ g }: GifteeProps) {
                 {isFetchingSuggestions ? "Thinking..." : "Get Suggestions"}
               </Button>
               {suggestions.length > 0 && (
-                <div className="mt-4 space-y-2">
+                <div className="mt-4 space-y-2 text-sm">
                   {suggestions.map((suggestion, idx) => (
                     <ul
                       key={idx}

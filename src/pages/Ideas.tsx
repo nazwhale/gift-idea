@@ -111,7 +111,7 @@ export default function Ideas() {
 
   return (
     <>
-      <div className="mb-4">
+      <div className="my-4">
         <Link to="/dashboard" className="text-sm text-primary underline">
           ← Home
         </Link>

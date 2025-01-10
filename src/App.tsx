@@ -76,6 +76,7 @@ export default function App() {
             path="/giftee/:id"
             element={
               <ProtectedRoute>
+                <Navbar />
                 <GifteeDetail />
               </ProtectedRoute>
             }
@@ -84,6 +85,7 @@ export default function App() {
             path="/ideas/"
             element={
               <ProtectedRoute>
+                <Navbar />
                 <Ideas />
               </ProtectedRoute>
             }
