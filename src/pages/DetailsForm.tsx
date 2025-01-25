@@ -6,7 +6,7 @@ import { Button } from "../components/ui/button";
 import { Giftee } from "@/types";
 import { useToast } from "@/hooks/use-toast";
 
-export default function DetailsForm({ giftee }: { giftee: Giftee }) {
+export default function DetailsForm({ giftee, onClose }: { giftee: Giftee; onClose: any }) {
   const { toast } = useToast();
   const [dob, setDob] = useState(giftee.date_of_birth || "");
   const [bio, setBio] = useState(giftee.bio || "");
@@ -18,6 +18,10 @@ export default function DetailsForm({ giftee }: { giftee: Giftee }) {
         title: "Details Saved",
         description: `Updated details for ${giftee.name}.`,
       });
+
+      console.log(onClose)
+      console.log("onClose called");
+      onClose(false);
     } catch (error) {
       toast({
         title: "Error",

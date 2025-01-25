@@ -72,15 +72,7 @@ export default function App() {
               </ProtectedRoute>
             }
           />
-          <Route
-            path="/giftee/:id"
-            element={
-              <ProtectedRoute>
-                <Navbar />
-                <GifteeDetail />
-              </ProtectedRoute>
-            }
-          />
+   
           <Route
             path="/ideas/"
             element={

@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { getGiftees, addGiftee, updateGiftee } from "../lib/giftees";
+import { getGiftees, addGiftee } from "../lib/giftees";
 import { Input } from "../components/ui/input";
 import { Button } from "../components/ui/button";
 import { Link } from "react-router-dom";
@@ -34,6 +34,22 @@ export default function Dashboard() {
     }
   };
 
+  const sortedGiftees = [...giftees].sort((a, b) => {
+    const today = new Date();
+    const dateA = new Date(a.date_of_birth);
+    const dateB = new Date(b.date_of_birth);
+    
+    // Set both dates to current year
+    dateA.setFullYear(today.getFullYear());
+    dateB.setFullYear(today.getFullYear());
+    
+    // If the birthday has already passed this year, set it to next year
+    if (dateA < today) dateA.setFullYear(today.getFullYear() + 1);
+    if (dateB < today) dateB.setFullYear(today.getFullYear() + 1);
+    
+    return dateA.getTime() - dateB.getTime();
+  });
+
   const daysToChristmas = calculateDaysToChristmas();
   const birthdays = birthdaysInNextNDays(giftees, 21);
 
@@ -45,7 +61,7 @@ export default function Dashboard() {
         </Link>
       </div>
 
-      {/* Upcoming Birthdays and Christmas */}
+      {/* Only show Christmas countdown */}
       <div className="text-gray-500 mb-4">
         {daysToChristmas < 51 && (
           <div>
@@ -53,25 +69,6 @@ export default function Dashboard() {
             {daysToChristmas === 1 ? "" : "s"} til Christmas
           </div>
         )}
-        <div>
-          <ul>
-            {birthdays.map((g) => (
-              <li key={"birthdays" + g.id}>
-                🍰{" "}
-                <strong>
-                  {Math.ceil(
-                    (new Date(g.date_of_birth).setFullYear(
-                      new Date().getFullYear()
-                    ) -
-                      new Date().getTime()) /
-                      (1000 * 60 * 60 * 24)
-                  )}{" "}
-                </strong>
-                days til {g.name}'s birthday
-              </li>
-            ))}
-          </ul>
-        </div>
       </div>
 
       <h1 className="text-xl mb-4">Your People</h1>
@@ -87,9 +84,33 @@ export default function Dashboard() {
       </form>
 
       <ul>
-        {giftees.map((g) => (
-          <GifteeRow key={g.id} g={g} />
-        ))}
+        {sortedGiftees.map((g) => {
+          const today = new Date();
+          const birthday = new Date(g.date_of_birth);
+          birthday.setFullYear(today.getFullYear());
+          
+          // If birthday has passed this year, set to next year
+          if (birthday < today) {
+            birthday.setFullYear(today.getFullYear() + 1);
+          }
+          
+          const daysUntil = Math.ceil((birthday.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
+          const showBirthday = daysUntil <= 31;
+
+          return (
+            <li key={g.id} className="flex justify-between items-center py-2">
+              <div>
+                {g.name}
+                {showBirthday && (
+                  <span className="text-gray-500 ml-2">
+                    - 🎂 {daysUntil} day{daysUntil === 1 ? "" : "s"}
+                  </span>
+                )}
+              </div>
+              <GifteeRow g={g}  />
+            </li>
+          );
+        })}
       </ul>
     </div>
   );
@@ -119,11 +140,19 @@ function birthdaysInNextNDays(giftees: Giftee[], n: number): Giftee[] {
   const nextNDays = new Date();
   nextNDays.setDate(today.getDate() + n);
 
-  return giftees.filter((g) => {
-    const dob = new Date(g.date_of_birth);
-    dob.setFullYear(today.getFullYear());
-    return dob >= today && dob <= nextNDays;
-  });
+  return giftees
+    .filter((g) => {
+      const dob = new Date(g.date_of_birth);
+      dob.setFullYear(today.getFullYear());
+      return dob >= today && dob <= nextNDays;
+    })
+    .sort((a, b) => {
+      const dateA = new Date(a.date_of_birth);
+      const dateB = new Date(b.date_of_birth);
+      dateA.setFullYear(today.getFullYear());
+      dateB.setFullYear(today.getFullYear());
+      return dateA.getTime() - dateB.getTime();
+    });
 }
 
 function getChristmasGiftees(giftees: Giftee[]): Giftee[] {
