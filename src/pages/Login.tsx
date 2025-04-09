@@ -1,25 +1,34 @@
 import { supabase } from "../lib/supabaseClient";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Input } from "../components/ui/input";
 import { Button } from "../components/ui/button";
+import { useAuth } from "../hooks/useAuth";
+import { useNavigate } from "react-router-dom";
 
 export default function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
+  const { session, loading } = useAuth();
+  const navigate = useNavigate();
+
+  // Check if user is already logged in and redirect to dashboard
+  useEffect(() => {
+    if (!loading && session) {
+      // User is already logged in, redirect to dashboard
+      navigate('/dashboard', { replace: true });
+    }
+  }, [session, loading, navigate]);
 
   const handleLogin = async () => {
-    console.log("handleLogin invoked...");
     const { data, error } = await supabase.auth.signInWithPassword({
       email,
       password,
     });
-    console.log("called login");
+    
     if (error) {
-      console.log("login error");
       setError(error.message);
     } else {
-      console.log("login success");
       window.location.href = "/dashboard";
     }
   };

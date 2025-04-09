@@ -1,6 +1,7 @@
 import { ReactNode } from "react";
 import { Button } from "../components/ui/button";
 import { Gift, Rabbit, WandSparkles, Bell } from "lucide-react"; // lucide.dev/icons
+import { useNavigate } from "react-router-dom";
 
 const features = [
   {
@@ -37,6 +38,13 @@ const features = [
 ];
 
 export default function HomePage() {
+  const navigate = useNavigate();
+  
+  const handleLoginClick = () => {
+    // Simply navigate to login page, which will redirect to dashboard if already logged in
+    navigate('/login');
+  };
+
   return (
     <div className="space-y-8 mb-2 mt-6 md:mb-12">
       <div className="space-y-2">
@@ -51,11 +59,11 @@ export default function HomePage() {
         <a href="/signup" className="w-full sm:w-1/2">
           <Button className="w-full">Get started for free</Button>
         </a>
-        <a href="/login" className="w-full sm:w-1/2">
-          <Button className="w-full" variant="outline">
+        <div className="w-full sm:w-1/2">
+          <Button className="w-full" variant="outline" onClick={handleLoginClick} data-testid="login-button">
             Login
           </Button>
-        </a>
+        </div>
       </div>
 
       {/* Features */}

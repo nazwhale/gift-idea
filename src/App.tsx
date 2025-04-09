@@ -14,6 +14,7 @@ import Ideas from "@/pages/Ideas.tsx";
 import Navbar from "@/components/Navbar.tsx";
 import { Toaster } from "@/components/ui/toaster.tsx";
 import HomePage from "@/pages/HomePage.tsx";
+import { AuthRedirect } from "@/components/AuthRedirect";
 
 function ProtectedRoute({ children }: { children: Element }) {
   const { session, loading } = useAuth();
@@ -39,19 +40,19 @@ export default function App() {
           <Route
             path="/login"
             element={
-              <>
+              <AuthRedirect>
                 <Navbar isLoggedOut />
                 <Login />
-              </>
+              </AuthRedirect>
             }
           />
           <Route
             path="/signup"
             element={
-              <>
+              <AuthRedirect>
                 <Navbar isLoggedOut />
                 <Signup />
-              </>
+              </AuthRedirect>
             }
           />
           <Route
