@@ -19,4 +19,4 @@ export function AuthRedirect({ children }: { children: React.ReactNode }) {
 
   // Show children while loading, they'll be replaced with dashboard if user is logged in
   return <>{children}</>;
-} 
+}
