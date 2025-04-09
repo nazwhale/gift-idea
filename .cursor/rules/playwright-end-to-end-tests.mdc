@@ -1,0 +1,10 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+
+- Run via `npx playwright test`
+- Assert on `data-testid=`'s instead of css 
+- End to end tests are stored in @playwright-tests
+- Test results are stored in @playwright-test-results

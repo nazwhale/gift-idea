@@ -40,7 +40,7 @@ export default function HomePage() {
   return (
     <div className="space-y-8 mb-2 mt-6 md:mb-12">
       <div className="space-y-2">
-        <h1 className="text-4xl font-bold">Never miss a gift again</h1>
+        <h1 className="text-4xl font-bold" data-testid="main-heading">Never miss a gift again</h1>
         <p className="text-lg text-gray-600">
           Track ideas, stay reminded, and get AI-powered gift suggestions for
           every occasion.
