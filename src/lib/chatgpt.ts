@@ -1,6 +1,6 @@
 // src/lib/chatgpt.ts
 
-const model = "gpt-4o-mini";
+const model = "gpt-4.1-nano";
 
 // src/lib/chatgpt.ts
 export async function getSuggestionsForGiftee(
