@@ -14,7 +14,7 @@ import { addIdea, updateIdea, deleteIdea } from "@/lib/ideas";
 import IdeasForm from "@/pages/IdeasForm.tsx";
 import DetailsForm from "@/pages/DetailsForm.tsx";
 
-import { Giftee } from "@/types";
+import { Giftee, Idea } from "@/types";
 import { useToast } from "@/hooks/use-toast";
 
 type GifteeProps = {
@@ -24,7 +24,7 @@ type GifteeProps = {
 
 export default function GifteeRow({ g }: GifteeProps) {
   const { toast } = useToast();
-  const [ideas, setIdeas] = useState(g.ideas || []);
+  const [ideas, setIdeas] = useState<Idea[]>(g.ideas || []);
   const [isIdeasDialogOpen, setIsIdeasDialogOpen] = useState(false);
   const [isDetailsDialogOpen, setIsDetailsDialogOpen] = useState(false);
 
@@ -45,7 +45,7 @@ export default function GifteeRow({ g }: GifteeProps) {
 
     // if purchased_at is null, set to current date, else set to null
     const updated = await updateIdea(ideaId, { purchased_at: purchasedAt });
-    setIdeas((prev) => prev.map((i) => (i.id === ideaId ? updated : i)));
+    setIdeas((prev) => prev.map((i) => (i.id === ideaId ? updated as Idea : i)));
     toast({
       title: `Idea Marked as ${purchasedAt ? "Bought" : "Not Bought"}`,
     });
@@ -68,22 +68,26 @@ export default function GifteeRow({ g }: GifteeProps) {
             </Button>
           </DialogTrigger>
 
-          <DialogContent className="overflow-y-scroll">
-            <DialogHeader>
-              <DialogTitle>
-                {g.name}'s {ideas.length} Ideas
-              </DialogTitle>
-              <DialogDescription>
-                Manage gift ideas and get AI suggestions
-              </DialogDescription>
-            </DialogHeader>
-            <IdeasForm
-              giftee={g}
-              ideas={ideas}
-              onToggleBought={handleToggleBought}
-              onDelete={handleDeleteIdea}
-              onAddIdea={handleAddIdea}
-            />
+          <DialogContent className="flex flex-col max-h-[90vh] p-0">
+            <div className="p-6 pb-0">
+              <DialogHeader>
+                <DialogTitle>
+                  {g.name}'s {ideas.length} Ideas
+                </DialogTitle>
+                <DialogDescription>
+                  Manage gift ideas and get AI suggestions
+                </DialogDescription>
+              </DialogHeader>
+            </div>
+            <div className="px-6 flex-1 overflow-hidden">
+              <IdeasForm
+                giftee={g}
+                ideas={ideas}
+                onToggleBought={handleToggleBought}
+                onDelete={handleDeleteIdea}
+                onAddIdea={handleAddIdea}
+              />
+            </div>
           </DialogContent>
         </Dialog>
 

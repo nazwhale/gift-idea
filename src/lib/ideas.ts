@@ -32,10 +32,8 @@ export async function updateIdea(id: string, updates: Partial<any>) {
   const { data, error } = await supabase
     .from("ideas")
     .update(updates)
-    .eq("id", id).select(`
-      *, 
-      giftees (id, name, date_of_birth)  -- Fetch related giftee details
-    `);
+    .eq("id", id)
+    .select("*");
   if (error) throw error;
   return data[0];
 }

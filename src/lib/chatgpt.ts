@@ -2,11 +2,17 @@ import { buildGiftPrompt } from "./prompt";
 
 const model = "gpt-4.1-nano";
 
+export type Suggestion = {
+  description: string;
+  shortDescription: string;
+  cost: string;
+};
+
 // src/lib/chatgpt.ts
 export async function getSuggestionsForGiftee(
   gifteeName: string,
   bio?: string
-): Promise<string[]> {
+): Promise<Suggestion[]> {
   const apiKey = import.meta.env.VITE_OPENAI_API_KEY;
   if (!apiKey) {
     throw new Error("Missing OpenAI API key in environment variables.");
@@ -27,13 +33,31 @@ export async function getSuggestionsForGiftee(
       functions: [
         {
           name: "suggest_gifts",
-          description: "Suggest three distinct one-line gift ideas",
+          description: "Suggest three distinct gift ideas with description and cost level",
           parameters: {
             type: "object",
             properties: {
               suggestions: {
                 type: "array",
-                items: { type: "string" },
+                items: {
+                  type: "object",
+                  properties: {
+                    description: {
+                      type: "string",
+                      description: "A one-line description of the gift"
+                    },
+                    shortDescription: {
+                      type: "string",
+                      description: "A very short title/category for the gift (3 words or less)"
+                    },
+                    cost: {
+                      type: "string",
+                      enum: ["£", "££", "£££"],
+                      description: "The cost level of the gift: £ for low cost, ££ for medium, £££ for high"
+                    }
+                  },
+                  required: ["description", "shortDescription", "cost"]
+                }
               },
             },
             required: ["suggestions"],
@@ -57,5 +81,5 @@ export async function getSuggestionsForGiftee(
   if (!Array.isArray(fcArgs.suggestions))
     throw new Error("Bad model response");
 
-  return fcArgs.suggestions as string[];
+  return fcArgs.suggestions as Suggestion[];
 }

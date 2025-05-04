@@ -11,10 +11,11 @@ export default function IdeaList({
 }) {
   return ideas.length > 0 ? (
     <ul className="overflow-y-scroll max-h-96">
-      {ideas.map((idea) => (
+      {ideas.map((idea, index) => (
         <li
           key={idea.id}
-          className="flex items-center justify-between border-b rounded"
+          className={`flex items-center justify-between px-2 ${index < ideas.length - 1 ? "border-b" : ""
+            }`}
         >
           <div className="flex items-center text-sm">
             <p>{idea.name}</p>
