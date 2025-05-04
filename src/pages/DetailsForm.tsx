@@ -17,10 +17,10 @@ export default function DetailsForm({ giftee, onClose }: { giftee: Giftee; onClo
     if (giftee.date_of_birth) {
       const dobDate = new Date(giftee.date_of_birth);
 
-      // Extract month and day for birthday (format: MM-DD)
+      // Extract day and month for birthday (format: DD-MM)
       const month = String(dobDate.getMonth() + 1).padStart(2, '0');
       const day = String(dobDate.getDate()).padStart(2, '0');
-      setBirthday(`${month}-${day}`);
+      setBirthday(`${day}-${month}`);
 
       // Calculate age based on birth year
       const birthYear = dobDate.getFullYear();
@@ -32,8 +32,8 @@ export default function DetailsForm({ giftee, onClose }: { giftee: Giftee; onClo
   const calculateDateOfBirth = () => {
     if (!birthday || !age) return "";
 
-    // Parse birthday (MM-DD)
-    const [month, day] = birthday.split("-").map(num => parseInt(num, 10));
+    // Parse birthday (DD-MM)
+    const [day, month] = birthday.split("-").map(num => parseInt(num, 10));
 
     // Calculate birth year based on age
     const currentYear = new Date().getFullYear();
@@ -70,17 +70,23 @@ export default function DetailsForm({ giftee, onClose }: { giftee: Giftee; onClo
           htmlFor="birthday"
           className="block text-sm font-medium text-gray-700"
         >
-          Birthday (Month and Day)
+          Birthday (Day and Month)
         </label>
         <Input
           id="birthday"
           type="text"
-          placeholder="MM-DD"
+          placeholder="DD-MM"
           data-testid="birthday-input"
           value={birthday}
           onChange={(e) => setBirthday(e.target.value)}
         />
-        <p className="text-xs text-gray-500 mt-1">Format: MM-DD (e.g., 01-15 for January 15)</p>
+        {birthday && birthday.match(/^\d{2}-\d{2}$/) ? (
+          <p className="text-xs text-gray-500 mt-1">
+            Selected: {new Date(`2000-${birthday.split('-')[1]}-${birthday.split('-')[0]}`).toLocaleDateString('en-GB', { day: 'numeric', month: 'long' })}
+          </p>
+        ) : (
+          <p className="text-xs text-gray-500 mt-1">Format: DD-MM (e.g., 15-01 for 15 January)</p>
+        )}
       </div>
       <div>
         <label
