@@ -7,13 +7,35 @@ export default {
   theme: {
     extend: {
       colors: {
-        primary: "hsl(var(--primary, 0, 0, 0))", // Default: black
-        "primary-foreground": "hsl(var(--primary-foreground, 255, 255, 255))", // Default: white
-        secondary: "hsl(var(--secondary, 120, 120, 120))", // Default: gray
-        "secondary-foreground":
-          "hsl(var(--secondary-foreground, 255, 255, 255))", // Default: white
-        background: "hsl(var(--background, 255, 255, 255))", // Default: white
-        foreground: "hsl(var(--foreground, 0, 0, 0))", // Default: black
+        border: "var(--border)",
+        input: "var(--input)",
+        ring: "var(--ring)",
+        background: "var(--background)",
+        foreground: "var(--foreground)",
+        primary: {
+          DEFAULT: "var(--primary)",
+          foreground: "var(--primary-foreground)",
+        },
+        secondary: {
+          DEFAULT: "var(--secondary)",
+          foreground: "var(--secondary-foreground)",
+        },
+        muted: {
+          DEFAULT: "var(--muted)",
+          foreground: "var(--muted-foreground)",
+        },
+        accent: {
+          DEFAULT: "var(--accent)",
+          foreground: "var(--accent-foreground)",
+        },
+        popover: {
+          DEFAULT: "var(--popover)",
+          foreground: "var(--popover-foreground)",
+        },
+        card: {
+          DEFAULT: "var(--card)",
+          foreground: "var(--card-foreground)",
+        },
       },
     },
   },
