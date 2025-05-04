@@ -43,7 +43,7 @@ export default function ResponsiveIdeasDialog({
     if (isDesktop) {
         return (
             <Dialog open={open} onOpenChange={setOpen}>
-                <DialogContent className="flex flex-col max-h-[90vh] p-0" data-testid="ideas-dialog-content">
+                <DialogContent className="flex flex-col max-h-[95vh] w-[80vw] max-w-[700px] p-0" data-testid="ideas-dialog-content">
                     <div className="p-6 pb-0">
                         <DialogHeader>
                             <DialogTitle>

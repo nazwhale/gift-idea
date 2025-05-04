@@ -109,11 +109,6 @@ export default function IdeasForm({ giftee, ideas, onToggleBought, onDelete, onA
 
         <TabsContent value="ai" className="flex-1 overflow-auto mb-0" data-testid="ai-content">
           <div className="space-y-2">
-            {currentFollowUpQuestion && (
-              <div className="mb-3 p-2 bg-blue-50 rounded-md border border-blue-200">
-                <div className="text-sm text-blue-700">{currentFollowUpQuestion}</div>
-              </div>
-            )}
             {suggestions.length > 0 ? (
               <div className="space-y-2 text-sm overflow-y-auto max-h-96">
                 {suggestions.map((suggestion, idx) => (
