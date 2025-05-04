@@ -61,10 +61,10 @@ export default function IdeasForm({ giftee, ideas, onToggleBought, onDelete, onA
         <TabsContent value="ai" className="flex-1 overflow-auto" data-testid="ai-content">
           <div className="space-y-4">
             {suggestions.length > 0 ? (
-              <div className="space-y-2 text-sm overflow-y-auto">
+              <div className="space-y-2 text-sm overflow-y-auto max-h-96">
                 {suggestions.map((suggestion, idx) => (
                   <Card key={idx} data-testid={`suggestion-card-${idx}`}>
-                    <CardContent className="pt-6 px-6">
+                    <CardContent className="pt-6 px-4">
                       <div className="flex items-center justify-between">
                         <span className="font-semibold text-gray-500 mr-4 min-w-10" data-testid={`suggestion-cost-${idx}`}>
                           {suggestion.cost}
@@ -78,9 +78,9 @@ export default function IdeasForm({ giftee, ideas, onToggleBought, onDelete, onA
                           </span>
                         </div>
                         <Button
-                          variant="ghost"
-                          className="text-blue-500 shrink-0"
-                          size="sm"
+                          variant="outline"
+                          className="shrink-0"
+                          size="xs"
                           onClick={() => {
                             onAddIdea(suggestion.description);
                             setActiveTab("ideas");
