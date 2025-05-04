@@ -39,21 +39,22 @@ export default function ActionList({
         <DropdownMenuLabel>Actions</DropdownMenuLabel>
         <DropdownMenuSeparator />
         {!isBought && (
-          <DropdownMenuItem onClick={() => onToggleBought(ideaId)}>
+          <DropdownMenuItem className="cursor-pointer" onClick={() => onToggleBought(ideaId)}>
             Mark as bought
           </DropdownMenuItem>
         )}
         {isBought && (
-          <DropdownMenuItem onClick={() => onToggleBought(ideaId)}>
+          <DropdownMenuItem className="cursor-pointer" onClick={() => onToggleBought(ideaId)}>
             Mark as not bought
           </DropdownMenuItem>
         )}
         {/* URL Action */}
-        <DropdownMenuItem onClick={() => onEditUrl(ideaId, url)} data-testid={`edit-url-${ideaId}`}>
+        <DropdownMenuItem className="cursor-pointer" onClick={() => onEditUrl(ideaId, url)} data-testid={`edit-url-${ideaId}`}>
           {url ? "Edit Link" : "Add Link"}
         </DropdownMenuItem>
         {/* "Search Amazon" Button */}
         <DropdownMenuItem
+          className="cursor-pointer"
           onClick={() =>
             window.open(
               generateAmazonSearchUrl(ideaName),
@@ -64,7 +65,20 @@ export default function ActionList({
         >
           Search Amazon
         </DropdownMenuItem>
-        <DropdownMenuItem onClick={() => onDelete(ideaId)}>
+        {/* "Google it" Button */}
+        <DropdownMenuItem
+          className="cursor-pointer"
+          onClick={() =>
+            window.open(
+              `https://www.google.com/search?q=${encodeURIComponent(ideaName)}`,
+              "_blank",
+              "noopener,noreferrer"
+            )
+          }
+        >
+          Search Google
+        </DropdownMenuItem>
+        <DropdownMenuItem className="cursor-pointer" onClick={() => onDelete(ideaId)}>
           Delete
         </DropdownMenuItem>
       </DropdownMenuContent>
