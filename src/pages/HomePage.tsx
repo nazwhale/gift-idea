@@ -23,7 +23,7 @@ const features = [
     id: 3,
     title: "Never Miss a Birthday",
     description:
-      "Automated reminders for birthdays and key events keep you prepared.",
+      "Automated reminders for birthdays, mothers day, fathers day.",
     icon: <Bell size={20} />,
     bgColor: "bg-yellow-50",
   },
@@ -39,7 +39,7 @@ const features = [
 
 export default function HomePage() {
   const navigate = useNavigate();
-  
+
   const handleLoginClick = () => {
     // Simply navigate to login page, which will redirect to dashboard if already logged in
     navigate('/login');
@@ -50,8 +50,8 @@ export default function HomePage() {
       <div className="space-y-2">
         <h1 className="text-4xl font-bold" data-testid="main-heading">Never miss a gift again</h1>
         <p className="text-lg text-gray-600">
-          Track ideas, stay reminded, and get AI-powered gift suggestions for
-          every occasion.
+          Track ideas, stay reminded, get gift suggestions for
+          every occasion
         </p>
       </div>
 
