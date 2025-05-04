@@ -11,8 +11,8 @@ import {
 } from "@/components/ui/dialog";
 
 import { addIdea, updateIdea, deleteIdea } from "@/lib/ideas";
-import IdeasForm from "@/pages/IdeasForm.tsx";
 import DetailsForm from "@/pages/DetailsForm.tsx";
+import ResponsiveIdeasDialog from "@/components/ResponsiveIdeasDialog";
 
 import { Giftee, Idea } from "@/types";
 import { useToast } from "@/hooks/use-toast";
@@ -60,36 +60,26 @@ export default function GifteeRow({ g }: GifteeProps) {
   return (
     <div className="flex items-center justify-between mb-2">
       <div className="flex space-x-2">
-        {/* View Ideas Dialog */}
-        <Dialog open={isIdeasDialogOpen} onOpenChange={setIsIdeasDialogOpen}>
-          <DialogTrigger asChild>
-            <Button variant="ghost" size="sm" className="text-blue-500 p-0 gap-1">
-              <Gift />Ideas
-            </Button>
-          </DialogTrigger>
+        {/* View Ideas - Responsive Dialog/Drawer */}
+        <Button
+          variant="ghost"
+          size="sm"
+          className="text-blue-500 p-0 gap-1"
+          onClick={() => setIsIdeasDialogOpen(true)}
+          data-testid="ideas-button"
+        >
+          <Gift />Ideas
+        </Button>
 
-          <DialogContent className="flex flex-col max-h-[90vh] p-0">
-            <div className="p-6 pb-0">
-              <DialogHeader>
-                <DialogTitle>
-                  {g.name}'s {ideas.length} Ideas
-                </DialogTitle>
-                <DialogDescription>
-                  Manage gift ideas and get AI suggestions
-                </DialogDescription>
-              </DialogHeader>
-            </div>
-            <div className="px-6 flex-1 overflow-hidden">
-              <IdeasForm
-                giftee={g}
-                ideas={ideas}
-                onToggleBought={handleToggleBought}
-                onDelete={handleDeleteIdea}
-                onAddIdea={handleAddIdea}
-              />
-            </div>
-          </DialogContent>
-        </Dialog>
+        <ResponsiveIdeasDialog
+          giftee={g}
+          ideas={ideas}
+          open={isIdeasDialogOpen}
+          setOpen={setIsIdeasDialogOpen}
+          onToggleBought={handleToggleBought}
+          onDelete={handleDeleteIdea}
+          onAddIdea={handleAddIdea}
+        />
 
         {/* View Details Dialog */}
         <Dialog

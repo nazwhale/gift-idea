@@ -7,6 +7,7 @@ import AddIdeaForm from "./AddIdeaForm";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { DialogFooter } from "@/components/ui/dialog";
 import { Card, CardContent } from "@/components/ui/card";
+import { useMediaQuery } from "@/hooks/use-media-query";
 
 type IdeasFormProps = {
   giftee: Giftee;
