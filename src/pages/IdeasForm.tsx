@@ -94,7 +94,7 @@ export default function IdeasForm({ giftee, ideas, onToggleBought, onDelete, onA
                         <Button
                           variant="outline"
                           className="shrink-0"
-                          size="xs"
+                          size="sm"
                           onClick={() => {
                             onAddIdea(suggestion.description);
                             setActiveTab("ideas");
