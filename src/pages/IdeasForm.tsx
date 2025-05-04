@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "../components/ui/button";
 import { getSuggestionsForGiftee, Suggestion } from "@/lib/chatgpt";
 import { Giftee, Idea } from "@/types";
@@ -8,6 +8,8 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { DialogFooter } from "@/components/ui/dialog";
 import { Card, CardContent } from "@/components/ui/card";
 import { generateAmazonSearchUrl } from "./ActionList";
+import UrlInputDialog from "@/components/UrlInputDialog";
+import { updateIdea } from "@/lib/ideas";
 
 type IdeasFormProps = {
   giftee: Giftee;
@@ -21,6 +23,14 @@ export default function IdeasForm({ giftee, ideas, onToggleBought, onDelete, onA
   const [suggestions, setSuggestions] = useState<Suggestion[]>([]);
   const [isFetchingSuggestions, setIsFetchingSuggestions] = useState(false);
   const [activeTab, setActiveTab] = useState("ideas");
+  const [urlDialogOpen, setUrlDialogOpen] = useState(false);
+  const [selectedIdea, setSelectedIdea] = useState<{ id: string, url: string | null } | null>(null);
+  const [localIdeas, setLocalIdeas] = useState<Idea[]>(ideas);
+
+  // Update local ideas when props change
+  useEffect(() => {
+    setLocalIdeas(ideas);
+  }, [ideas]);
 
   const handleFetchSuggestions = async () => {
     if (!giftee?.name) return;
@@ -50,6 +60,18 @@ export default function IdeasForm({ giftee, ideas, onToggleBought, onDelete, onA
     }
   };
 
+  const handleEditUrl = (ideaId: string, currentUrl: string | null) => {
+    setSelectedIdea({ id: ideaId, url: currentUrl });
+    setUrlDialogOpen(true);
+  };
+
+  const handleUrlUpdated = (ideaId: string, updatedIdea: Idea) => {
+    // Update local state
+    setLocalIdeas(prevIdeas =>
+      prevIdeas.map(idea => idea.id === ideaId ? updatedIdea : idea)
+    );
+  };
+
   return (
     <div className="flex flex-col min-h-[400px]">
       <Tabs defaultValue="ideas" className="w-full flex-1" onValueChange={setActiveTab}>
@@ -66,9 +88,10 @@ export default function IdeasForm({ giftee, ideas, onToggleBought, onDelete, onA
         <TabsContent value="ideas" className="flex-1 overflow-auto mb-0" data-testid="ideas-content">
           <div className="overflow-y-auto pr-1 border border-gray-200 rounded-md">
             <IdeaList
-              ideas={ideas}
+              ideas={localIdeas}
               onToggleBought={onToggleBought}
               onDelete={onDelete}
+              onEditUrl={handleEditUrl}
             />
           </div>
         </TabsContent>
@@ -156,6 +179,17 @@ export default function IdeasForm({ giftee, ideas, onToggleBought, onDelete, onA
             {isFetchingSuggestions ? "Thinking..." : "Get 3 Suggestions"}
           </Button>
         </DialogFooter>
+      )}
+
+      {/* URL Input Dialog */}
+      {urlDialogOpen && selectedIdea && (
+        <UrlInputDialog
+          isOpen={urlDialogOpen}
+          onClose={() => setUrlDialogOpen(false)}
+          ideaId={selectedIdea.id}
+          currentUrl={selectedIdea.url}
+          onUrlUpdated={handleUrlUpdated}
+        />
       )}
     </div>
   );

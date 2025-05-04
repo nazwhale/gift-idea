@@ -17,17 +17,21 @@ export default function ActionList({
   isBought,
   onToggleBought,
   onDelete,
+  onEditUrl,
+  url = null,
 }: {
   ideaId: string;
   ideaName: string;
   isBought: boolean;
   onToggleBought: (ideaId: string) => void;
   onDelete: (ideaId: string) => void;
+  onEditUrl: (ideaId: string, currentUrl: string | null) => void;
+  url?: string | null;
 }) {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button variant="ghost" size="icon">
+        <Button variant="ghost" size="icon" data-testid={`action-menu-${ideaId}`}>
           <MoreVertical className="h-4 w-4" />
         </Button>
       </DropdownMenuTrigger>
@@ -44,6 +48,10 @@ export default function ActionList({
             Mark as not bought
           </DropdownMenuItem>
         )}
+        {/* URL Action */}
+        <DropdownMenuItem onClick={() => onEditUrl(ideaId, url)} data-testid={`edit-url-${ideaId}`}>
+          {url ? "Edit Link" : "Add Link"}
+        </DropdownMenuItem>
         {/* "Search Amazon" Button */}
         <DropdownMenuItem
           onClick={() =>

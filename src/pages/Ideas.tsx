@@ -7,6 +7,7 @@ import { Link, useNavigate } from "react-router-dom";
 export default function Ideas() {
   const navigate = useNavigate();
   const [ideas, setIdeas] = useState<any[]>([]);
+  const [editingUrl, setEditingUrl] = useState<{ id: string, url: string } | null>(null);
 
   useEffect(() => {
     getAllIdeas().then(setIdeas).catch(console.error);
@@ -26,8 +27,14 @@ export default function Ideas() {
     setIdeas(ideas.map((i) => (i.id === ideaId ? updated : i)));
   };
 
-  const handleViewRecipient = (id) => {
+  const handleViewRecipient = (id: string) => {
     navigate(`/giftee/${id}`); // Replace with the appropriate recipient page route
+  };
+
+  const handleSaveUrl = async (ideaId: string, url: string) => {
+    const updated = await updateIdea(ideaId, { url });
+    setIdeas(ideas.map((i) => (i.id === ideaId ? updated : i)));
+    setEditingUrl(null);
   };
 
   const columns: ColumnDef<any>[] = [
@@ -58,6 +65,78 @@ export default function Ideas() {
             Gift
             <ArrowUpDown className="ml-2 h-4 w-4" />
           </Button>
+        );
+      },
+    },
+    {
+      accessorKey: "url",
+      header: ({ column }) => {
+        return (
+          <Button
+            variant="ghost"
+            className="pl-0"
+            onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+          >
+            URL
+            <ArrowUpDown className="ml-2 h-4 w-4" />
+          </Button>
+        );
+      },
+      cell: ({ row }) => {
+        const idea = row.original;
+
+        if (editingUrl && editingUrl.id === idea.id) {
+          return (
+            <div className="flex items-center space-x-2">
+              <Input
+                value={editingUrl.url}
+                onChange={(e) => setEditingUrl({ ...editingUrl, url: e.target.value })}
+                className="w-40"
+                data-testid="url-input"
+              />
+              <Button
+                size="sm"
+                onClick={() => handleSaveUrl(idea.id, editingUrl.url)}
+                data-testid="save-url-btn"
+              >
+                Save
+              </Button>
+              <Button
+                size="sm"
+                variant="outline"
+                onClick={() => setEditingUrl(null)}
+                data-testid="cancel-url-btn"
+              >
+                Cancel
+              </Button>
+            </div>
+          );
+        }
+
+        return (
+          <div className="flex items-center space-x-2">
+            {idea.url ? (
+              <a
+                href={idea.url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-blue-500 hover:underline truncate max-w-[200px]"
+                data-testid="idea-url"
+              >
+                {idea.url}
+              </a>
+            ) : (
+              <span className="text-gray-400">No URL</span>
+            )}
+            <Button
+              size="sm"
+              variant="ghost"
+              onClick={() => setEditingUrl({ id: idea.id, url: idea.url || "" })}
+              data-testid="edit-url-btn"
+            >
+              Edit
+            </Button>
+          </div>
         );
       },
     },
@@ -102,6 +181,11 @@ export default function Ideas() {
               >
                 View person
               </DropdownMenuItem>
+              <DropdownMenuItem
+                onClick={() => setEditingUrl({ id: ogRow.id, url: ogRow.url || "" })}
+              >
+                Edit URL
+              </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
         );
@@ -131,12 +215,13 @@ function getData(items: any[]) {
       name: item.name,
       giftee: item.giftees?.name,
       giftee_id: item.giftees?.id,
+      url: item.url,
       purchased:
         item.purchased_at == null
           ? "−"
           : item.purchased_for === ""
-          ? "✓"
-          : item.purchased_for,
+            ? "✓"
+            : item.purchased_for,
       purchased_at: item.purchased_at,
     };
   });
@@ -174,7 +259,7 @@ import {
 import { ArrowUpDown } from "lucide-react";
 import { Input } from "@/components/ui/input.tsx";
 
-export function DataTable({ columns, data }) {
+export function DataTable({ columns, data }: { columns: ColumnDef<any>[]; data: any[] }) {
   const [sorting, setSorting] = useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
 
@@ -215,9 +300,9 @@ export function DataTable({ columns, data }) {
                       {header.isPlaceholder
                         ? null
                         : flexRender(
-                            header.column.columnDef.header,
-                            header.getContext()
-                          )}
+                          header.column.columnDef.header,
+                          header.getContext()
+                        )}
                     </TableHead>
                   );
                 })}
