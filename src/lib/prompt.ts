@@ -22,10 +22,10 @@ export const buildGiftPrompt = (name: string, bio?: string, age?: number, follow
   - Avoid quoting the bio; infer interests subtly.
   - Consider age appropriateness when suggesting gifts.
   - Cover at least one experience and one tangible item.
-  - Vary price bands (~£25, ~£75, ~£150).
+  - Vary price bands (~£10, ~£25, ~£50, ~£100).
   - Provide 3 follow-up prompts (maximum 3 words each) that could help refine the gift search further.
     * Include 1-2 general refinements (e.g. "Cheaper gifts", "More unique") 
-    * Include 1-2 specific prompts directly related to interests or details mentioned in the bio (e.g. if bio mentions "loves flying", one prompt could be "Aviation themed")
+    * Include 2-3 specific prompts directly related to interests or details mentioned in the bio
     * DO NOT include follow-up prompts that are not directly related to either the bio, the previous follow-up question, the previous gift suggestions, or general refinements.
   - If a follow-up request is provided, it's CRITICALLY IMPORTANT to directly address it in your suggestions. The follow-up request should dramatically change your recommendations.
   Return both gift suggestions and follow-up questions.`.trim();
