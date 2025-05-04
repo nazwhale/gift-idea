@@ -104,6 +104,17 @@ export default function IdeasForm({ giftee, ideas, onToggleBought, onDelete, onA
                           Add idea
                         </Button>
                       </div>
+                      <div className="flex justify-end mt-2">
+                        <Button
+                          variant="link"
+                          size="sm"
+                          className="text-sm text-blue-500 p-0 h-auto"
+                          onClick={() => window.open(`https://www.google.com/search?q=${encodeURIComponent(suggestion.description)}`, '_blank')}
+                          data-testid={`google-suggestion-${idx}`}
+                        >
+                          Google it →
+                        </Button>
+                      </div>
                     </CardContent>
                   </Card>
                 ))}
