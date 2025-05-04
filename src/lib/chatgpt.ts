@@ -47,7 +47,7 @@ export async function getSuggestionsForGiftee(
                   properties: {
                     description: {
                       type: "string",
-                      description: "A detailed description with specific product name, brand, author, or title. Include enough details to identify the exact item."
+                      description: "A specific product, including brand name, title, or exact experience (e.g. 'Kindle Paperwhite', 'Taylor Swift concert tickets', 'Le Labo Santal 33 perfume')"
                     },
                     shortDescription: {
                       type: "string",
