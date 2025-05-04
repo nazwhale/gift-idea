@@ -1,5 +1,5 @@
 // src/prompt/gifts.ts
-export const buildGiftPrompt = (name: string, bio?: string, age?: number) => {
+export const buildGiftPrompt = (name: string, bio?: string, age?: number, followUpQuestion?: string) => {
   //
   // System prompt: 
   //
@@ -23,7 +23,12 @@ export const buildGiftPrompt = (name: string, bio?: string, age?: number) => {
   - Consider age appropriateness when suggesting gifts.
   - Cover at least one experience and one tangible item.
   - Vary price bands (~£25, ~£75, ~£150).
-  Return JSON: ["idea1","idea2","idea3"]`.trim();
+  - Provide 3 follow-up prompts (maximum 3 words each) that could help refine the gift search further.
+    * Include 1-2 general refinements (e.g. "Cheaper gifts", "More unique") 
+    * Include 1-2 specific prompts directly related to interests or details mentioned in the bio (e.g. if bio mentions "loves flying", one prompt could be "Aviation themed")
+    * DO NOT include follow-up prompts that are not directly related to either the bio, the previous follow-up question, the previous gift suggestions, or general refinements.
+  - If a follow-up request is provided, it's CRITICALLY IMPORTANT to directly address it in your suggestions. The follow-up request should dramatically change your recommendations.
+  Return both gift suggestions and follow-up questions.`.trim();
 
   //
   // User prompt:
@@ -32,7 +37,7 @@ export const buildGiftPrompt = (name: string, bio?: string, age?: number) => {
   // Provides the specific input or question from the user.
 
   // Analogy:
-  // Like handing the assistant a customer note:
+  // Like handing the assistant a note:
   // → "Name: Alice. Bio: Loves gardening and jazz."
 
   // How to use it:
@@ -40,10 +45,15 @@ export const buildGiftPrompt = (name: string, bio?: string, age?: number) => {
   // Frame tasks → "What are 3 gift ideas?"
   // When to use it:
   // For all concrete, per-request details.
-  const user = `
+  let userPrompt = `
   Name: "${name}"
   Bio: "${bio ?? 'N/A'}"
-  Age: ${age ? age : 'N/A'}`.trim();
+  Age: ${age ? age : 'N/A'}`;
 
-  return { system, user };
+  if (followUpQuestion) {
+    userPrompt += `\n\nIMPORTANT FOLLOW-UP REQUEST: ${followUpQuestion}
+    Please dramatically change your suggestions to focus specifically on this request while still considering the person's bio.`;
+  }
+
+  return { system, user: userPrompt.trim() };
 };

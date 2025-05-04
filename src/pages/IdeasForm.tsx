@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { Button } from "../components/ui/button";
-import { getSuggestionsForGiftee, Suggestion } from "@/lib/chatgpt";
+import { getSuggestionsForGiftee, Suggestion, FollowUpQuestion, GiftSuggestionResponse } from "@/lib/chatgpt";
 import { Giftee, Idea } from "@/types";
 import IdeaList from "./IdeaList";
 import AddIdeaForm from "./AddIdeaForm";
@@ -21,21 +21,31 @@ type IdeasFormProps = {
 
 export default function IdeasForm({ giftee, ideas, onToggleBought, onDelete, onAddIdea }: IdeasFormProps) {
   const [suggestions, setSuggestions] = useState<Suggestion[]>([]);
+  const [followUpQuestions, setFollowUpQuestions] = useState<FollowUpQuestion[]>([]);
   const [isFetchingSuggestions, setIsFetchingSuggestions] = useState(false);
   const [activeTab, setActiveTab] = useState("ideas");
   const [urlDialogOpen, setUrlDialogOpen] = useState(false);
   const [selectedIdea, setSelectedIdea] = useState<{ id: string, url: string | null } | null>(null);
   const [localIdeas, setLocalIdeas] = useState<Idea[]>(ideas);
+  const [currentFollowUpQuestion, setCurrentFollowUpQuestion] = useState<string | undefined>(undefined);
 
   // Update local ideas when props change
   useEffect(() => {
     setLocalIdeas(ideas);
   }, [ideas]);
 
-  const handleFetchSuggestions = async () => {
+  const handleFetchSuggestions = async (followUpQuestion?: string) => {
     if (!giftee?.name) return;
     setIsFetchingSuggestions(true);
     setSuggestions([]);
+    setFollowUpQuestions([]);
+
+    if (followUpQuestion) {
+      setCurrentFollowUpQuestion(followUpQuestion);
+    } else {
+      setCurrentFollowUpQuestion(undefined);
+    }
+
     try {
       // Calculate age from date of birth if available
       let age: number | undefined;
@@ -51,8 +61,9 @@ export default function IdeasForm({ giftee, ideas, onToggleBought, onDelete, onA
         }
       }
 
-      const newSuggestions = await getSuggestionsForGiftee(giftee.name, giftee.bio || "", age);
-      setSuggestions(newSuggestions);
+      const response = await getSuggestionsForGiftee(giftee.name, giftee.bio || "", age, followUpQuestion);
+      setSuggestions(response.suggestions);
+      setFollowUpQuestions(response.followUpQuestions);
     } catch (error) {
       console.error("Error fetching suggestions:", error);
     } finally {
@@ -98,6 +109,11 @@ export default function IdeasForm({ giftee, ideas, onToggleBought, onDelete, onA
 
         <TabsContent value="ai" className="flex-1 overflow-auto mb-0" data-testid="ai-content">
           <div className="space-y-2">
+            {currentFollowUpQuestion && (
+              <div className="mb-3 p-2 bg-blue-50 rounded-md border border-blue-200">
+                <div className="text-sm text-blue-700">{currentFollowUpQuestion}</div>
+              </div>
+            )}
             {suggestions.length > 0 ? (
               <div className="space-y-2 text-sm overflow-y-auto max-h-96">
                 {suggestions.map((suggestion, idx) => (
@@ -151,6 +167,27 @@ export default function IdeasForm({ giftee, ideas, onToggleBought, onDelete, onA
                     </CardContent>
                   </Card>
                 ))}
+
+                {/* Follow-up question buttons */}
+                {followUpQuestions.length > 0 && (
+                  <div className="mt-4 space-y-2">
+                    <div className="text-sm font-medium text-gray-500">Refine suggestions:</div>
+                    <div className="flex flex-wrap gap-2" data-testid="follow-up-questions">
+                      {followUpQuestions.map((question, idx) => (
+                        <Button
+                          key={idx}
+                          variant="outline"
+                          size="sm"
+                          onClick={() => handleFetchSuggestions(question.text)}
+                          data-testid={`follow-up-question-${idx}`}
+                          className="bg-gray-50 hover:bg-gray-100 px-3 py-1"
+                        >
+                          {question.text}
+                        </Button>
+                      ))}
+                    </div>
+                  </div>
+                )}
               </div>
             ) : (
               <div className="flex justify-center items-center w-full flex-1 min-h-[300px] text-muted-foreground" data-testid="empty-suggestions">
@@ -172,11 +209,11 @@ export default function IdeasForm({ giftee, ideas, onToggleBought, onDelete, onA
             size="sm"
             variant="outline"
             className="bg-gradient-to-r from-purple-300 via-pink-300 to-red-300 w-full"
-            onClick={handleFetchSuggestions}
+            onClick={() => handleFetchSuggestions()}
             disabled={isFetchingSuggestions}
             data-testid="get-suggestions-button"
           >
-            {isFetchingSuggestions ? "Thinking..." : "Get 3 Suggestions"}
+            {isFetchingSuggestions ? "Thinking..." : currentFollowUpQuestion ? "Get New Suggestions" : "Get 3 Suggestions"}
           </Button>
         </DialogFooter>
       )}

@@ -8,18 +8,28 @@ export type Suggestion = {
   cost: string;
 };
 
+export type FollowUpQuestion = {
+  text: string;
+};
+
+export type GiftSuggestionResponse = {
+  suggestions: Suggestion[];
+  followUpQuestions: FollowUpQuestion[];
+};
+
 // src/lib/chatgpt.ts
 export async function getSuggestionsForGiftee(
   gifteeName: string,
   bio?: string,
-  age?: number
-): Promise<Suggestion[]> {
+  age?: number,
+  followUpQuestion?: string
+): Promise<GiftSuggestionResponse> {
   const apiKey = import.meta.env.VITE_OPENAI_API_KEY;
   if (!apiKey) {
     throw new Error("Missing OpenAI API key in environment variables.");
   }
 
-  const { system, user } = buildGiftPrompt(gifteeName, bio, age);
+  const { system, user } = buildGiftPrompt(gifteeName, bio, age, followUpQuestion);
   console.log("system", system);
   console.log("user", user);
 
@@ -62,8 +72,22 @@ export async function getSuggestionsForGiftee(
                   required: ["description", "shortDescription", "cost"]
                 }
               },
+              followUpQuestions: {
+                type: "array",
+                items: {
+                  type: "object",
+                  properties: {
+                    text: {
+                      type: "string",
+                      description: "An ultra-short follow-up prompt (maximum 3 words) that can refine gift suggestions. Include both general refinements (e.g. 'Cheaper gifts', 'More unique') and bio-specific prompts based on interests mentioned in the bio"
+                    }
+                  },
+                  required: ["text"]
+                },
+                description: "Three ultra-short follow-up prompts (maximum 3 words each) - a mix of general refinements and prompts specific to interests mentioned in the bio"
+              }
             },
-            required: ["suggestions"],
+            required: ["suggestions", "followUpQuestions"],
           },
         },
       ],
@@ -73,7 +97,7 @@ export async function getSuggestionsForGiftee(
         { role: "user", content: user },
       ],
       max_tokens: 400,
-      temperature: 0.9,
+      temperature: followUpQuestion ? 1.0 : 0.9,
     })
   });
 
@@ -81,8 +105,11 @@ export async function getSuggestionsForGiftee(
   const fcArgs = JSON.parse(
     response.ok ? (await response.json()).choices[0].message.function_call.arguments : "{}"
   );
-  if (!Array.isArray(fcArgs.suggestions))
+  if (!Array.isArray(fcArgs.suggestions) || !Array.isArray(fcArgs.followUpQuestions))
     throw new Error("Bad model response");
 
-  return fcArgs.suggestions as Suggestion[];
+  return {
+    suggestions: fcArgs.suggestions as Suggestion[],
+    followUpQuestions: fcArgs.followUpQuestions as FollowUpQuestion[]
+  };
 }
