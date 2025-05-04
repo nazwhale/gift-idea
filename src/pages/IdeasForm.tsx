@@ -36,7 +36,7 @@ export default function IdeasForm({ giftee, ideas, onToggleBought, onDelete, onA
   };
 
   return (
-    <div className="flex flex-col h-full">
+    <div className="flex flex-col min-h-[400px]">
       <Tabs defaultValue="ideas" className="w-full flex-1" onValueChange={setActiveTab}>
         <TabsList className="w-full mb-4 grid grid-cols-2">
           <TabsTrigger value="ideas" data-testid="ideas-tab">Ideas</TabsTrigger>
