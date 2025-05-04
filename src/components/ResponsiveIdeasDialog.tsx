@@ -69,7 +69,11 @@ export default function ResponsiveIdeasDialog({
     }
 
     return (
-        <Drawer open={open} onOpenChange={setOpen}>
+        <Drawer
+            open={open}
+            onOpenChange={setOpen}
+            // This fixes the issue where the input disappears above the fold on first tap
+            repositionInputs={false}>
             <DrawerContent data-testid="ideas-drawer-content">
                 <div className="p-4 pb-0">
                     <DrawerHeader className="text-left px-0">
@@ -92,6 +96,6 @@ export default function ResponsiveIdeasDialog({
                 </div>
                 <DrawerClose className="absolute right-4 top-4" />
             </DrawerContent>
-        </Drawer>
+        </Drawer >
     );
 } 
