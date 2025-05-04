@@ -123,6 +123,9 @@ export default function DetailsForm({ giftee, onClose }: { giftee: Giftee; onClo
           rows={3}
           data-testid="bio-input"
         />
+        <p className="text-xs text-gray-500 mt-1">
+          Include brands they like and dislike to get better gift suggestions.
+        </p>
       </div>
       <Button onClick={handleSave} className="w-full" data-testid="save-details-button">
         Save Details
