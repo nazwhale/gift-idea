@@ -7,7 +7,6 @@ import AddIdeaForm from "./AddIdeaForm";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { DialogFooter } from "@/components/ui/dialog";
 import { Card, CardContent } from "@/components/ui/card";
-import { useMediaQuery } from "@/hooks/use-media-query";
 
 type IdeasFormProps = {
   giftee: Giftee;
@@ -37,7 +36,7 @@ export default function IdeasForm({ giftee, ideas, onToggleBought, onDelete, onA
   };
 
   return (
-    <div className="flex flex-col min-h-[400px]">
+    <div className="flex flex-col h-full">
       <Tabs defaultValue="ideas" className="w-full flex-1" onValueChange={setActiveTab}>
         <TabsList className="w-full mb-4 grid grid-cols-2">
           <TabsTrigger value="ideas" data-testid="ideas-tab">Ideas</TabsTrigger>
@@ -49,7 +48,7 @@ export default function IdeasForm({ giftee, ideas, onToggleBought, onDelete, onA
           </TabsTrigger>
         </TabsList>
 
-        <TabsContent value="ideas" className="space-y-4 flex-1 overflow-auto" data-testid="ideas-content">
+        <TabsContent value="ideas" className="flex-1 overflow-auto mb-0" data-testid="ideas-content">
           <div className="overflow-y-auto pr-1 border border-gray-200 rounded-md">
             <IdeaList
               ideas={ideas}
@@ -59,8 +58,8 @@ export default function IdeasForm({ giftee, ideas, onToggleBought, onDelete, onA
           </div>
         </TabsContent>
 
-        <TabsContent value="ai" className="flex-1 overflow-auto" data-testid="ai-content">
-          <div className="space-y-4">
+        <TabsContent value="ai" className="flex-1 overflow-auto mb-0" data-testid="ai-content">
+          <div className="space-y-2">
             {suggestions.length > 0 ? (
               <div className="space-y-2 text-sm overflow-y-auto max-h-96">
                 {suggestions.map((suggestion, idx) => (

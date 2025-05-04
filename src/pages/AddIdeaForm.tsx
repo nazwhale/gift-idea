@@ -19,7 +19,7 @@ export default function AddIdeaForm({
   };
 
   return (
-    <DialogFooter className="sticky bottom-0 pb-4 pt-4 bg-background border-t px-4" data-testid="add-idea-footer">
+    <DialogFooter className="sticky bottom-0 pb-4 pt-2 bg-background border-t mt-0" data-testid="add-idea-footer">
       <form onSubmit={handleSubmit} className="flex w-full space-x-2">
         <Input
           placeholder="Add new idea"

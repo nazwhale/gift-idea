@@ -69,14 +69,8 @@ export default function ResponsiveIdeasDialog({
     }
 
     return (
-        <Drawer
-            open={open}
-            onOpenChange={setOpen}
-            // Prevents the drawer from automatically repositioning input fields when mobile keyboard appears
-            // This fixes the issue where the input disappears above the fold on first tap
-            repositionInputs={false}
-        >
-            <DrawerContent className="flex flex-col max-h-[85vh] h-auto" data-testid="ideas-drawer-content">
+        <Drawer open={open} onOpenChange={setOpen}>
+            <DrawerContent data-testid="ideas-drawer-content">
                 <div className="p-4 pb-0">
                     <DrawerHeader className="text-left px-0">
                         <DrawerTitle>
@@ -87,7 +81,7 @@ export default function ResponsiveIdeasDialog({
                         </DrawerDescription>
                     </DrawerHeader>
                 </div>
-                <div className="px-4 flex-1 overflow-y-auto pb-[60px]">
+                <div className="px-4 flex-1 overflow-hidden">
                     <IdeasForm
                         giftee={giftee}
                         ideas={ideas}
