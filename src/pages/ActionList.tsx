@@ -65,7 +65,7 @@ export default function ActionList({
 }
 
 // Generate Amazon search link with Associate ID
-const generateAmazonSearchUrl = (searchQuery) => {
+export const generateAmazonSearchUrl = (searchQuery: string): string => {
   const baseUrl = "https://www.amazon.co.uk/s";
   const queryParams = new URLSearchParams({
     k: searchQuery,

@@ -7,6 +7,7 @@ import AddIdeaForm from "./AddIdeaForm";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { DialogFooter } from "@/components/ui/dialog";
 import { Card, CardContent } from "@/components/ui/card";
+import { generateAmazonSearchUrl } from "./ActionList";
 
 type IdeasFormProps = {
   giftee: Giftee;
@@ -104,7 +105,7 @@ export default function IdeasForm({ giftee, ideas, onToggleBought, onDelete, onA
                           Add idea
                         </Button>
                       </div>
-                      <div className="flex justify-end mt-2">
+                      <div className="flex justify-end mt-2 space-x-2">
                         <Button
                           variant="link"
                           size="sm"
@@ -113,6 +114,15 @@ export default function IdeasForm({ giftee, ideas, onToggleBought, onDelete, onA
                           data-testid={`google-suggestion-${idx}`}
                         >
                           Google it →
+                        </Button>
+                        <Button
+                          variant="link"
+                          size="sm"
+                          className="text-sm text-orange-500 p-0 h-auto"
+                          onClick={() => window.open(generateAmazonSearchUrl(suggestion.description), '_blank')}
+                          data-testid={`amazon-suggestion-${idx}`}
+                        >
+                          Amazon it →
                         </Button>
                       </div>
                     </CardContent>
