@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Eye, Gift } from "lucide-react";
 import { Button } from "../components/ui/button";
 import {
@@ -24,17 +24,23 @@ type GifteeProps = {
 
 export default function GifteeRow({ g }: GifteeProps) {
   const { toast } = useToast();
-  const [ideas, setIdeas] = useState<Idea[]>(g.ideas || []);
+  const [gifteeData, setGifteeData] = useState<Giftee>(g);
+  const [ideas, setIdeas] = useState<Idea[]>(gifteeData.ideas || []);
   const [isIdeasDialogOpen, setIsIdeasDialogOpen] = useState(false);
   const [isDetailsDialogOpen, setIsDetailsDialogOpen] = useState(false);
 
+  // Update ideas when gifteeData changes
+  useEffect(() => {
+    setIdeas(gifteeData.ideas || []);
+  }, [gifteeData]);
+
   // Functions for handling idea actions
   const handleAddIdea = async (ideaName: string) => {
-    const newIdea = await addIdea(g.id, ideaName);
+    const newIdea = await addIdea(gifteeData.id, ideaName);
     setIdeas((prev) => [...prev, newIdea]);
     toast({
       title: "Idea Added",
-      description: `Added "${newIdea.name}" for ${g.name}.`,
+      description: `Added "${newIdea.name}" for ${gifteeData.name}.`,
     });
   };
 
@@ -57,6 +63,13 @@ export default function GifteeRow({ g }: GifteeProps) {
     toast({ title: "Idea Deleted", description: "Removed the idea." });
   };
 
+  const handleDetailsClose = (updated: boolean, updatedGiftee?: Giftee) => {
+    if (updated && updatedGiftee) {
+      setGifteeData(updatedGiftee);
+    }
+    setIsDetailsDialogOpen(false);
+  };
+
   return (
     <div className="flex items-center justify-between mb-2">
       <div className="flex space-x-2">
@@ -72,7 +85,7 @@ export default function GifteeRow({ g }: GifteeProps) {
         </Button>
 
         <ResponsiveIdeasDialog
-          giftee={g}
+          giftee={gifteeData}
           ideas={ideas}
           open={isIdeasDialogOpen}
           setOpen={setIsIdeasDialogOpen}
@@ -96,12 +109,12 @@ export default function GifteeRow({ g }: GifteeProps) {
               when the modal is opened */}
           <DialogContent onOpenAutoFocus={(e) => e.preventDefault()}>
             <DialogHeader>
-              <DialogTitle>{g.name}'s Details</DialogTitle>
+              <DialogTitle>{gifteeData.name}'s Details</DialogTitle>
               <DialogDescription>
                 Update personal information and preferences
               </DialogDescription>
             </DialogHeader>
-            <DetailsForm giftee={g} onClose={setIsDetailsDialogOpen} />
+            <DetailsForm giftee={gifteeData} onClose={handleDetailsClose} />
           </DialogContent>
         </Dialog>
       </div>
