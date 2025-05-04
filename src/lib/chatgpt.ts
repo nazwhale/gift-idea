@@ -11,14 +11,17 @@ export type Suggestion = {
 // src/lib/chatgpt.ts
 export async function getSuggestionsForGiftee(
   gifteeName: string,
-  bio?: string
+  bio?: string,
+  age?: number
 ): Promise<Suggestion[]> {
   const apiKey = import.meta.env.VITE_OPENAI_API_KEY;
   if (!apiKey) {
     throw new Error("Missing OpenAI API key in environment variables.");
   }
 
-  const { system, user } = buildGiftPrompt(gifteeName, bio);
+  const { system, user } = buildGiftPrompt(gifteeName, bio, age);
+  console.log("system", system);
+  console.log("user", user);
 
   // The API call to the chatgpt API
   const url = "https://api.openai.com/v1/chat/completions";

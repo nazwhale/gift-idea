@@ -26,7 +26,21 @@ export default function IdeasForm({ giftee, ideas, onToggleBought, onDelete, onA
     setIsFetchingSuggestions(true);
     setSuggestions([]);
     try {
-      const newSuggestions = await getSuggestionsForGiftee(giftee.name, giftee.bio || "");
+      // Calculate age from date of birth if available
+      let age: number | undefined;
+      if (giftee.date_of_birth) {
+        const birthDate = new Date(giftee.date_of_birth);
+        const today = new Date();
+        age = today.getFullYear() - birthDate.getFullYear();
+
+        // Adjust age if birthday hasn't occurred yet this year
+        const m = today.getMonth() - birthDate.getMonth();
+        if (m < 0 || (m === 0 && today.getDate() < birthDate.getDate())) {
+          age--;
+        }
+      }
+
+      const newSuggestions = await getSuggestionsForGiftee(giftee.name, giftee.bio || "", age);
       setSuggestions(newSuggestions);
     } catch (error) {
       console.error("Error fetching suggestions:", error);
