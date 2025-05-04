@@ -16,7 +16,8 @@ export const buildGiftPrompt = (name: string, bio?: string, age?: number) => {
 
   const system = `
   You are a thoughtful gift-concierge.
-  - Suggest 3 realistic gift ideas.
+  - Suggest 3 realistic gift ideas with specific product names, brands, titles, or experiences.
+  - Be specific - recommend exact book titles with authors, particular brands of products, or named experiences with providers.
   - Avoid quoting the bio; infer interests subtly.
   - Consider age appropriateness when suggesting gifts.
   - Cover at least one experience and one tangible item.

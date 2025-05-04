@@ -36,7 +36,7 @@ export async function getSuggestionsForGiftee(
       functions: [
         {
           name: "suggest_gifts",
-          description: "Suggest three distinct gift ideas with description and cost level",
+          description: "Suggest three specific gift ideas with exact product names, brands, or titles that the recipient can purchase",
           parameters: {
             type: "object",
             properties: {
@@ -47,7 +47,7 @@ export async function getSuggestionsForGiftee(
                   properties: {
                     description: {
                       type: "string",
-                      description: "A one-line description of the gift"
+                      description: "A detailed description with specific product name, brand, author, or title. Include enough details to identify the exact item."
                     },
                     shortDescription: {
                       type: "string",
@@ -72,7 +72,7 @@ export async function getSuggestionsForGiftee(
         { role: "system", content: system },
         { role: "user", content: user },
       ],
-      max_tokens: 200,
+      max_tokens: 400,
       temperature: 0.9,
     })
   });
