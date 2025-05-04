@@ -7,11 +7,21 @@ import { Link } from "react-router-dom";
 import { Giftee } from "@/types";
 import GifteeRow from "./GifteeRow";
 import { useToast } from "@/hooks/use-toast";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+} from "@/components/ui/dialog";
+import DetailsForm from "@/pages/DetailsForm.tsx";
 
 export default function Dashboard() {
   const { toast } = useToast();
   const [giftees, setGiftees] = useState<Giftee[]>([]);
   const [newGifteeName, setNewGifteeName] = useState("");
+  const [newGiftee, setNewGiftee] = useState<Giftee | null>(null);
+  const [isDetailsDialogOpen, setIsDetailsDialogOpen] = useState(false);
 
   useEffect(() => {
     getGiftees().then(setGiftees).catch(console.error);
@@ -21,10 +31,22 @@ export default function Dashboard() {
     const giftee = await addGiftee(newGifteeName);
     setGiftees((prev) => [...prev, giftee]);
     setNewGifteeName("");
+    setNewGiftee(giftee);
+    setIsDetailsDialogOpen(true);
     toast({
       title: "Person Added",
       description: `${giftee.name} has been successfully added.`,
     });
+  };
+
+  const handleDetailsClose = (updated: boolean, updatedGiftee?: Giftee) => {
+    if (updated && updatedGiftee && newGiftee) {
+      setGiftees((prev) =>
+        prev.map((g) => (g.id === updatedGiftee.id ? updatedGiftee : g))
+      );
+    }
+    setIsDetailsDialogOpen(false);
+    setNewGiftee(null);
   };
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
@@ -36,17 +58,17 @@ export default function Dashboard() {
 
   const sortedGiftees = [...giftees].sort((a, b) => {
     const today = new Date();
-    const dateA = new Date(a.date_of_birth);
-    const dateB = new Date(b.date_of_birth);
-    
+    const dateA = new Date(a.date_of_birth || "");
+    const dateB = new Date(b.date_of_birth || "");
+
     // Set both dates to current year
     dateA.setFullYear(today.getFullYear());
     dateB.setFullYear(today.getFullYear());
-    
+
     // If the birthday has already passed this year, set it to next year
     if (dateA < today) dateA.setFullYear(today.getFullYear() + 1);
     if (dateB < today) dateB.setFullYear(today.getFullYear() + 1);
-    
+
     return dateA.getTime() - dateB.getTime();
   });
 
@@ -78,22 +100,40 @@ export default function Dashboard() {
           value={newGifteeName}
           onChange={(e) => setNewGifteeName(e.target.value)}
         />
-        <Button type="submit" variant="outline">
+        <Button type="submit" variant="outline" data-testid="add-person-button">
           Add person
         </Button>
       </form>
 
+      {/* Details Dialog for newly added giftee */}
+      {newGiftee && (
+        <Dialog
+          open={isDetailsDialogOpen}
+          onOpenChange={setIsDetailsDialogOpen}
+        >
+          <DialogContent onOpenAutoFocus={(e) => e.preventDefault()}>
+            <DialogHeader>
+              <DialogTitle>{newGiftee.name}'s Details</DialogTitle>
+              <DialogDescription>
+                Add birthday and personal information
+              </DialogDescription>
+            </DialogHeader>
+            <DetailsForm giftee={newGiftee} onClose={handleDetailsClose} />
+          </DialogContent>
+        </Dialog>
+      )}
+
       <ul>
         {sortedGiftees.map((g) => {
           const today = new Date();
-          const birthday = new Date(g.date_of_birth);
+          const birthday = new Date(g.date_of_birth || "");
           birthday.setFullYear(today.getFullYear());
-          
+
           // If birthday has passed this year, set to next year
           if (birthday < today) {
             birthday.setFullYear(today.getFullYear() + 1);
           }
-          
+
           const daysUntil = Math.ceil((birthday.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
           const showBirthday = daysUntil <= 31;
 
@@ -107,7 +147,7 @@ export default function Dashboard() {
                   </span>
                 )}
               </div>
-              <GifteeRow g={g}  />
+              <GifteeRow g={g} />
             </li>
           );
         })}
@@ -142,13 +182,13 @@ function birthdaysInNextNDays(giftees: Giftee[], n: number): Giftee[] {
 
   return giftees
     .filter((g) => {
-      const dob = new Date(g.date_of_birth);
+      const dob = new Date(g.date_of_birth || "");
       dob.setFullYear(today.getFullYear());
       return dob >= today && dob <= nextNDays;
     })
     .sort((a, b) => {
-      const dateA = new Date(a.date_of_birth);
-      const dateB = new Date(b.date_of_birth);
+      const dateA = new Date(a.date_of_birth || "");
+      const dateB = new Date(b.date_of_birth || "");
       dateA.setFullYear(today.getFullYear());
       dateB.setFullYear(today.getFullYear());
       return dateA.getTime() - dateB.getTime();
