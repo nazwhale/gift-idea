@@ -70,7 +70,7 @@ export default function ResponsiveIdeasDialog({
 
     return (
         <Drawer open={open} onOpenChange={setOpen}>
-            <DrawerContent className="flex flex-col h-[85vh]" data-testid="ideas-drawer-content">
+            <DrawerContent className="flex flex-col max-h-[85vh] h-auto" data-testid="ideas-drawer-content">
                 <div className="p-4 pb-0">
                     <DrawerHeader className="text-left px-0">
                         <DrawerTitle>
@@ -81,7 +81,7 @@ export default function ResponsiveIdeasDialog({
                         </DrawerDescription>
                     </DrawerHeader>
                 </div>
-                <div className="px-4 flex-1 overflow-y-auto pb-[72px]">
+                <div className="px-4 flex-1 overflow-y-auto pb-[60px]">
                     <IdeasForm
                         giftee={giftee}
                         ideas={ideas}
