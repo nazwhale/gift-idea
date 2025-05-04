@@ -97,7 +97,10 @@ export default function GifteeRow({ g }: GifteeProps) {
               <Eye />Details
             </Button>
           </DialogTrigger>
-          <DialogContent>
+          {/* Prevent auto-focusing on the date input when dialog opens
+              This stops mobile devices from automatically showing date pickers
+              when the modal is opened */}
+          <DialogContent onOpenAutoFocus={(e) => e.preventDefault()}>
             <DialogHeader>
               <DialogTitle>{g.name}'s Details</DialogTitle>
               <DialogDescription>
