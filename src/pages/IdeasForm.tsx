@@ -102,7 +102,7 @@ export default function IdeasForm({ giftee, ideas, onToggleBought, onDelete, onA
                           }}
                           data-testid={`add-suggestion-${idx}`}
                         >
-                          Add idea
+                          Save idea
                         </Button>
                       </div>
                       <div className="flex justify-end mt-2 space-x-2">
