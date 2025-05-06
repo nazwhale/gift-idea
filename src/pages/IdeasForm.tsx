@@ -72,7 +72,6 @@ export default function IdeasForm({
           <TabsTrigger value="ideas" data-testid="ideas-tab">Ideas</TabsTrigger>
           <TabsTrigger value="ai" data-testid="suggestions-tab">
             <span className="flex items-center gap-2">
-              <span role="img" aria-label="lightbulb">💡</span>
               Suggestions
             </span>
           </TabsTrigger>
