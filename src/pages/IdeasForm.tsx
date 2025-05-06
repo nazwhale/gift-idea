@@ -157,7 +157,7 @@ export default function IdeasForm({
         </TabsContent>
 
         {/* Details tab */}
-        <TabsContent value="details" className="flex-1 overflow-auto" data-testid="details-content">
+        <TabsContent value="details" className="flex-1 overflow-auto mb-0" data-testid="details-content">
           <div className="space-y-2">
             {onDetailsUpdate && <DetailsForm giftee={giftee} onClose={onDetailsUpdate} />}
           </div>

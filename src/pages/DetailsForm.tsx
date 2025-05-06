@@ -152,9 +152,11 @@ export default function DetailsForm({ giftee, onClose }: { giftee: Giftee; onClo
           Include brands they like and dislike to get better gift suggestions.
         </p>
       </div>
-      <Button onClick={handleSave} className="w-full" data-testid="save-details-button">
-        Save Details
-      </Button>
+      <div className="sticky bottom-0 pt-4 pb-4 bg-background border-t">
+        <Button onClick={handleSave} className="w-full" data-testid="save-details-button">
+          Save Details
+        </Button>
+      </div>
     </div>
   );
 }
