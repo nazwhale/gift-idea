@@ -5,24 +5,19 @@ import { Button } from "../components/ui/button";
 import { Link } from "react-router-dom";
 import { GIFTEE_EVENTS, PAGE_VIEWED, PAGES, captureEvent } from "../lib/posthog";
 
-import { Giftee } from "@/types";
+import { Giftee, Idea } from "@/types";
 import GifteeRow from "./GifteeRow";
 import { useToast } from "@/hooks/use-toast";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogDescription,
-} from "@/components/ui/dialog";
-import DetailsForm from "@/pages/DetailsForm.tsx";
+
+import ResponsiveIdeasDialog from "@/components/ResponsiveIdeasDialog";
+import { deleteIdea, updateIdea, addIdea } from "@/lib/ideas";
 
 export default function Dashboard() {
   const { toast } = useToast();
   const [giftees, setGiftees] = useState<Giftee[]>([]);
   const [newGifteeName, setNewGifteeName] = useState("");
   const [newGiftee, setNewGiftee] = useState<Giftee | null>(null);
-  const [isDetailsDialogOpen, setIsDetailsDialogOpen] = useState(false);
+  const [isIdeasDialogOpen, setIsIdeasDialogOpen] = useState(false);
 
   useEffect(() => {
     captureEvent(PAGE_VIEWED, {
@@ -37,7 +32,7 @@ export default function Dashboard() {
     setGiftees((prev) => [...prev, giftee]);
     setNewGifteeName("");
     setNewGiftee(giftee);
-    setIsDetailsDialogOpen(true);
+    setIsIdeasDialogOpen(true);
 
     captureEvent(GIFTEE_EVENTS.GIFTEE_ADDED, {
       giftee_id: giftee.id,
@@ -50,14 +45,93 @@ export default function Dashboard() {
     });
   };
 
-  const handleDetailsClose = (updated: boolean, updatedGiftee?: Giftee) => {
+  const handleDetailsUpdate = (updated: boolean, updatedGiftee?: Giftee) => {
     if (updated && updatedGiftee && newGiftee) {
       setGiftees((prev) =>
         prev.map((g) => (g.id === updatedGiftee.id ? updatedGiftee : g))
       );
     }
-    setIsDetailsDialogOpen(false);
-    setNewGiftee(null);
+  };
+
+  const handleDialogClose = (open: boolean) => {
+    setIsIdeasDialogOpen(open);
+    if (!open) {
+      setNewGiftee(null);
+    }
+  };
+
+  // Empty handlers for the new person (who doesn't have ideas yet)
+  const handleAddIdea = async (ideaName: string) => {
+    if (!newGiftee) return;
+    const newIdea = await addIdea(newGiftee.id, ideaName);
+
+    // Update the newGiftee object with the new idea
+    setNewGiftee(prev => {
+      if (!prev) return null;
+      return {
+        ...prev,
+        ideas: [...(prev.ideas || []), newIdea]
+      };
+    });
+
+    // Also update in the giftees list
+    setGiftees(prev =>
+      prev.map(g => g.id === newGiftee.id
+        ? { ...g, ideas: [...(g.ideas || []), newIdea] }
+        : g
+      )
+    );
+  };
+
+  const handleToggleBought = async (ideaId: string) => {
+    if (!newGiftee) return;
+    const idea = newGiftee.ideas?.find(i => i.id === ideaId);
+    if (!idea) return;
+
+    const purchasedAt = idea.purchased_at ? null : new Date().toISOString();
+    const updated = await updateIdea(ideaId, { purchased_at: purchasedAt });
+
+    // Update in newGiftee
+    setNewGiftee(prev => {
+      if (!prev) return null;
+      return {
+        ...prev,
+        ideas: prev.ideas?.map(i => i.id === ideaId ? updated as Idea : i) || []
+      };
+    });
+
+    // Update in giftees list
+    setGiftees(prev =>
+      prev.map(g => g.id === newGiftee.id
+        ? {
+          ...g,
+          ideas: g.ideas?.map(i => i.id === ideaId ? updated as Idea : i) || []
+        }
+        : g
+      )
+    );
+  };
+
+  const handleDeleteIdea = async (ideaId: string) => {
+    if (!newGiftee) return;
+    await deleteIdea(ideaId);
+
+    // Update in newGiftee
+    setNewGiftee(prev => {
+      if (!prev) return null;
+      return {
+        ...prev,
+        ideas: prev.ideas?.filter(i => i.id !== ideaId) || []
+      };
+    });
+
+    // Update in giftees list
+    setGiftees(prev =>
+      prev.map(g => g.id === newGiftee.id
+        ? { ...g, ideas: g.ideas?.filter(i => i.id !== ideaId) || [] }
+        : g
+      )
+    );
   };
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
@@ -116,22 +190,19 @@ export default function Dashboard() {
         </Button>
       </form>
 
-      {/* Details Dialog for newly added giftee */}
+      {/* ResponsiveIdeasDialog with details tab for newly added giftee */}
       {newGiftee && (
-        <Dialog
-          open={isDetailsDialogOpen}
-          onOpenChange={setIsDetailsDialogOpen}
-        >
-          <DialogContent onOpenAutoFocus={(e) => e.preventDefault()}>
-            <DialogHeader>
-              <DialogTitle>{newGiftee.name}'s Details</DialogTitle>
-              <DialogDescription>
-                Add birthday and personal information
-              </DialogDescription>
-            </DialogHeader>
-            <DetailsForm giftee={newGiftee} onClose={handleDetailsClose} />
-          </DialogContent>
-        </Dialog>
+        <ResponsiveIdeasDialog
+          giftee={newGiftee}
+          ideas={newGiftee.ideas || []}
+          open={isIdeasDialogOpen}
+          setOpen={handleDialogClose}
+          onToggleBought={handleToggleBought}
+          onDelete={handleDeleteIdea}
+          onAddIdea={handleAddIdea}
+          onDetailsUpdate={handleDetailsUpdate}
+          initialTab="details"
+        />
       )}
 
       <ul>

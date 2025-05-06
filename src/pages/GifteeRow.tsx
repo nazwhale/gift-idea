@@ -1,17 +1,9 @@
 import { useState, useEffect } from "react";
-import { Eye, Gift } from "lucide-react";
+import { Gift } from "lucide-react";
 import { Button } from "../components/ui/button";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogDescription,
-  DialogTrigger,
-} from "@/components/ui/dialog";
+
 
 import { addIdea, updateIdea, deleteIdea } from "@/lib/ideas";
-import DetailsForm from "@/pages/DetailsForm.tsx";
 import ResponsiveIdeasDialog from "@/components/ResponsiveIdeasDialog";
 
 import { Giftee, Idea } from "@/types";
@@ -27,7 +19,6 @@ export default function GifteeRow({ g }: GifteeProps) {
   const [gifteeData, setGifteeData] = useState<Giftee>(g);
   const [ideas, setIdeas] = useState<Idea[]>(gifteeData.ideas || []);
   const [isIdeasDialogOpen, setIsIdeasDialogOpen] = useState(false);
-  const [isDetailsDialogOpen, setIsDetailsDialogOpen] = useState(false);
 
   // Update ideas when gifteeData changes
   useEffect(() => {
@@ -63,17 +54,16 @@ export default function GifteeRow({ g }: GifteeProps) {
     toast({ title: "Idea Deleted", description: "Removed the idea." });
   };
 
-  const handleDetailsClose = (updated: boolean, updatedGiftee?: Giftee) => {
+  const handleDetailsUpdate = (updated: boolean, updatedGiftee?: Giftee) => {
     if (updated && updatedGiftee) {
       setGifteeData(updatedGiftee);
     }
-    setIsDetailsDialogOpen(false);
   };
 
   return (
     <div className="flex items-center justify-between mb-2">
       <div className="flex space-x-2">
-        {/* View Ideas - Responsive Dialog/Drawer */}
+        {/* View Ideas - Responsive Dialog/Drawer with integrated Details tab */}
         <Button
           variant="ghost"
           size="sm"
@@ -81,7 +71,7 @@ export default function GifteeRow({ g }: GifteeProps) {
           onClick={() => setIsIdeasDialogOpen(true)}
           data-testid="ideas-button"
         >
-          <Gift />Ideas
+          <Gift />See gift ideas
         </Button>
 
         <ResponsiveIdeasDialog
@@ -92,31 +82,8 @@ export default function GifteeRow({ g }: GifteeProps) {
           onToggleBought={handleToggleBought}
           onDelete={handleDeleteIdea}
           onAddIdea={handleAddIdea}
+          onDetailsUpdate={handleDetailsUpdate}
         />
-
-        {/* View Details Dialog */}
-        <Dialog
-          open={isDetailsDialogOpen}
-          onOpenChange={setIsDetailsDialogOpen}
-        >
-          <DialogTrigger asChild>
-            <Button variant="ghost" size="sm" className="text-blue-500 p-0 gap-1">
-              <Eye />Details
-            </Button>
-          </DialogTrigger>
-          {/* Prevent auto-focusing on the date input when dialog opens
-              This stops mobile devices from automatically showing date pickers
-              when the modal is opened */}
-          <DialogContent onOpenAutoFocus={(e) => e.preventDefault()}>
-            <DialogHeader>
-              <DialogTitle>{gifteeData.name}'s Details</DialogTitle>
-              <DialogDescription>
-                Update personal information and preferences
-              </DialogDescription>
-            </DialogHeader>
-            <DetailsForm giftee={gifteeData} onClose={handleDetailsClose} />
-          </DialogContent>
-        </Dialog>
       </div>
     </div>
   );

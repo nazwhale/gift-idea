@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { Button } from "../components/ui/button";
-import { getSuggestionsForGiftee, Suggestion, FollowUpQuestion, GiftSuggestionResponse } from "@/lib/chatgpt";
+import { getSuggestionsForGiftee, Suggestion } from "@/lib/chatgpt";
 import { Giftee, Idea } from "@/types";
 import IdeaList from "./IdeaList";
 import AddIdeaForm from "./AddIdeaForm";
@@ -8,9 +8,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { DialogFooter } from "@/components/ui/dialog";
 import { Card, CardContent } from "@/components/ui/card";
 import { generateAmazonSearchUrl } from "./ActionList";
-import UrlInputDialog from "@/components/UrlInputDialog";
-import { updateIdea } from "@/lib/ideas";
-import { IDEA_EVENTS, SUGGESTION_EVENTS, captureEvent } from "@/lib/posthog";
+import DetailsForm from "@/pages/DetailsForm";
 
 type IdeasFormProps = {
   giftee: Giftee;
@@ -18,35 +16,31 @@ type IdeasFormProps = {
   onToggleBought: (ideaId: string) => Promise<void>;
   onDelete: (ideaId: string) => Promise<void>;
   onAddIdea: (ideaName: string) => Promise<void>;
+  onDetailsUpdate?: (updated: boolean, updatedGiftee?: Giftee) => void;
+  initialTab?: string;
 };
 
-export default function IdeasForm({ giftee, ideas, onToggleBought, onDelete, onAddIdea }: IdeasFormProps) {
+export default function IdeasForm({
+  giftee,
+  ideas,
+  onToggleBought,
+  onDelete,
+  onAddIdea,
+  onDetailsUpdate,
+  initialTab = "ideas"
+}: IdeasFormProps) {
   const [suggestions, setSuggestions] = useState<Suggestion[]>([]);
-  const [followUpQuestions, setFollowUpQuestions] = useState<FollowUpQuestion[]>([]);
   const [isFetchingSuggestions, setIsFetchingSuggestions] = useState(false);
-  const [activeTab, setActiveTab] = useState("ideas");
-  const [urlDialogOpen, setUrlDialogOpen] = useState(false);
-  const [selectedIdea, setSelectedIdea] = useState<{ id: string, url: string | null } | null>(null);
-  const [localIdeas, setLocalIdeas] = useState<Idea[]>(ideas);
-  const [currentFollowUpQuestion, setCurrentFollowUpQuestion] = useState<string | undefined>(undefined);
+  const [activeTab, setActiveTab] = useState(initialTab);
 
-  // Update local ideas when props change
   useEffect(() => {
-    setLocalIdeas(ideas);
-  }, [ideas]);
+    setActiveTab(initialTab);
+  }, [initialTab]);
 
-  const handleFetchSuggestions = async (followUpQuestion?: string) => {
+  const handleFetchSuggestions = async () => {
     if (!giftee?.name) return;
     setIsFetchingSuggestions(true);
     setSuggestions([]);
-    setFollowUpQuestions([]);
-
-    if (followUpQuestion) {
-      setCurrentFollowUpQuestion(followUpQuestion);
-    } else {
-      setCurrentFollowUpQuestion(undefined);
-    }
-
     try {
       // Calculate age from date of birth if available
       let age: number | undefined;
@@ -62,80 +56,19 @@ export default function IdeasForm({ giftee, ideas, onToggleBought, onDelete, onA
         }
       }
 
-      // Track suggestion request
-      captureEvent(SUGGESTION_EVENTS.GIFT_SUGGESTIONS_REQUESTED, {
-        giftee_id: giftee.id,
-        giftee_name: giftee.name,
-        follow_up_question: followUpQuestion || null
-      });
-
-      const response = await getSuggestionsForGiftee(giftee.name, giftee.bio || "", age, followUpQuestion);
+      const response = await getSuggestionsForGiftee(giftee.name, giftee.bio || "", age);
       setSuggestions(response.suggestions);
-      setFollowUpQuestions(response.followUpQuestions);
-
-      // Track successful suggestions received
-      captureEvent(SUGGESTION_EVENTS.GIFT_SUGGESTIONS_RECEIVED, {
-        suggestion_count: response.suggestions.length,
-        follow_up_questions_count: response.followUpQuestions.length,
-        giftee_id: giftee.id
-      });
     } catch (error) {
       console.error("Error fetching suggestions:", error);
-      // Track error
-      captureEvent(SUGGESTION_EVENTS.GIFT_SUGGESTIONS_ERROR, {
-        error: (error as Error).message,
-        giftee_id: giftee.id
-      });
     } finally {
       setIsFetchingSuggestions(false);
     }
   };
 
-  const handleEditUrl = (ideaId: string, currentUrl: string | null) => {
-    setSelectedIdea({ id: ideaId, url: currentUrl });
-    setUrlDialogOpen(true);
-  };
-
-  const handleUrlUpdated = (ideaId: string, updatedIdea: Idea) => {
-    // Update local state
-    setLocalIdeas(prevIdeas =>
-      prevIdeas.map(idea => idea.id === ideaId ? updatedIdea : idea)
-    );
-  };
-
-  // Wrap the original handlers with tracking
-  const handleAddIdeaWithTracking = async (ideaName: string) => {
-    await onAddIdea(ideaName);
-
-    // Track idea added
-    captureEvent(IDEA_EVENTS.IDEA_ADDED, {
-      idea_name: ideaName,
-      giftee_id: giftee.id,
-      giftee_name: giftee.name,
-      source: "manual"
-    });
-  };
-
-  const handleToggleBoughtWithTracking = async (ideaId: string) => {
-    await onToggleBought(ideaId);
-
-    // Find idea to get its details
-    const idea = localIdeas.find(i => i.id === ideaId);
-    const newStatus = idea?.purchased_at ? false : true;
-
-    // Track status toggle
-    captureEvent(IDEA_EVENTS.IDEA_STATUS_TOGGLED, {
-      idea_id: ideaId,
-      idea_name: idea?.name,
-      giftee_id: giftee.id,
-      new_status: newStatus ? "purchased" : "not_purchased"
-    });
-  };
-
   return (
     <div className="flex flex-col min-h-[400px]">
-      <Tabs defaultValue="ideas" className="w-full flex-1" onValueChange={setActiveTab}>
-        <TabsList className="w-full mb-4 grid grid-cols-2">
+      <Tabs defaultValue={initialTab} value={activeTab} className="w-full flex-1" onValueChange={setActiveTab}>
+        <TabsList className="w-full mb-4 grid grid-cols-3">
           <TabsTrigger value="ideas" data-testid="ideas-tab">Ideas</TabsTrigger>
           <TabsTrigger value="ai" data-testid="suggestions-tab">
             <span className="flex items-center gap-2">
@@ -143,15 +76,16 @@ export default function IdeasForm({ giftee, ideas, onToggleBought, onDelete, onA
               Suggestions
             </span>
           </TabsTrigger>
+          <TabsTrigger value="details" data-testid="details-tab">Details</TabsTrigger>
         </TabsList>
 
         <TabsContent value="ideas" className="flex-1 overflow-auto mb-0" data-testid="ideas-content">
           <div className="overflow-y-auto pr-1 border border-gray-200 rounded-md">
             <IdeaList
-              ideas={localIdeas}
-              onToggleBought={handleToggleBoughtWithTracking}
+              ideas={ideas}
+              onToggleBought={onToggleBought}
               onDelete={onDelete}
-              onEditUrl={handleEditUrl}
+              onEditUrl={(ideaId, currentUrl) => { }} // Empty function to satisfy TypeScript
             />
           </div>
         </TabsContent>
@@ -180,7 +114,7 @@ export default function IdeasForm({ giftee, ideas, onToggleBought, onDelete, onA
                           className="shrink-0"
                           size="sm"
                           onClick={() => {
-                            handleAddIdeaWithTracking(suggestion.description);
+                            onAddIdea(suggestion.description);
                             setActiveTab("ideas");
                           }}
                           data-testid={`add-suggestion-${idx}`}
@@ -211,27 +145,6 @@ export default function IdeasForm({ giftee, ideas, onToggleBought, onDelete, onA
                     </CardContent>
                   </Card>
                 ))}
-
-                {/* Follow-up question buttons */}
-                {followUpQuestions.length > 0 && (
-                  <div className="mt-4 space-y-2">
-                    <div className="text-sm font-medium text-gray-500">Refine suggestions:</div>
-                    <div className="flex flex-wrap gap-2" data-testid="follow-up-questions">
-                      {followUpQuestions.map((question, idx) => (
-                        <Button
-                          key={idx}
-                          variant="outline"
-                          size="sm"
-                          onClick={() => handleFetchSuggestions(question.text)}
-                          data-testid={`follow-up-question-${idx}`}
-                          className="bg-gray-50 hover:bg-gray-100 px-3 py-1"
-                        >
-                          {question.text}
-                        </Button>
-                      ))}
-                    </div>
-                  </div>
-                )}
               </div>
             ) : (
               <div className="flex justify-center items-center w-full flex-1 min-h-[300px] text-muted-foreground" data-testid="empty-suggestions">
@@ -240,11 +153,17 @@ export default function IdeasForm({ giftee, ideas, onToggleBought, onDelete, onA
             )}
           </div>
         </TabsContent>
+
+        <TabsContent value="details" className="flex-1 overflow-auto mb-0" data-testid="details-content">
+          <div className="overflow-y-auto pr-1">
+            {onDetailsUpdate && <DetailsForm giftee={giftee} onClose={onDetailsUpdate} />}
+          </div>
+        </TabsContent>
       </Tabs>
 
       {/* Footer sections based on active tab */}
       {activeTab === "ideas" && (
-        <AddIdeaForm onAddIdea={handleAddIdeaWithTracking} />
+        <AddIdeaForm onAddIdea={onAddIdea} />
       )}
 
       {activeTab === "ai" && (
@@ -253,25 +172,14 @@ export default function IdeasForm({ giftee, ideas, onToggleBought, onDelete, onA
             size="sm"
             variant="outline"
             className="bg-gradient-to-r from-purple-300 via-pink-300 to-red-300 w-full"
-            onClick={() => handleFetchSuggestions()}
+            onClick={handleFetchSuggestions}
             disabled={isFetchingSuggestions}
             data-testid="get-suggestions-button"
           >
-            {isFetchingSuggestions ? "Thinking..." : currentFollowUpQuestion ? "Get New Suggestions" : "Get 3 Suggestions"}
+            {isFetchingSuggestions ? "Thinking..." : "Get 3 Suggestions"}
           </Button>
         </DialogFooter>
       )}
-
-      {/* URL Input Dialog */}
-      {urlDialogOpen && selectedIdea && (
-        <UrlInputDialog
-          isOpen={urlDialogOpen}
-          onClose={() => setUrlDialogOpen(false)}
-          ideaId={selectedIdea.id}
-          currentUrl={selectedIdea.url}
-          onUrlUpdated={handleUrlUpdated}
-        />
-      )}
     </div>
   );
-} 
+}

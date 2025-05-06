@@ -27,6 +27,8 @@ type ResponsiveIdeasDialogProps = {
     onToggleBought: (ideaId: string) => Promise<void>;
     onDelete: (ideaId: string) => Promise<void>;
     onAddIdea: (ideaName: string) => Promise<void>;
+    onDetailsUpdate?: (updated: boolean, updatedGiftee?: Giftee) => void;
+    initialTab?: string;
 };
 
 export default function ResponsiveIdeasDialog({
@@ -37,6 +39,8 @@ export default function ResponsiveIdeasDialog({
     onToggleBought,
     onDelete,
     onAddIdea,
+    onDetailsUpdate,
+    initialTab = "ideas",
 }: ResponsiveIdeasDialogProps) {
     const isDesktop = useMediaQuery("(min-width: 768px)");
 
@@ -50,7 +54,7 @@ export default function ResponsiveIdeasDialog({
                                 {giftee.name}'s {ideas.length} Ideas
                             </DialogTitle>
                             <DialogDescription>
-                                Manage gift ideas and get AI suggestions
+                                Manage gift ideas, get AI suggestions, and update details
                             </DialogDescription>
                         </DialogHeader>
                     </div>
@@ -61,6 +65,8 @@ export default function ResponsiveIdeasDialog({
                             onToggleBought={onToggleBought}
                             onDelete={onDelete}
                             onAddIdea={onAddIdea}
+                            onDetailsUpdate={onDetailsUpdate}
+                            initialTab={initialTab}
                         />
                     </div>
                 </DialogContent>
@@ -81,7 +87,7 @@ export default function ResponsiveIdeasDialog({
                             {giftee.name}'s {ideas.length} Ideas
                         </DrawerTitle>
                         <DrawerDescription>
-                            Manage gift ideas and get AI suggestions
+                            Manage gift ideas, get AI suggestions, and update details
                         </DrawerDescription>
                     </DrawerHeader>
                 </div>
@@ -92,6 +98,8 @@ export default function ResponsiveIdeasDialog({
                         onToggleBought={onToggleBought}
                         onDelete={onDelete}
                         onAddIdea={onAddIdea}
+                        onDetailsUpdate={onDetailsUpdate}
+                        initialTab={initialTab}
                     />
                 </div>
                 <DrawerClose className="absolute right-4 top-4" />
