@@ -79,6 +79,7 @@ export default function IdeasForm({
           <TabsTrigger value="details" data-testid="details-tab">Details</TabsTrigger>
         </TabsList>
 
+        {/* Ideas tab */}
         <TabsContent value="ideas" className="flex-1 overflow-auto mb-0" data-testid="ideas-content">
           <div className="overflow-y-auto pr-1 border border-gray-200 rounded-md">
             <IdeaList
@@ -90,6 +91,7 @@ export default function IdeasForm({
           </div>
         </TabsContent>
 
+        {/* Suggestions tab */}
         <TabsContent value="ai" className="flex-1 overflow-auto mb-0" data-testid="ai-content">
           <div className="space-y-2">
             {suggestions.length > 0 ? (
@@ -154,8 +156,9 @@ export default function IdeasForm({
           </div>
         </TabsContent>
 
-        <TabsContent value="details" className="flex-1 overflow-auto mb-0" data-testid="details-content">
-          <div className="overflow-y-auto pr-1">
+        {/* Details tab */}
+        <TabsContent value="details" className="flex-1 overflow-auto" data-testid="details-content">
+          <div className="space-y-2">
             {onDetailsUpdate && <DetailsForm giftee={giftee} onClose={onDetailsUpdate} />}
           </div>
         </TabsContent>
