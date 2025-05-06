@@ -10,6 +10,7 @@ import {
     DialogTitle,
 } from "./ui/dialog";
 import { updateIdea } from "@/lib/ideas";
+import { IDEA_EVENTS, captureEvent } from "@/lib/posthog";
 
 interface UrlInputDialogProps {
     isOpen: boolean;
@@ -33,10 +34,24 @@ export default function UrlInputDialog({
         try {
             setIsSubmitting(true);
             const updatedIdea = await updateIdea(ideaId, { url });
+
+            // Track URL update
+            captureEvent(IDEA_EVENTS.IDEA_URL_UPDATED, {
+                idea_id: ideaId,
+                idea_name: updatedIdea.name,
+                has_url: !!url
+            });
+
             onUrlUpdated(ideaId, updatedIdea);
             onClose();
         } catch (error) {
             console.error("Error updating URL:", error);
+
+            // Track error
+            captureEvent(IDEA_EVENTS.IDEA_URL_UPDATE_FAILED, {
+                idea_id: ideaId,
+                error: (error as Error).message
+            });
         } finally {
             setIsSubmitting(false);
         }

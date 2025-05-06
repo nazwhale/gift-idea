@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import { Button } from "../components/ui/button";
 import { getAllIdeas, updateIdea } from "@/lib/ideas.ts";
 import { Link, useNavigate } from "react-router-dom";
+import { IDEA_EVENTS, PAGE_VIEWED, PAGES, captureEvent } from "@/lib/posthog";
 
 export default function Ideas() {
   const navigate = useNavigate();
@@ -10,6 +11,11 @@ export default function Ideas() {
   const [editingUrl, setEditingUrl] = useState<{ id: string, url: string } | null>(null);
 
   useEffect(() => {
+    // Track page view
+    captureEvent(PAGE_VIEWED, {
+      page: PAGES.IDEAS_LIST
+    });
+
     getAllIdeas().then(setIdeas).catch(console.error);
   }, []);
 
@@ -22,6 +28,14 @@ export default function Ideas() {
 
     const updated = await updateIdea(ideaId, {
       purchased_at: purchasedAt,
+    });
+
+    // Track purchased status toggle
+    captureEvent(IDEA_EVENTS.IDEA_STATUS_TOGGLED, {
+      idea_id: ideaId,
+      idea_name: ideas.find(i => i.id === ideaId)?.name,
+      new_status: purchasedAt ? "purchased" : "not_purchased",
+      source: "ideas_page"
     });
 
     setIdeas(ideas.map((i) => (i.id === ideaId ? updated : i)));

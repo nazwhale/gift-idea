@@ -3,6 +3,7 @@ import { useState } from "react";
 import { Input } from "../components/ui/input";
 import { Button } from "../components/ui/button";
 import { useToast } from "@/hooks/use-toast.ts";
+import { posthog, AUTH_EVENTS, captureEvent } from "../lib/posthog";
 
 export default function Signup() {
   const { toast } = useToast();
@@ -12,10 +13,28 @@ export default function Signup() {
   const [error, setError] = useState<string | null>(null);
 
   const handleSignUp = async () => {
-    const { error } = await supabase.auth.signUp({ email, password });
+    const { data, error } = await supabase.auth.signUp({ email, password });
     if (error) {
       setError(error.message);
+      // Track failed signup attempts
+      captureEvent(AUTH_EVENTS.SIGNUP_FAILED, {
+        reason: error.message
+      });
     } else {
+      // Identify user in PostHog when they sign up
+      if (data.user) {
+        posthog.identify(
+          data.user.id,
+          {
+            email: data.user.email,
+            $initial_referrer: document.referrer
+          }
+        );
+
+        // Track successful signup
+        captureEvent(AUTH_EVENTS.USER_SIGNED_UP);
+      }
+
       toast({
         title: "Email confirmation sent",
         description: "Please check your email to confirm your account.",

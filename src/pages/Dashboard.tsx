@@ -3,6 +3,7 @@ import { getGiftees, addGiftee } from "../lib/giftees";
 import { Input } from "../components/ui/input";
 import { Button } from "../components/ui/button";
 import { Link } from "react-router-dom";
+import { GIFTEE_EVENTS, PAGE_VIEWED, PAGES, captureEvent } from "../lib/posthog";
 
 import { Giftee } from "@/types";
 import GifteeRow from "./GifteeRow";
@@ -24,6 +25,10 @@ export default function Dashboard() {
   const [isDetailsDialogOpen, setIsDetailsDialogOpen] = useState(false);
 
   useEffect(() => {
+    captureEvent(PAGE_VIEWED, {
+      page: PAGES.DASHBOARD
+    });
+
     getGiftees().then(setGiftees).catch(console.error);
   }, []);
 
@@ -33,6 +38,12 @@ export default function Dashboard() {
     setNewGifteeName("");
     setNewGiftee(giftee);
     setIsDetailsDialogOpen(true);
+
+    captureEvent(GIFTEE_EVENTS.GIFTEE_ADDED, {
+      giftee_id: giftee.id,
+      giftee_name: giftee.name
+    });
+
     toast({
       title: "Person Added",
       description: `${giftee.name} has been successfully added.`,

@@ -4,6 +4,7 @@ import { Input } from "../components/ui/input";
 import { Button } from "../components/ui/button";
 import { useAuth } from "../hooks/useAuth";
 import { useNavigate } from "react-router-dom";
+import { posthog, AUTH_EVENTS, captureEvent } from "../lib/posthog";
 
 export default function Login() {
   const [email, setEmail] = useState("");
@@ -25,10 +26,28 @@ export default function Login() {
       email,
       password,
     });
-    
+
     if (error) {
       setError(error.message);
+      // Track failed login attempts
+      captureEvent(AUTH_EVENTS.LOGIN_FAILED, {
+        reason: error.message
+      });
     } else {
+      // Identify user in PostHog on successful login
+      if (data.user) {
+        posthog.identify(
+          data.user.id,
+          {
+            email: data.user.email,
+            $current_url: window.location.href
+          }
+        );
+
+        // Capture successful login event
+        captureEvent(AUTH_EVENTS.USER_LOGGED_IN);
+      }
+
       window.location.href = "/dashboard";
     }
   };

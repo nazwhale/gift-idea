@@ -10,6 +10,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { generateAmazonSearchUrl } from "./ActionList";
 import UrlInputDialog from "@/components/UrlInputDialog";
 import { updateIdea } from "@/lib/ideas";
+import { IDEA_EVENTS, SUGGESTION_EVENTS, captureEvent } from "@/lib/posthog";
 
 type IdeasFormProps = {
   giftee: Giftee;
@@ -61,11 +62,30 @@ export default function IdeasForm({ giftee, ideas, onToggleBought, onDelete, onA
         }
       }
 
+      // Track suggestion request
+      captureEvent(SUGGESTION_EVENTS.GIFT_SUGGESTIONS_REQUESTED, {
+        giftee_id: giftee.id,
+        giftee_name: giftee.name,
+        follow_up_question: followUpQuestion || null
+      });
+
       const response = await getSuggestionsForGiftee(giftee.name, giftee.bio || "", age, followUpQuestion);
       setSuggestions(response.suggestions);
       setFollowUpQuestions(response.followUpQuestions);
+
+      // Track successful suggestions received
+      captureEvent(SUGGESTION_EVENTS.GIFT_SUGGESTIONS_RECEIVED, {
+        suggestion_count: response.suggestions.length,
+        follow_up_questions_count: response.followUpQuestions.length,
+        giftee_id: giftee.id
+      });
     } catch (error) {
       console.error("Error fetching suggestions:", error);
+      // Track error
+      captureEvent(SUGGESTION_EVENTS.GIFT_SUGGESTIONS_ERROR, {
+        error: (error as Error).message,
+        giftee_id: giftee.id
+      });
     } finally {
       setIsFetchingSuggestions(false);
     }
@@ -81,6 +101,35 @@ export default function IdeasForm({ giftee, ideas, onToggleBought, onDelete, onA
     setLocalIdeas(prevIdeas =>
       prevIdeas.map(idea => idea.id === ideaId ? updatedIdea : idea)
     );
+  };
+
+  // Wrap the original handlers with tracking
+  const handleAddIdeaWithTracking = async (ideaName: string) => {
+    await onAddIdea(ideaName);
+
+    // Track idea added
+    captureEvent(IDEA_EVENTS.IDEA_ADDED, {
+      idea_name: ideaName,
+      giftee_id: giftee.id,
+      giftee_name: giftee.name,
+      source: "manual"
+    });
+  };
+
+  const handleToggleBoughtWithTracking = async (ideaId: string) => {
+    await onToggleBought(ideaId);
+
+    // Find idea to get its details
+    const idea = localIdeas.find(i => i.id === ideaId);
+    const newStatus = idea?.purchased_at ? false : true;
+
+    // Track status toggle
+    captureEvent(IDEA_EVENTS.IDEA_STATUS_TOGGLED, {
+      idea_id: ideaId,
+      idea_name: idea?.name,
+      giftee_id: giftee.id,
+      new_status: newStatus ? "purchased" : "not_purchased"
+    });
   };
 
   return (
@@ -100,7 +149,7 @@ export default function IdeasForm({ giftee, ideas, onToggleBought, onDelete, onA
           <div className="overflow-y-auto pr-1 border border-gray-200 rounded-md">
             <IdeaList
               ideas={localIdeas}
-              onToggleBought={onToggleBought}
+              onToggleBought={handleToggleBoughtWithTracking}
               onDelete={onDelete}
               onEditUrl={handleEditUrl}
             />
@@ -131,7 +180,7 @@ export default function IdeasForm({ giftee, ideas, onToggleBought, onDelete, onA
                           className="shrink-0"
                           size="sm"
                           onClick={() => {
-                            onAddIdea(suggestion.description);
+                            handleAddIdeaWithTracking(suggestion.description);
                             setActiveTab("ideas");
                           }}
                           data-testid={`add-suggestion-${idx}`}
@@ -195,7 +244,7 @@ export default function IdeasForm({ giftee, ideas, onToggleBought, onDelete, onA
 
       {/* Footer sections based on active tab */}
       {activeTab === "ideas" && (
-        <AddIdeaForm onAddIdea={onAddIdea} />
+        <AddIdeaForm onAddIdea={handleAddIdeaWithTracking} />
       )}
 
       {activeTab === "ai" && (

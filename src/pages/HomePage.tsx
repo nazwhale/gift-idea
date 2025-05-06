@@ -2,6 +2,8 @@ import { ReactNode } from "react";
 import { Button } from "../components/ui/button";
 import { Gift, Rabbit, WandSparkles, Bell } from "lucide-react"; // lucide.dev/icons
 import { useNavigate } from "react-router-dom";
+import { useEffect } from "react";
+import { PAGE_VIEWED, PAGES, captureEvent } from "../lib/posthog";
 
 const features = [
   {
@@ -39,6 +41,13 @@ const features = [
 
 export default function HomePage() {
   const navigate = useNavigate();
+
+  // Track homepage view when component mounts
+  useEffect(() => {
+    captureEvent(PAGE_VIEWED, {
+      page: PAGES.HOMEPAGE
+    });
+  }, []);
 
   const handleLoginClick = () => {
     // Simply navigate to login page, which will redirect to dashboard if already logged in

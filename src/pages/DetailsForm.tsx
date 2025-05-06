@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { updateGiftee } from "../lib/giftees";
 import { Input } from "../components/ui/input";
 import { Button } from "../components/ui/button";
+import { GIFTEE_EVENTS, captureEvent } from "../lib/posthog";
 
 import { Giftee } from "@/types";
 import { useToast } from "@/hooks/use-toast";
@@ -46,19 +47,43 @@ export default function DetailsForm({ giftee, onClose }: { giftee: Giftee; onClo
   const handleSave = async () => {
     try {
       const dateOfBirth = calculateDateOfBirth();
-      await updateGiftee(giftee.id, { date_of_birth: dateOfBirth, bio });
+      const updatedFields = { date_of_birth: dateOfBirth, bio };
+      await updateGiftee(giftee.id, updatedFields);
+
+      // Create updated giftee object to pass back
+      const updatedGiftee = {
+        ...giftee,
+        date_of_birth: dateOfBirth,
+        bio
+      };
+
+      // Track details update
+      captureEvent(GIFTEE_EVENTS.GIFTEE_DETAILS_UPDATED, {
+        giftee_id: giftee.id,
+        giftee_name: giftee.name,
+        has_date_of_birth: !!dateOfBirth,
+        has_bio: !!bio
+      });
+
       toast({
         title: "Details Saved",
         description: `Updated details for ${giftee.name}.`,
       });
 
       // Pass true to indicate successful update, along with the updated data
-      onClose(true, { ...giftee, date_of_birth: dateOfBirth, bio });
+      onClose(true, updatedGiftee);
     } catch (error) {
+      console.error("Error updating giftee:", error);
       toast({
         title: "Error",
         description: "Failed to save details. Please try again.",
         variant: "destructive",
+      });
+
+      // Track error
+      captureEvent(GIFTEE_EVENTS.GIFTEE_UPDATE_FAILED, {
+        giftee_id: giftee.id,
+        error: (error as Error).message
       });
     }
   };
