@@ -5,12 +5,12 @@ import { Button } from "../components/ui/button";
 import { Link } from "react-router-dom";
 import { GIFTEE_EVENTS, PAGE_VIEWED, PAGES, captureEvent } from "../lib/posthog";
 
-import { Giftee, Idea } from "@/types";
+import { Giftee } from "@/types";
 import GifteeRow from "./GifteeRow";
 import { useToast } from "@/hooks/use-toast";
 
 import ResponsiveIdeasDialog from "@/components/ResponsiveIdeasDialog";
-import { deleteIdea, updateIdea, addIdea } from "@/lib/ideas";
+import { calculateDaysToChristmas } from "@/lib/dateUtils";
 
 export default function Dashboard() {
   const { toast } = useToast();
@@ -24,7 +24,17 @@ export default function Dashboard() {
       page: PAGES.DASHBOARD
     });
 
-    getGiftees().then(setGiftees).catch(console.error);
+    // Load giftees
+    getGiftees()
+      .then((data) => {
+        // We need to manually type it due to type mismatch
+        const gifteeData = data as unknown;
+        setGiftees(gifteeData as Giftee[]);
+      })
+      .catch((err) => {
+        console.error(err);
+        setGiftees([]);
+      });
   }, []);
 
   const handleAddGiftee = async () => {
@@ -53,85 +63,8 @@ export default function Dashboard() {
     }
   };
 
-  const handleDialogClose = (open: boolean) => {
-    setIsIdeasDialogOpen(open);
-    if (!open) {
-      setNewGiftee(null);
-    }
-  };
-
-  // Empty handlers for the new person (who doesn't have ideas yet)
-  const handleAddIdea = async (ideaName: string) => {
-    if (!newGiftee) return;
-    const newIdea = await addIdea(newGiftee.id, ideaName);
-
-    // Update the newGiftee object with the new idea
-    setNewGiftee(prev => {
-      if (!prev) return null;
-      return {
-        ...prev,
-        ideas: [...(prev.ideas || []), newIdea]
-      };
-    });
-
-    // Also update in the giftees list
-    setGiftees(prev =>
-      prev.map(g => g.id === newGiftee.id
-        ? { ...g, ideas: [...(g.ideas || []), newIdea] }
-        : g
-      )
-    );
-  };
-
-  const handleToggleBought = async (ideaId: string) => {
-    if (!newGiftee) return;
-    const idea = newGiftee.ideas?.find(i => i.id === ideaId);
-    if (!idea) return;
-
-    const purchasedAt = idea.purchased_at ? null : new Date().toISOString();
-    const updated = await updateIdea(ideaId, { purchased_at: purchasedAt });
-
-    // Update in newGiftee
-    setNewGiftee(prev => {
-      if (!prev) return null;
-      return {
-        ...prev,
-        ideas: prev.ideas?.map(i => i.id === ideaId ? updated as Idea : i) || []
-      };
-    });
-
-    // Update in giftees list
-    setGiftees(prev =>
-      prev.map(g => g.id === newGiftee.id
-        ? {
-          ...g,
-          ideas: g.ideas?.map(i => i.id === ideaId ? updated as Idea : i) || []
-        }
-        : g
-      )
-    );
-  };
-
-  const handleDeleteIdea = async (ideaId: string) => {
-    if (!newGiftee) return;
-    await deleteIdea(ideaId);
-
-    // Update in newGiftee
-    setNewGiftee(prev => {
-      if (!prev) return null;
-      return {
-        ...prev,
-        ideas: prev.ideas?.filter(i => i.id !== ideaId) || []
-      };
-    });
-
-    // Update in giftees list
-    setGiftees(prev =>
-      prev.map(g => g.id === newGiftee.id
-        ? { ...g, ideas: g.ideas?.filter(i => i.id !== ideaId) || [] }
-        : g
-      )
-    );
+  const handleDialogClose = () => {
+    setNewGiftee(null);
   };
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
@@ -195,12 +128,13 @@ export default function Dashboard() {
           giftee={newGiftee}
           ideas={newGiftee.ideas || []}
           open={isIdeasDialogOpen}
-          setOpen={handleDialogClose}
-          onToggleBought={handleToggleBought}
-          onDelete={handleDeleteIdea}
-          onAddIdea={handleAddIdea}
+          setOpen={setIsIdeasDialogOpen}
+          onToggleBought={async () => { }}
+          onDelete={async () => { }}
+          onAddIdea={async () => { }}
           onDetailsUpdate={handleDetailsUpdate}
           initialTab="details"
+          onDialogClose={handleDialogClose}
         />
       )}
 
@@ -235,44 +169,5 @@ export default function Dashboard() {
       </ul>
     </div>
   );
-}
-
-/**
- * Helper functions for upcoming birthdays and Christmas giftees
- */
-function calculateDaysToChristmas(): number {
-  const today = new Date();
-  const currentYear = today.getFullYear();
-  const christmas = new Date(`${currentYear}-12-25`);
-  const timeDiff = christmas.getTime() - today.getTime();
-
-  if (timeDiff < 0) {
-    const nextChristmas = new Date(`${currentYear + 1}-12-25`);
-    return Math.ceil(
-      (nextChristmas.getTime() - today.getTime()) / (1000 * 60 * 60 * 24)
-    );
-  }
-
-  return Math.ceil(timeDiff / (1000 * 60 * 60 * 24));
-}
-
-function birthdaysInNextNDays(giftees: Giftee[], n: number): Giftee[] {
-  const today = new Date();
-  const nextNDays = new Date();
-  nextNDays.setDate(today.getDate() + n);
-
-  return giftees
-    .filter((g) => {
-      const dob = new Date(g.date_of_birth || "");
-      dob.setFullYear(today.getFullYear());
-      return dob >= today && dob <= nextNDays;
-    })
-    .sort((a, b) => {
-      const dateA = new Date(a.date_of_birth || "");
-      const dateB = new Date(b.date_of_birth || "");
-      dateA.setFullYear(today.getFullYear());
-      dateB.setFullYear(today.getFullYear());
-      return dateA.getTime() - dateB.getTime();
-    });
 }
 

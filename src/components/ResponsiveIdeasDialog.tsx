@@ -18,6 +18,7 @@ import {
     DrawerTrigger,
     DrawerClose,
 } from "./ui/drawer";
+import { useState } from "react";
 
 type ResponsiveIdeasDialogProps = {
     giftee: Giftee;
@@ -29,6 +30,7 @@ type ResponsiveIdeasDialogProps = {
     onAddIdea: (ideaName: string) => Promise<void>;
     onDetailsUpdate?: (updated: boolean, updatedGiftee?: Giftee) => void;
     initialTab?: string;
+    onDialogClose?: () => void;
 };
 
 export default function ResponsiveIdeasDialog({
@@ -41,12 +43,20 @@ export default function ResponsiveIdeasDialog({
     onAddIdea,
     onDetailsUpdate,
     initialTab = "ideas",
+    onDialogClose,
 }: ResponsiveIdeasDialogProps) {
     const isDesktop = useMediaQuery("(min-width: 768px)");
 
+    const handleDialogClose = (open: boolean) => {
+        setOpen(open);
+        if (!open) {
+            onDialogClose?.();
+        }
+    };
+
     if (isDesktop) {
         return (
-            <Dialog open={open} onOpenChange={setOpen}>
+            <Dialog open={open} onOpenChange={handleDialogClose}>
                 <DialogContent className="flex flex-col max-h-[95vh] w-[80vw] max-w-[700px] p-0" data-testid="ideas-dialog-content">
                     <div className="p-6 pb-0">
                         <DialogHeader>
@@ -77,7 +87,7 @@ export default function ResponsiveIdeasDialog({
     return (
         <Drawer
             open={open}
-            onOpenChange={setOpen}
+            onOpenChange={handleDialogClose}
             // This fixes the issue where the input disappears above the fold on first tap
             repositionInputs={false}>
             <DrawerContent data-testid="ideas-drawer-content">

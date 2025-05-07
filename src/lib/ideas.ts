@@ -29,13 +29,35 @@ export async function addIdea(gifteeId: string, name: string) {
 }
 
 export async function updateIdea(id: string, updates: Partial<any>) {
+  console.log(`Updating idea ${id} with:`, updates);
+
   const { data, error } = await supabase
     .from("ideas")
     .update(updates)
     .eq("id", id)
     .select("*");
-  if (error) throw error;
-  return data[0];
+
+  if (error) {
+    console.error("Error updating idea:", error);
+    throw error;
+  }
+
+  if (!data || data.length === 0) {
+    console.error("No data returned from update");
+    throw new Error("No data returned from update");
+  }
+
+  // Ensure URL is correctly set in the returned object
+  const updatedIdea = data[0];
+  console.log("Raw updated idea from DB:", updatedIdea);
+
+  // If URL was in the updates but not in the response, add it explicitly
+  if ('url' in updates && updates.url !== undefined && updatedIdea.url === undefined) {
+    updatedIdea.url = updates.url;
+    console.log("Added missing URL to idea:", updatedIdea);
+  }
+
+  return updatedIdea;
 }
 
 export async function deleteIdea(id: string) {
