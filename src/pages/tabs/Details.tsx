@@ -149,7 +149,7 @@ export default function DetailsTab({ giftee, onClose }: DetailsTabProps) {
                     value={bio}
                     onChange={(e) => setBio(e.target.value)}
                     className="block w-full p-2 border rounded-md"
-                    rows={3}
+                    rows={5}
                     data-testid="bio-input"
                 />
                 <p className="text-xs text-gray-500 mt-1">

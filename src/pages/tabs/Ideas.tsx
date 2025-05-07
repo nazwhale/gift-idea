@@ -80,28 +80,22 @@ export default function IdeasTab({
     };
 
     const handleSaveUrl = async (url: string) => {
+        // This function is called when the user saves the URL for an idea.
+        // It updates the idea in the database and then updates the idea in the local state.
+
+        // Make sure currentIdeaForUrl exists before updating
         if (!currentIdeaForUrl) return;
 
-        try {
-            // Update the idea with the new URL
-            const updated = await updateIdea(currentIdeaForUrl.id, { url }) as Idea;
+        // Update the idea in the database
+        await updateIdea(currentIdeaForUrl.id, { url });
 
-            // Make sure the updated object has the URL property
-            const updatedWithUrl = {
-                ...updated,
-                url: url // Explicitly set the URL property
-            };
+        // Update the idea in the local state
+        const updatedIdeas = localIdeas.map(i => i.id === currentIdeaForUrl.id ? { ...i, url } : i);
+        setLocalIdeas(updatedIdeas);
 
-            // Update local state with the explicitly set URL
-            const updatedIdeas = localIdeas.map(i =>
-                i.id === currentIdeaForUrl.id ? updatedWithUrl : i
-            );
 
-            setLocalIdeas(updatedIdeas);
-            onIdeasChange?.(updatedIdeas);
-        } catch (error) {
-            console.error("Error updating idea URL:", error);
-        }
+        // Close the dialog
+        setUrlDialogOpen(false);
     };
 
     return (
@@ -109,7 +103,7 @@ export default function IdeasTab({
             {/* Ideas list - scrollable */}
             <div className="overflow-y-auto pr-1 border border-gray-200 rounded-md flex-1">
                 <IdeaList
-                    ideas={onIdeasChange ? localIdeas : ideas}
+                    ideas={localIdeas}
                     onToggleBought={handleToggleBought}
                     onDelete={handleDeleteIdea}
                     onEditUrl={handleEditUrl}

@@ -63,9 +63,6 @@ export default function Dashboard() {
     }
   };
 
-  const handleDialogClose = () => {
-    setNewGiftee(null);
-  };
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -134,7 +131,6 @@ export default function Dashboard() {
           onAddIdea={async () => { }}
           onDetailsUpdate={handleDetailsUpdate}
           initialTab="details"
-          onDialogClose={handleDialogClose}
         />
       )}
 

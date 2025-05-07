@@ -23,8 +23,10 @@ type ResponsiveIdeasDialogProps = {
     open: boolean;
     setOpen: (open: boolean) => void;
     onToggleBought: (ideaId: string) => Promise<void>;
+    onDetailsUpdate: (updated: boolean, updatedGiftee?: Giftee) => void;
     onDelete: (ideaId: string) => Promise<void>;
     onAddIdea: (ideaName: string) => Promise<void>;
+    initialTab: string;
 };
 
 export default function ResponsiveIdeasDialog({
@@ -33,8 +35,10 @@ export default function ResponsiveIdeasDialog({
     open,
     setOpen,
     onToggleBought,
+    onDetailsUpdate,
     onDelete,
     onAddIdea,
+    initialTab
 }: ResponsiveIdeasDialogProps) {
     const isDesktop = useMediaQuery("(min-width: 768px)");
 
@@ -54,11 +58,13 @@ export default function ResponsiveIdeasDialog({
                     </div>
                     <div className="px-6 flex-1 overflow-hidden">
                         <IdeasForm
+                            initialTab={initialTab}
                             giftee={giftee}
                             ideas={ideas}
                             onToggleBought={onToggleBought}
                             onDelete={onDelete}
                             onAddIdea={onAddIdea}
+                            onDetailsUpdate={onDetailsUpdate}
                         />
                     </div>
                 </DialogContent>
@@ -90,6 +96,8 @@ export default function ResponsiveIdeasDialog({
                         onToggleBought={onToggleBought}
                         onDelete={onDelete}
                         onAddIdea={onAddIdea}
+                        onDetailsUpdate={onDetailsUpdate}
+                        initialTab={initialTab}
                     />
                 </div>
                 <DrawerClose className="absolute right-4 top-4" />
