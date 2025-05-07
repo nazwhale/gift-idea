@@ -1,5 +1,5 @@
 import ActionList from "@/pages/ActionList.tsx";
-import DebugIdeaInfo from "@/components/DebugIdeaInfo";
+import { Idea } from "@/types";
 
 export default function IdeaList({
   ideas,
@@ -7,16 +7,11 @@ export default function IdeaList({
   onDelete,
   onEditUrl,
 }: {
-  ideas: any[];
+  ideas: Idea[];
   onToggleBought: (ideaId: string) => void;
   onDelete: (ideaId: string) => void;
   onEditUrl: (ideaId: string, currentUrl: string | null) => void;
 }) {
-
-  console.log("🙂Ideas:", ideas);
-  // Debug - Check if any ideas have URLs
-  const ideasWithUrls = ideas.filter(idea => idea.url);
-  console.log("Ideas with URLs:", ideasWithUrls.length, ideasWithUrls);
 
   return ideas.length > 0 ? (
     <ul className="overflow-y-scroll max-h-96">

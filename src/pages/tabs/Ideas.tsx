@@ -26,7 +26,6 @@ export default function IdeasTab({
     const [urlDialogOpen, setUrlDialogOpen] = useState(false);
     const [currentIdeaForUrl, setCurrentIdeaForUrl] = useState<{ id: string, name: string, url: string | null } | null>(null);
 
-    // Use local handlers if parent handlers aren't provided
     const handleAddIdea = async (ideaName: string) => {
         if (onAddIdea) {
             await onAddIdea(ideaName);
@@ -83,36 +82,31 @@ export default function IdeasTab({
     const handleSaveUrl = async (url: string) => {
         if (!currentIdeaForUrl) return;
 
-        console.log("Saving URL:", url, "for idea:", currentIdeaForUrl);
-
         try {
             // Update the idea with the new URL
             const updated = await updateIdea(currentIdeaForUrl.id, { url }) as Idea;
-            console.log("Updated idea from server:", updated);
 
             // Make sure the updated object has the URL property
             const updatedWithUrl = {
                 ...updated,
                 url: url // Explicitly set the URL property
             };
-            console.log("Enhanced updated idea:", updatedWithUrl);
 
             // Update local state with the explicitly set URL
             const updatedIdeas = localIdeas.map(i =>
                 i.id === currentIdeaForUrl.id ? updatedWithUrl : i
             );
 
-            console.log("Updated ideas array:", updatedIdeas);
             setLocalIdeas(updatedIdeas);
             onIdeasChange?.(updatedIdeas);
         } catch (error) {
             console.error("Error updating idea URL:", error);
-            alert("Failed to update link. Please try again.");
         }
     };
 
     return (
         <div className="flex flex-col flex-1">
+            {/* Ideas list - scrollable */}
             <div className="overflow-y-auto pr-1 border border-gray-200 rounded-md flex-1">
                 <IdeaList
                     ideas={onIdeasChange ? localIdeas : ideas}
@@ -121,8 +115,11 @@ export default function IdeasTab({
                     onEditUrl={handleEditUrl}
                 />
             </div>
+
+            {/* Add idea form */}
             <AddIdeaForm onAddIdea={handleAddIdea} />
 
+            {/* Add URL dialog */}
             {currentIdeaForUrl && (
                 <AddUrlDialog
                     open={urlDialogOpen}

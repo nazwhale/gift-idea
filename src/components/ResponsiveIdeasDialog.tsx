@@ -7,7 +7,6 @@ import {
     DialogHeader,
     DialogTitle,
     DialogDescription,
-    DialogTrigger,
 } from "./ui/dialog";
 import {
     Drawer,
@@ -15,10 +14,8 @@ import {
     DrawerHeader,
     DrawerTitle,
     DrawerDescription,
-    DrawerTrigger,
     DrawerClose,
 } from "./ui/drawer";
-import { useState } from "react";
 
 type ResponsiveIdeasDialogProps = {
     giftee: Giftee;
@@ -28,9 +25,6 @@ type ResponsiveIdeasDialogProps = {
     onToggleBought: (ideaId: string) => Promise<void>;
     onDelete: (ideaId: string) => Promise<void>;
     onAddIdea: (ideaName: string) => Promise<void>;
-    onDetailsUpdate?: (updated: boolean, updatedGiftee?: Giftee) => void;
-    initialTab?: string;
-    onDialogClose?: () => void;
 };
 
 export default function ResponsiveIdeasDialog({
@@ -41,22 +35,12 @@ export default function ResponsiveIdeasDialog({
     onToggleBought,
     onDelete,
     onAddIdea,
-    onDetailsUpdate,
-    initialTab = "ideas",
-    onDialogClose,
 }: ResponsiveIdeasDialogProps) {
     const isDesktop = useMediaQuery("(min-width: 768px)");
 
-    const handleDialogClose = (open: boolean) => {
-        setOpen(open);
-        if (!open) {
-            onDialogClose?.();
-        }
-    };
-
     if (isDesktop) {
         return (
-            <Dialog open={open} onOpenChange={handleDialogClose}>
+            <Dialog open={open} onOpenChange={setOpen}>
                 <DialogContent className="flex flex-col max-h-[95vh] w-[80vw] max-w-[700px] p-0" data-testid="ideas-dialog-content">
                     <div className="p-6 pb-0">
                         <DialogHeader>
@@ -64,7 +48,7 @@ export default function ResponsiveIdeasDialog({
                                 {giftee.name}'s {ideas.length} Ideas
                             </DialogTitle>
                             <DialogDescription>
-                                Manage gift ideas, get AI suggestions, and update details
+                                Manage gift ideas and get AI suggestions
                             </DialogDescription>
                         </DialogHeader>
                     </div>
@@ -75,8 +59,6 @@ export default function ResponsiveIdeasDialog({
                             onToggleBought={onToggleBought}
                             onDelete={onDelete}
                             onAddIdea={onAddIdea}
-                            onDetailsUpdate={onDetailsUpdate}
-                            initialTab={initialTab}
                         />
                     </div>
                 </DialogContent>
@@ -87,7 +69,7 @@ export default function ResponsiveIdeasDialog({
     return (
         <Drawer
             open={open}
-            onOpenChange={handleDialogClose}
+            onOpenChange={setOpen}
             // This fixes the issue where the input disappears above the fold on first tap
             repositionInputs={false}>
             <DrawerContent data-testid="ideas-drawer-content">
@@ -97,7 +79,7 @@ export default function ResponsiveIdeasDialog({
                             {giftee.name}'s {ideas.length} Ideas
                         </DrawerTitle>
                         <DrawerDescription>
-                            Manage gift ideas, get AI suggestions, and update details
+                            Manage gift ideas and get AI suggestions
                         </DrawerDescription>
                     </DrawerHeader>
                 </div>
@@ -108,8 +90,6 @@ export default function ResponsiveIdeasDialog({
                         onToggleBought={onToggleBought}
                         onDelete={onDelete}
                         onAddIdea={onAddIdea}
-                        onDetailsUpdate={onDetailsUpdate}
-                        initialTab={initialTab}
                     />
                 </div>
                 <DrawerClose className="absolute right-4 top-4" />

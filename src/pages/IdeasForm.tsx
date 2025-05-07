@@ -46,6 +46,7 @@ export default function IdeasForm({
         {/* Ideas tab */}
         <TabsContent value="ideas" className="flex-1 overflow-auto mb-0" data-testid="ideas-content">
           <IdeasTab
+            giftee={giftee}
             ideas={ideas}
             onToggleBought={onToggleBought}
             onDelete={onDelete}
