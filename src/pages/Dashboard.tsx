@@ -158,7 +158,6 @@ export default function Dashboard() {
   });
 
   const daysToChristmas = calculateDaysToChristmas();
-  const birthdays = birthdaysInNextNDays(giftees, 21);
 
   return (
     <div className="py-4">
@@ -277,6 +276,3 @@ function birthdaysInNextNDays(giftees: Giftee[], n: number): Giftee[] {
     });
 }
 
-function getChristmasGiftees(giftees: Giftee[]): Giftee[] {
-  return giftees.filter((g) => g.on_christmas);
-}
