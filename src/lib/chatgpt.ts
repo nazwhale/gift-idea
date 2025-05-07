@@ -101,15 +101,30 @@ export async function getSuggestionsForGiftee(
     })
   });
 
+  // Log full API response for debugging
+  const responseData = await response.json();
+  console.log("Full API response:", JSON.stringify(responseData, null, 2));
 
-  const fcArgs = JSON.parse(
-    response.ok ? (await response.json()).choices[0].message.function_call.arguments : "{}"
-  );
-  if (!Array.isArray(fcArgs.suggestions) || !Array.isArray(fcArgs.followUpQuestions))
+  const fcArgs = response.ok ?
+    JSON.parse(responseData.choices[0].message.function_call.arguments) :
+    "{}";
+
+  console.log("Parsed function arguments:", JSON.stringify(fcArgs, null, 2));
+  console.log("followUpQuestions array:", JSON.stringify(fcArgs.followUpQuestions, null, 2));
+  console.log("followUpQuestions length:", fcArgs.followUpQuestions?.length || 0);
+
+  if (!Array.isArray(fcArgs.suggestions) || !Array.isArray(fcArgs.followUpQuestions)) {
+    console.error("Validation error: suggestions or followUpQuestions is not an array");
     throw new Error("Bad model response");
+  }
 
-  return {
+  // Log the final returned data
+  const result = {
     suggestions: fcArgs.suggestions as Suggestion[],
     followUpQuestions: fcArgs.followUpQuestions as FollowUpQuestion[]
   };
+
+  console.log("Final result object:", JSON.stringify(result, null, 2));
+
+  return result;
 }

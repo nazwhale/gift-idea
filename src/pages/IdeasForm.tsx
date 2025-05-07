@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { Button } from "../components/ui/button";
-import { getSuggestionsForGiftee, Suggestion } from "@/lib/chatgpt";
+import { getSuggestionsForGiftee, Suggestion, FollowUpQuestion } from "@/lib/chatgpt";
 import { Giftee, Idea } from "@/types";
 import IdeaList from "./IdeaList";
 import AddIdeaForm from "./AddIdeaForm";
@@ -30,17 +30,22 @@ export default function IdeasForm({
   initialTab = "ideas"
 }: IdeasFormProps) {
   const [suggestions, setSuggestions] = useState<Suggestion[]>([]);
+  const [followUpQuestions, setFollowUpQuestions] = useState<FollowUpQuestion[]>([]);
   const [isFetchingSuggestions, setIsFetchingSuggestions] = useState(false);
   const [activeTab, setActiveTab] = useState(initialTab);
+  const [selectedFollowUp, setSelectedFollowUp] = useState<string | undefined>(undefined);
 
   useEffect(() => {
     setActiveTab(initialTab);
   }, [initialTab]);
 
-  const handleFetchSuggestions = async () => {
+  const handleFetchSuggestions = async (followUpQuestion?: string) => {
     if (!giftee?.name) return;
     setIsFetchingSuggestions(true);
     setSuggestions([]);
+    setFollowUpQuestions([]);
+    setSelectedFollowUp(followUpQuestion);
+
     try {
       // Calculate age from date of birth if available
       let age: number | undefined;
@@ -56,8 +61,9 @@ export default function IdeasForm({
         }
       }
 
-      const response = await getSuggestionsForGiftee(giftee.name, giftee.bio || "", age);
+      const response = await getSuggestionsForGiftee(giftee.name, giftee.bio || "", age, followUpQuestion);
       setSuggestions(response.suggestions);
+      setFollowUpQuestions(response.followUpQuestions);
     } catch (error) {
       console.error("Error fetching suggestions:", error);
     } finally {
@@ -93,6 +99,23 @@ export default function IdeasForm({
         {/* Suggestions tab */}
         <TabsContent value="ai" className="flex-1 overflow-auto mb-0" data-testid="ai-content">
           <div className="space-y-2">
+            {selectedFollowUp && (
+              <div className="mb-4">
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="text-muted-foreground"
+                  onClick={() => handleFetchSuggestions()}
+                  data-testid="clear-follow-up"
+                >
+                  ← Back to general suggestions
+                </Button>
+                <p className="text-sm text-muted-foreground mt-1">
+                  Showing suggestions for: <span className="font-medium">{selectedFollowUp}</span>
+                </p>
+              </div>
+            )}
+
             {suggestions.length > 0 ? (
               <div className="space-y-2 text-sm overflow-y-auto max-h-96">
                 {suggestions.map((suggestion, idx) => (
@@ -146,6 +169,28 @@ export default function IdeasForm({
                     </CardContent>
                   </Card>
                 ))}
+
+                {/* Follow-up questions section */}
+                {followUpQuestions.length > 0 && (
+                  <div className="mt-6 pt-4 border-t border-gray-200">
+                    <h3 className="text-sm font-medium mb-3">Refine your suggestions:</h3>
+                    <div className="flex flex-wrap gap-2" data-testid="follow-up-questions">
+                      {followUpQuestions.map((question, idx) => (
+                        <Button
+                          key={idx}
+                          variant="secondary"
+                          size="sm"
+                          className="text-xs"
+                          onClick={() => handleFetchSuggestions(question.text)}
+                          disabled={isFetchingSuggestions}
+                          data-testid={`follow-up-question-${idx}`}
+                        >
+                          {question.text}
+                        </Button>
+                      ))}
+                    </div>
+                  </div>
+                )}
               </div>
             ) : (
               <div className="flex justify-center items-center w-full flex-1 min-h-[300px] text-muted-foreground" data-testid="empty-suggestions">
@@ -174,7 +219,7 @@ export default function IdeasForm({
             size="sm"
             variant="outline"
             className="bg-gradient-to-r from-purple-300 via-pink-300 to-red-300 w-full"
-            onClick={handleFetchSuggestions}
+            onClick={() => handleFetchSuggestions()}
             disabled={isFetchingSuggestions}
             data-testid="get-suggestions-button"
           >
