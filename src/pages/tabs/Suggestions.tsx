@@ -87,14 +87,11 @@ export default function SuggestionsTab({
                     <div className="space-y-2 text-sm overflow-y-auto max-h-96">
                         {suggestions.map((suggestion, idx) => (
                             <Card key={idx} data-testid={`suggestion-card-${idx}`}>
-                                <CardContent className="pt-6 px-4">
+                                <CardContent className="py-2 px-2">
                                     <div className="flex items-center justify-between">
-                                        <span className="font-semibold text-gray-500 mr-4 min-w-10" data-testid={`suggestion-cost-${idx}`}>
-                                            {suggestion.cost}
-                                        </span>
                                         <div className="flex-grow mr-4">
                                             <div className="text-sm text-muted-foreground" data-testid={`suggestion-short-description-${idx}`}>
-                                                {suggestion.shortDescription}
+                                                {suggestion.shortDescription} – {suggestion.cost}
                                             </div>
                                             <span className="break-words" data-testid={`suggestion-description-${idx}`}>
                                                 {suggestion.description}
