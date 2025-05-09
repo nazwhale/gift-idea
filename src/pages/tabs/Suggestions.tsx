@@ -149,7 +149,7 @@ export default function SuggestionsTab({
                         {/* Custom follow-up question input */}
                         <div>
                             <h3 className="text-sm font-medium mb-1">Ask your own question:</h3>
-                            <div className="flex gap-2" data-testid="custom-follow-up">
+                            <div className="flex gap-2 mb-2" data-testid="custom-follow-up">
                                 <Input
                                     placeholder="Type your follow-up question..."
                                     value={customFollowUp}
@@ -165,7 +165,6 @@ export default function SuggestionsTab({
                                 />
                                 <Button
                                     variant="outline"
-                                    size="sm"
                                     onClick={handleCustomFollowUp}
                                     disabled={isFetchingSuggestions || !customFollowUp.trim()}
                                     data-testid="custom-follow-up-button"
@@ -183,7 +182,7 @@ export default function SuggestionsTab({
                 }
             </div >
 
-            <DialogFooter className="sticky bottom-0 pb-4 pt-4 bg-background border-t">
+            <DialogFooter className="sticky bottom-0 pb-4 pt-4 bg-background">
                 <Button
                     size="sm"
                     variant="outline"
