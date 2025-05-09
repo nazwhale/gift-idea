@@ -5,6 +5,7 @@ import { Giftee, Idea } from "@/types";
 import { Card, CardContent } from "@/components/ui/card";
 import { generateAmazonSearchUrl } from "../ActionList";
 import { DialogFooter } from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
 
 type SuggestionsTabProps = {
     giftee: Giftee;
@@ -21,6 +22,7 @@ export default function SuggestionsTab({
     const [followUpQuestions, setFollowUpQuestions] = useState<FollowUpQuestion[]>([]);
     const [isFetchingSuggestions, setIsFetchingSuggestions] = useState(false);
     const [selectedFollowUp, setSelectedFollowUp] = useState<string | undefined>(undefined);
+    const [customFollowUp, setCustomFollowUp] = useState("");
 
     const handleFetchSuggestions = async (followUpQuestion?: string) => {
         if (!giftee?.name) return;
@@ -51,6 +53,13 @@ export default function SuggestionsTab({
             console.error("Error fetching suggestions:", error);
         } finally {
             setIsFetchingSuggestions(false);
+        }
+    };
+
+    const handleCustomFollowUp = () => {
+        if (customFollowUp.trim()) {
+            handleFetchSuggestions(customFollowUp.trim());
+            setCustomFollowUp("");
         }
     };
 
@@ -149,6 +158,35 @@ export default function SuggestionsTab({
                                 </div>
                             </div>
                         )}
+
+                        {/* Custom follow-up question input */}
+                        <div className="mt-6 pt-4 border-t border-gray-200">
+                            <h3 className="text-sm font-medium mb-2">Ask your own question:</h3>
+                            <div className="flex gap-2" data-testid="custom-follow-up">
+                                <Input
+                                    placeholder="Type your follow-up question..."
+                                    value={customFollowUp}
+                                    onChange={(e) => setCustomFollowUp(e.target.value)}
+                                    disabled={isFetchingSuggestions}
+                                    className="text-sm"
+                                    data-testid="custom-follow-up-input"
+                                    onKeyDown={(e) => {
+                                        if (e.key === 'Enter' && customFollowUp.trim()) {
+                                            handleCustomFollowUp();
+                                        }
+                                    }}
+                                />
+                                <Button
+                                    variant="outline"
+                                    size="sm"
+                                    onClick={handleCustomFollowUp}
+                                    disabled={isFetchingSuggestions || !customFollowUp.trim()}
+                                    data-testid="custom-follow-up-button"
+                                >
+                                    Ask
+                                </Button>
+                            </div>
+                        </div>
                     </div>
                 ) : (
                     <div className="flex justify-center items-center w-full flex-1 min-h-[300px] text-muted-foreground" data-testid="empty-suggestions">
