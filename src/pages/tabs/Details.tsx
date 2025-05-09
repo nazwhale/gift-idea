@@ -93,7 +93,7 @@ export default function DetailsTab({ giftee, onClose }: DetailsTabProps) {
     };
 
     return (
-        <div className="space-y-4">
+        <div className="space-y-4 mb-4">
             <div>
                 <label
                     htmlFor="birthday"
@@ -156,7 +156,7 @@ export default function DetailsTab({ giftee, onClose }: DetailsTabProps) {
                     Include brands they like and dislike to get better gift suggestions.
                 </p>
             </div>
-            <div className="sticky bottom-0 pt-4 pb-4 bg-background border-t">
+            <div className="sticky bottom-0 bg-background">
                 <Button onClick={handleSave} className="w-full" data-testid="save-details-button">
                     Save Details
                 </Button>
