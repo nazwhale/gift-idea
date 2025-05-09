@@ -68,97 +68,87 @@ export default function SuggestionsTab({
             <div className="space-y-2 flex-1">
                 {selectedFollowUp && (
                     <div className="mb-4">
-                        <Button
-                            variant="ghost"
-                            size="sm"
-                            className="text-muted-foreground"
-                            onClick={() => handleFetchSuggestions()}
-                            data-testid="clear-follow-up"
-                        >
-                            ← Back to general suggestions
-                        </Button>
                         <p className="text-sm text-muted-foreground mt-1">
-                            Showing suggestions for: <span className="font-medium">{selectedFollowUp}</span>
+                            Showing: <span className="font-medium">{selectedFollowUp}</span>
                         </p>
                     </div>
                 )}
 
                 {suggestions.length > 0 ? (
-                    <div className="space-y-2 text-sm overflow-y-auto max-h-96">
-                        {suggestions.map((suggestion, idx) => (
-                            <Card key={idx} data-testid={`suggestion-card-${idx}`}>
-                                <CardContent className="py-2 px-2">
-                                    <div className="flex items-center justify-between">
-                                        <div className="flex-grow mr-4">
-                                            <div className="text-sm text-muted-foreground" data-testid={`suggestion-short-description-${idx}`}>
-                                                {suggestion.shortDescription} – {suggestion.cost}
+                    <div className="space-y-4 text-sm overflow-y-auto max-h-96">
+                        <div>
+                            {suggestions.map((suggestion, idx) => (
+                                <Card key={idx} data-testid={`suggestion-card-${idx}`}>
+                                    <CardContent className="py-2 px-2">
+                                        <div className="flex items-center justify-between">
+                                            <div className="flex-grow mr-4">
+                                                <div className="text-sm text-muted-foreground" data-testid={`suggestion-short-description-${idx}`}>
+                                                    {suggestion.shortDescription} – {suggestion.cost}
+                                                </div>
+                                                <span className="break-words" data-testid={`suggestion-description-${idx}`}>
+                                                    {suggestion.description}
+                                                </span>
                                             </div>
-                                            <span className="break-words" data-testid={`suggestion-description-${idx}`}>
-                                                {suggestion.description}
-                                            </span>
+                                            <Button
+                                                variant="outline"
+                                                className="shrink-0"
+                                                size="sm"
+                                                onClick={() => {
+                                                    onAddIdea(suggestion.description);
+                                                    onTabChange("ideas");
+                                                }}
+                                                data-testid={`add-suggestion-${idx}`}
+                                            >
+                                                Save idea
+                                            </Button>
                                         </div>
-                                        <Button
-                                            variant="outline"
-                                            className="shrink-0"
-                                            size="sm"
-                                            onClick={() => {
-                                                onAddIdea(suggestion.description);
-                                                onTabChange("ideas");
-                                            }}
-                                            data-testid={`add-suggestion-${idx}`}
-                                        >
-                                            Save idea
-                                        </Button>
-                                    </div>
-                                    <div className="flex justify-end mt-2 space-x-2">
-                                        <Button
-                                            variant="link"
-                                            size="sm"
-                                            className="text-sm text-blue-500 p-0 h-auto"
-                                            onClick={() => window.open(`https://www.google.com/search?q=${encodeURIComponent(suggestion.description)}`, '_blank')}
-                                            data-testid={`google-suggestion-${idx}`}
-                                        >
-                                            Google it →
-                                        </Button>
-                                        <Button
-                                            variant="link"
-                                            size="sm"
-                                            className="text-sm text-orange-500 p-0 h-auto"
-                                            onClick={() => window.open(generateAmazonSearchUrl(suggestion.description), '_blank')}
-                                            data-testid={`amazon-suggestion-${idx}`}
-                                        >
-                                            Amazon it →
-                                        </Button>
-                                    </div>
-                                </CardContent>
-                            </Card>
-                        ))}
+                                        <div className="flex justify-end mt-2 space-x-2">
+                                            <Button
+                                                variant="link"
+                                                size="sm"
+                                                className="text-sm text-blue-500 p-0 h-auto"
+                                                onClick={() => window.open(`https://www.google.com/search?q=${encodeURIComponent(suggestion.description)}`, '_blank')}
+                                                data-testid={`google-suggestion-${idx}`}
+                                            >
+                                                Google it →
+                                            </Button>
+                                            <Button
+                                                variant="link"
+                                                size="sm"
+                                                className="text-sm text-orange-500 p-0 h-auto"
+                                                onClick={() => window.open(generateAmazonSearchUrl(suggestion.description), '_blank')}
+                                                data-testid={`amazon-suggestion-${idx}`}
+                                            >
+                                                Amazon it →
+                                            </Button>
+                                        </div>
+                                    </CardContent>
+                                </Card>
+                            ))}
+                        </div>
 
                         {/* Follow-up questions section */}
                         {followUpQuestions.length > 0 && (
-                            <div className="mt-6 pt-4 border-t border-gray-200">
-                                <h3 className="text-sm font-medium mb-3">Refine your suggestions:</h3>
+                            <div>
                                 <div className="flex flex-wrap gap-2" data-testid="follow-up-questions">
                                     {followUpQuestions.map((question, idx) => (
-                                        <Button
+                                        <span
                                             key={idx}
-                                            variant="secondary"
-                                            size="sm"
-                                            className="text-xs"
-                                            onClick={() => handleFetchSuggestions(question.text)}
-                                            disabled={isFetchingSuggestions}
+                                            className="text-xs px-2 py-1 border border-gray-300 rounded-md cursor-pointer hover:bg-gray-100 inline-block"
+                                            onClick={() => !isFetchingSuggestions && handleFetchSuggestions(question.text)}
+                                            style={{ opacity: isFetchingSuggestions ? 0.5 : 1 }}
                                             data-testid={`follow-up-question-${idx}`}
                                         >
                                             {question.text}
-                                        </Button>
+                                        </span>
                                     ))}
                                 </div>
                             </div>
                         )}
 
                         {/* Custom follow-up question input */}
-                        <div className="mt-6 pt-4 border-t border-gray-200">
-                            <h3 className="text-sm font-medium mb-2">Ask your own question:</h3>
+                        <div>
+                            <h3 className="text-sm font-medium mb-1">Ask your own question:</h3>
                             <div className="flex gap-2" data-testid="custom-follow-up">
                                 <Input
                                     placeholder="Type your follow-up question..."
@@ -189,8 +179,9 @@ export default function SuggestionsTab({
                     <div className="flex justify-center items-center w-full flex-1 min-h-[300px] text-muted-foreground" data-testid="empty-suggestions">
                         Suggestions will appear here
                     </div>
-                )}
-            </div>
+                )
+                }
+            </div >
 
             <DialogFooter className="sticky bottom-0 pb-4 pt-4 bg-background border-t">
                 <Button
@@ -204,6 +195,6 @@ export default function SuggestionsTab({
                     {isFetchingSuggestions ? "Thinking..." : "Get 3 Suggestions"}
                 </Button>
             </DialogFooter>
-        </div>
+        </div >
     );
 } 
