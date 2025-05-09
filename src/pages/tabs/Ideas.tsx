@@ -27,11 +27,12 @@ export default function IdeasTab({
     const [currentIdeaForUrl, setCurrentIdeaForUrl] = useState<{ id: string, name: string, url: string | null } | null>(null);
 
     const handleAddIdea = async (ideaName: string) => {
+        // Call parent callback if provided
         if (onAddIdea) {
             await onAddIdea(ideaName);
-            return;
         }
 
+        // Always handle locally
         const newIdea = await addIdea(giftee.id, ideaName);
         const updatedIdeas = [...localIdeas, newIdea];
         setLocalIdeas(updatedIdeas);
@@ -39,14 +40,16 @@ export default function IdeasTab({
     };
 
     const handleToggleBought = async (ideaId: string) => {
-        if (onToggleBought) {
-            await onToggleBought(ideaId);
-            return;
-        }
-
+        // Find the idea first
         const idea = localIdeas.find(i => i.id === ideaId);
         if (!idea) return;
 
+        // Call parent callback if provided
+        if (onToggleBought) {
+            await onToggleBought(ideaId);
+        }
+
+        // Always handle locally
         const purchasedAt = idea.purchased_at ? null : new Date().toISOString();
         const updated = await updateIdea(ideaId, { purchased_at: purchasedAt }) as Idea;
 
@@ -56,11 +59,12 @@ export default function IdeasTab({
     };
 
     const handleDeleteIdea = async (ideaId: string) => {
+        // Call parent callback if provided
         if (onDelete) {
             await onDelete(ideaId);
-            return;
         }
 
+        // Always handle locally
         await deleteIdea(ideaId);
         const updatedIdeas = localIdeas.filter(i => i.id !== ideaId);
         setLocalIdeas(updatedIdeas);

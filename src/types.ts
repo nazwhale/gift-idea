@@ -3,6 +3,7 @@ export interface Giftee {
   name: string;
   date_of_birth?: string;
   bio?: string;
+  phone_number?: string | null;
   on_christmas?: boolean;
   on_birthday?: boolean;
   ideas?: Idea[];

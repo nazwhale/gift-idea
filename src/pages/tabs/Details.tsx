@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { GIFTEE_EVENTS, captureEvent } from "../../lib/posthog";
 import { Giftee } from "@/types";
 import { useToast } from "@/hooks/use-toast";
+import { PhoneInput } from "@/components/ui/phone-input";
 
 type DetailsTabProps = {
     giftee: Giftee;
@@ -16,6 +17,10 @@ export default function DetailsTab({ giftee, onClose }: DetailsTabProps) {
     const [birthday, setBirthday] = useState("");
     const [age, setAge] = useState("");
     const [bio, setBio] = useState(giftee.bio || "");
+    // Prepend '+' to phone number for PhoneInput component which requires the '+' prefix for proper country code display
+    const [phoneNumber, setPhoneNumber] = useState(
+        giftee.phone_number ? `+${giftee.phone_number}` : ""
+    );
 
     // Set initial values if date_of_birth exists
     useEffect(() => {
@@ -51,14 +56,21 @@ export default function DetailsTab({ giftee, onClose }: DetailsTabProps) {
     const handleSave = async () => {
         try {
             const dateOfBirth = calculateDateOfBirth();
-            const updatedFields = { date_of_birth: dateOfBirth, bio };
+            const updatedFields = {
+                date_of_birth: dateOfBirth,
+                bio,
+                // Strip '+' prefix from phone number as database doesn't accept it
+                phone_number: phoneNumber ? phoneNumber.replace(/^\+/, '') : null
+            };
             await updateGiftee(giftee.id, updatedFields);
 
             // Create updated giftee object to pass back
             const updatedGiftee = {
                 ...giftee,
                 date_of_birth: dateOfBirth,
-                bio
+                bio,
+                // Strip '+' prefix from phone number as database doesn't accept it
+                phone_number: phoneNumber ? phoneNumber.replace(/^\+/, '') : null
             };
 
             // Track details update
@@ -66,7 +78,8 @@ export default function DetailsTab({ giftee, onClose }: DetailsTabProps) {
                 giftee_id: giftee.id,
                 giftee_name: giftee.name,
                 has_date_of_birth: !!dateOfBirth,
-                has_bio: !!bio
+                has_bio: !!bio,
+                has_phone_number: !!phoneNumber
             });
 
             toast({
@@ -136,6 +149,24 @@ export default function DetailsTab({ giftee, onClose }: DetailsTabProps) {
                         Birth year: {new Date().getFullYear() - parseInt(age, 10)}
                     </p>
                 )}
+            </div>
+            <div>
+                <label
+                    htmlFor="phone-number"
+                    className="block text-sm font-medium text-gray-700"
+                >
+                    Phone Number
+                </label>
+                <PhoneInput
+                    id="phone-number"
+                    defaultCountry="GB"
+                    value={phoneNumber}
+                    onChange={setPhoneNumber}
+                    data-testid="phone-input"
+                />
+                <p className="text-xs text-gray-500 mt-1">
+                    So that, on their birthday, on your reminder email we can zap you into your WhatsApp thread with a templated message.
+                </p>
             </div>
             <div>
                 <label
