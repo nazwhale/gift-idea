@@ -4,6 +4,7 @@ import { Gift, Rabbit, WandSparkles, Bell } from "lucide-react"; // lucide.dev/i
 import { useNavigate } from "react-router-dom";
 import { useEffect } from "react";
 import { PAGE_VIEWED, PAGES, captureEvent } from "../lib/posthog";
+import IllustrativeReminderEmail from "../components/IllustrativeReminderEmail";
 
 const features = [
   {
@@ -72,6 +73,17 @@ export default function HomePage() {
           <Button className="w-full" variant="outline" onClick={handleLoginClick} data-testid="login-button">
             Login
           </Button>
+        </div>
+      </div>
+
+      {/* Illustrative Reminder Email & Testimonial (moved up) */}
+      <div className="flex flex-col items-center space-y-4 mt-8">
+        <IllustrativeReminderEmail />
+        <div className="max-w-xl w-full flex flex-col items-center">
+          <div className="italic text-gray-700 text-lg bg-gray-50 border-l-4 border-blue-300 px-6 py-3 rounded text-center">
+            “This slapped”
+          </div>
+          <div className="text-base text-gray-500 mt-2">— Bridget, never-miss-a-birthday convert</div>
         </div>
       </div>
 
