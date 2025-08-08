@@ -1,11 +1,13 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { getSuggestionsForGiftee, Suggestion, FollowUpQuestion } from "@/lib/chatgpt";
-import { Giftee, Idea } from "@/types";
+import { Giftee } from "@/types";
 import { Card, CardContent } from "@/components/ui/card";
 import { generateAmazonSearchUrl } from "../ActionList";
 import { DialogFooter } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
+import { Loader2 } from "lucide-react";
+import { useToast } from "@/hooks/use-toast";
 
 type SuggestionsTabProps = {
     giftee: Giftee;
@@ -23,6 +25,7 @@ export default function SuggestionsTab({
     const [isFetchingSuggestions, setIsFetchingSuggestions] = useState(false);
     const [selectedFollowUp, setSelectedFollowUp] = useState<string | undefined>(undefined);
     const [customFollowUp, setCustomFollowUp] = useState("");
+    const { toast } = useToast();
 
     const handleFetchSuggestions = async (followUpQuestion?: string) => {
         if (!giftee?.name) return;
@@ -51,6 +54,10 @@ export default function SuggestionsTab({
             setFollowUpQuestions(response.followUpQuestions);
         } catch (error) {
             console.error("Error fetching suggestions:", error);
+            toast({
+                title: "Error fetching suggestions",
+                description: error instanceof Error ? error.message : "Please try again.",
+            });
         } finally {
             setIsFetchingSuggestions(false);
         }
@@ -191,9 +198,13 @@ export default function SuggestionsTab({
                     disabled={isFetchingSuggestions}
                     data-testid="get-suggestions-button"
                 >
-                    {isFetchingSuggestions ? "Thinking..." : "Get 3 Suggestions"}
+                    {isFetchingSuggestions ? (
+                        <Loader2 className="h-4 w-4 animate-spin" />
+                    ) : (
+                        "Get 3 Suggestions"
+                    )}
                 </Button>
             </DialogFooter>
         </div >
     );
-} 
+}
