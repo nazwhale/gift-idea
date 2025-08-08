@@ -1,6 +1,6 @@
 import { buildGiftPrompt } from "./prompt";
 
-const model = "gpt-4.1-nano";
+const model = "gpt-5-nano";
 
 export type Suggestion = {
   description: string;
