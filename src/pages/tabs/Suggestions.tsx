@@ -53,10 +53,11 @@ export default function SuggestionsTab({
             setSuggestions(response.suggestions);
             setFollowUpQuestions(response.followUpQuestions);
         } catch (error) {
-            console.error("Error fetching suggestions:", error);
+            const message = error instanceof Error ? error.message : JSON.stringify(error);
+            console.error("Error fetching suggestions:", message, error);
             toast({
                 title: "Error fetching suggestions",
-                description: error instanceof Error ? error.message : "Please try again.",
+                description: message,
             });
         } finally {
             setIsFetchingSuggestions(false);
