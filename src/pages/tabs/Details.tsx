@@ -108,41 +108,32 @@ export default function DetailsTab({ giftee, onClose }: DetailsTabProps) {
     return (
         <div className="space-y-4 mb-4">
             <div>
-                <label
-                    htmlFor="birthday"
-                    className="block text-sm font-medium text-gray-700"
-                >
-                    Birthday (Day and Month)
-                </label>
                 <Input
                     id="birthday"
                     type="text"
-                    placeholder="DD-MM"
+                    placeholder="Birthday (Day and Month) - DD-MM"
                     data-testid="birthday-input"
                     value={birthday}
                     onChange={(e) => setBirthday(e.target.value)}
+                    className="text-base"
                 />
                 {birthday && birthday.match(/^\d{2}-\d{2}$/) ? (
                     <p className="text-xs text-gray-500 mt-1">
                         Selected: {new Date(`2000-${birthday.split('-')[1]}-${birthday.split('-')[0]}`).toLocaleDateString('en-GB', { day: 'numeric', month: 'long' })}
                     </p>
-                ) : (
+                ) : birthday && (
                     <p className="text-xs text-gray-500 mt-1">Format: DD-MM (e.g., 15-01 for 15 January)</p>
                 )}
             </div>
             <div>
-                <label
-                    htmlFor="age"
-                    className="block text-sm font-medium text-gray-700"
-                >
-                    Age
-                </label>
                 <Input
                     id="age"
                     type="number"
+                    placeholder="Age"
                     data-testid="age-input"
                     value={age}
                     onChange={(e) => setAge(e.target.value)}
+                    className="text-base"
                 />
                 {age && (
                     <p className="text-xs text-gray-500 mt-1">
@@ -151,15 +142,10 @@ export default function DetailsTab({ giftee, onClose }: DetailsTabProps) {
                 )}
             </div>
             <div>
-                <label
-                    htmlFor="phone-number"
-                    className="block text-sm font-medium text-gray-700"
-                >
-                    Phone Number
-                </label>
                 <PhoneInput
                     id="phone-number"
                     defaultCountry="GB"
+                    placeholder="Phone Number"
                     value={phoneNumber}
                     onChange={setPhoneNumber}
                     data-testid="phone-input"
@@ -169,23 +155,15 @@ export default function DetailsTab({ giftee, onClose }: DetailsTabProps) {
                 </p>
             </div>
             <div>
-                <label
-                    htmlFor="bio"
-                    className="block text-sm font-medium text-gray-700"
-                >
-                    Bio
-                </label>
                 <textarea
                     id="bio"
                     value={bio}
                     onChange={(e) => setBio(e.target.value)}
-                    className="block w-full p-2 border rounded-md"
+                    placeholder="Bio - Include brands they like and dislike to get better gift suggestions"
+                    className="flex min-h-[80px] w-full rounded-md border border-input bg-background px-3 py-2 text-base ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 md:text-sm resize-none"
                     rows={5}
                     data-testid="bio-input"
                 />
-                <p className="text-xs text-gray-500 mt-1">
-                    Include brands they like and dislike to get better gift suggestions.
-                </p>
             </div>
             <div className="sticky bottom-0 bg-background">
                 <Button onClick={handleSave} className="w-full" data-testid="save-details-button">

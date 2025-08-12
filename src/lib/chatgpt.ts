@@ -96,8 +96,8 @@ export async function getSuggestionsForGiftee(
         { role: "system", content: system },
         { role: "user", content: user },
       ],
-      max_tokens: 400,
-      temperature: followUpQuestion ? 1.0 : 0.9,
+      max_completion_tokens: 6144,
+      temperature: 1.0,
     })
   });
 
@@ -105,9 +105,21 @@ export async function getSuggestionsForGiftee(
   const responseData = await response.json();
   console.log("Full API response:", JSON.stringify(responseData, null, 2));
 
-  const fcArgs = response.ok ?
-    JSON.parse(responseData.choices[0].message.function_call.arguments) :
-    "{}";
+  // Check if response is ok and has the expected structure
+  if (!response.ok) {
+    console.error("API request failed:", responseData);
+    throw new Error(`API request failed: ${responseData.error?.message || 'Unknown error'}`);
+  }
+
+  // Check if function_call exists in the response
+  const message = responseData.choices?.[0]?.message;
+  if (!message?.function_call?.arguments) {
+    console.error("No function_call found in response. Full message:", message);
+    console.error("Finish reason:", responseData.choices?.[0]?.finish_reason);
+    throw new Error("API did not return expected function call - response may have been truncated");
+  }
+
+  const fcArgs = JSON.parse(message.function_call.arguments);
 
   console.log("Parsed function arguments:", JSON.stringify(fcArgs, null, 2));
   console.log("followUpQuestions array:", JSON.stringify(fcArgs.followUpQuestions, null, 2));
