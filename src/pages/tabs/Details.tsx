@@ -106,67 +106,80 @@ export default function DetailsTab({ giftee, onClose }: DetailsTabProps) {
     };
 
     return (
-        <div className="space-y-4 mb-4">
-            <div>
-                <Input
-                    id="birthday"
-                    type="text"
-                    placeholder="Birthday (Day and Month) - DD-MM"
-                    data-testid="birthday-input"
-                    value={birthday}
-                    onChange={(e) => setBirthday(e.target.value)}
-                    className="text-base"
-                />
-                {birthday && birthday.match(/^\d{2}-\d{2}$/) ? (
-                    <p className="text-xs text-gray-500 mt-1">
-                        Selected: {new Date(`2000-${birthday.split('-')[1]}-${birthday.split('-')[0]}`).toLocaleDateString('en-GB', { day: 'numeric', month: 'long' })}
-                    </p>
-                ) : birthday && (
-                    <p className="text-xs text-gray-500 mt-1">Format: DD-MM (e.g., 15-01 for 15 January)</p>
-                )}
+        <div className="space-y-4 mb-4 px-2">
+            {/* Personal Info Section */}
+            <div className="bg-gray-50/80 dark:bg-gray-900/30 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-800 overflow-hidden">
+                <div className="divide-y divide-gray-100 dark:divide-gray-800">
+                    <div className="px-5 py-4">
+                        <Input
+                            id="birthday"
+                            type="text"
+                            placeholder="Birthday (DD-MM)"
+                            data-testid="birthday-input"
+                            value={birthday}
+                            onChange={(e) => setBirthday(e.target.value)}
+                            className="border-0 bg-transparent text-lg px-0 py-3 focus-visible:ring-0 placeholder:text-gray-400 font-normal"
+                        />
+                        {birthday && birthday.match(/^\d{2}-\d{2}$/) && (
+                            <p className="text-xs text-gray-500 mt-2 font-medium">
+                                {new Date(`2000-${birthday.split('-')[1]}-${birthday.split('-')[0]}`).toLocaleDateString('en-GB', { day: 'numeric', month: 'long' })}
+                            </p>
+                        )}
+                    </div>
+                    <div className="px-5 py-4">
+                        <Input
+                            id="age"
+                            type="number"
+                            placeholder="Age"
+                            data-testid="age-input"
+                            value={age}
+                            onChange={(e) => setAge(e.target.value)}
+                            className="border-0 bg-transparent text-lg px-0 py-3 focus-visible:ring-0 placeholder:text-gray-400 font-normal"
+                        />
+                        {age && (
+                            <p className="text-xs text-gray-500 mt-2 font-medium">
+                                Birth year: {new Date().getFullYear() - parseInt(age, 10)}
+                            </p>
+                        )}
+                    </div>
+                    <div className="px-5 py-4">
+                        <PhoneInput
+                            id="phone-number"
+                            defaultCountry="GB"
+                            placeholder="Phone Number"
+                            value={phoneNumber}
+                            onChange={setPhoneNumber}
+                            data-testid="phone-input"
+                            className="border-0 bg-transparent text-lg"
+                        />
+                        <p className="text-xs text-gray-400 mt-2 font-medium leading-relaxed">
+                            For birthday WhatsApp reminders
+                        </p>
+                    </div>
+                </div>
             </div>
-            <div>
-                <Input
-                    id="age"
-                    type="number"
-                    placeholder="Age"
-                    data-testid="age-input"
-                    value={age}
-                    onChange={(e) => setAge(e.target.value)}
-                    className="text-base"
-                />
-                {age && (
-                    <p className="text-xs text-gray-500 mt-1">
-                        Birth year: {new Date().getFullYear() - parseInt(age, 10)}
-                    </p>
-                )}
+
+            {/* Notes Section */}
+            <div className="bg-gray-50/80 dark:bg-gray-900/30 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-800 overflow-hidden">
+                <div className="px-5 py-4">
+                    <textarea
+                        id="bio"
+                        value={bio}
+                        onChange={(e) => setBio(e.target.value)}
+                        placeholder="Notes about their preferences, favorite brands, dislikes..."
+                        className="w-full bg-transparent border-0 text-lg px-0 py-3 placeholder:text-gray-400 focus:outline-none resize-none min-h-[120px] font-normal leading-relaxed"
+                        data-testid="bio-input"
+                    />
+                </div>
             </div>
-            <div>
-                <PhoneInput
-                    id="phone-number"
-                    defaultCountry="GB"
-                    placeholder="Phone Number"
-                    value={phoneNumber}
-                    onChange={setPhoneNumber}
-                    data-testid="phone-input"
-                />
-                <p className="text-xs text-gray-500 mt-1">
-                    So that, on their birthday, on your reminder email we can zap you into your WhatsApp thread with a templated message.
-                </p>
-            </div>
-            <div>
-                <textarea
-                    id="bio"
-                    value={bio}
-                    onChange={(e) => setBio(e.target.value)}
-                    placeholder="Bio - Include brands they like and dislike to get better gift suggestions"
-                    className="flex min-h-[80px] w-full rounded-md border border-input bg-background px-3 py-2 text-base ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 md:text-sm resize-none"
-                    rows={5}
-                    data-testid="bio-input"
-                />
-            </div>
-            <div className="sticky bottom-0 bg-background">
-                <Button onClick={handleSave} className="w-full" data-testid="save-details-button">
+
+            {/* Save Button */}
+            <div className="sticky bottom-0 bg-background pt-6 pb-2">
+                <Button
+                    onClick={handleSave}
+                    className="w-full h-14 text-lg font-semibold bg-blue-500 hover:bg-blue-600 active:bg-blue-700 rounded-2xl shadow-sm transition-all duration-200"
+                    data-testid="save-details-button"
+                >
                     Save Details
                 </Button>
             </div>
