@@ -12,6 +12,7 @@ type IdeasFormProps = {
   onDelete: (ideaId: string) => Promise<void>;
   onAddIdea: (ideaName: string) => Promise<void>;
   onDetailsUpdate?: (updated: boolean, updatedGiftee?: Giftee) => void;
+  onGifteeDelete?: (deleted: boolean, deletedGifteeId?: string) => void;
   initialTab?: string;
 };
 
@@ -22,6 +23,7 @@ export default function IdeasForm({
   onDelete,
   onAddIdea,
   onDetailsUpdate,
+  onGifteeDelete,
   initialTab = "ideas"
 }: IdeasFormProps) {
   const [activeTab, setActiveTab] = useState(initialTab);
@@ -65,7 +67,13 @@ export default function IdeasForm({
 
         {/* Details tab */}
         <TabsContent value="details" className="flex-1 overflow-auto mb-0" data-testid="details-content">
-          {onDetailsUpdate && <DetailsTab giftee={giftee} onClose={onDetailsUpdate} />}
+          {onDetailsUpdate && onGifteeDelete && (
+            <DetailsTab
+              giftee={giftee}
+              onClose={onDetailsUpdate}
+              onDelete={onGifteeDelete}
+            />
+          )}
         </TabsContent>
       </Tabs>
     </div>

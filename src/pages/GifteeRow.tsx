@@ -12,9 +12,10 @@ import { useToast } from "@/hooks/use-toast";
 type GifteeProps = {
   g: Giftee;
   hideLabel?: boolean;
+  onGifteeDeleted?: (gifteeId: string) => void;
 };
 
-export default function GifteeRow({ g }: GifteeProps) {
+export default function GifteeRow({ g, onGifteeDeleted }: GifteeProps) {
   const { toast } = useToast();
   const [gifteeData, setGifteeData] = useState<Giftee>(g);
   const [ideas, setIdeas] = useState<Idea[]>(gifteeData.ideas || []);
@@ -60,6 +61,13 @@ export default function GifteeRow({ g }: GifteeProps) {
     }
   };
 
+  const handleGifteeDelete = (deleted: boolean, deletedGifteeId?: string) => {
+    if (deleted && deletedGifteeId) {
+      setIsIdeasDialogOpen(false);
+      onGifteeDeleted?.(deletedGifteeId);
+    }
+  };
+
   return (
     <div className="flex items-center justify-between mb-2">
       <div className="flex space-x-2">
@@ -83,6 +91,7 @@ export default function GifteeRow({ g }: GifteeProps) {
           onDelete={handleDeleteIdea}
           onAddIdea={handleAddIdea}
           onDetailsUpdate={handleDetailsUpdate}
+          onGifteeDelete={handleGifteeDelete}
         />
       </div>
     </div>

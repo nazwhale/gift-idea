@@ -18,6 +18,7 @@ export default function Dashboard() {
   const [newGifteeName, setNewGifteeName] = useState("");
   const [newGiftee, setNewGiftee] = useState<Giftee | null>(null);
   const [isIdeasDialogOpen, setIsIdeasDialogOpen] = useState(false);
+  const [isAddingGiftee, setIsAddingGiftee] = useState(false);
 
   useEffect(() => {
     captureEvent(PAGE_VIEWED, {
@@ -38,29 +39,56 @@ export default function Dashboard() {
   }, []);
 
   const handleAddGiftee = async () => {
-    const giftee = await addGiftee(newGifteeName);
-    setGiftees((prev) => [...prev, giftee]);
-    setNewGifteeName("");
-    setNewGiftee(giftee);
-    setIsIdeasDialogOpen(true);
+    const trimmedName = newGifteeName.trim();
+    if (!trimmedName || isAddingGiftee) return;
 
-    captureEvent(GIFTEE_EVENTS.GIFTEE_ADDED, {
-      giftee_id: giftee.id,
-      giftee_name: giftee.name
-    });
+    setIsAddingGiftee(true);
 
-    toast({
-      title: "Person Added",
-      description: `${giftee.name} has been successfully added.`,
-    });
+    try {
+      const giftee = await addGiftee(trimmedName);
+      setGiftees((prev) => [...prev, giftee]);
+      setNewGifteeName("");
+      setNewGiftee(giftee);
+      setIsIdeasDialogOpen(true);
+
+      captureEvent(GIFTEE_EVENTS.GIFTEE_ADDED, {
+        giftee_id: giftee.id,
+        giftee_name: giftee.name
+      });
+
+      toast({
+        title: "Person Added",
+        description: `${giftee.name} has been successfully added.`,
+      });
+    } catch (error) {
+      console.error("Error adding giftee:", error);
+      toast({
+        title: "Couldn't add person",
+        description: "Please try again in a moment.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsAddingGiftee(false);
+    }
   };
 
   const handleDetailsUpdate = (updated: boolean, updatedGiftee?: Giftee) => {
-    if (updated && updatedGiftee && newGiftee) {
+    if (updated && updatedGiftee) {
       setGiftees((prev) =>
         prev.map((g) => (g.id === updatedGiftee.id ? updatedGiftee : g))
       );
+      setNewGiftee((prev) =>
+        prev && prev.id === updatedGiftee.id ? updatedGiftee : prev
+      );
     }
+  };
+
+  const handleGifteeDelete = (deleted: boolean, deletedGifteeId?: string) => {
+    if (!deleted || !deletedGifteeId) return;
+
+    setGiftees((prev) => prev.filter((g) => g.id !== deletedGifteeId));
+    setNewGiftee((prev) => (prev?.id === deletedGifteeId ? null : prev));
+    setIsIdeasDialogOpen(false);
   };
 
 
@@ -114,8 +142,13 @@ export default function Dashboard() {
           value={newGifteeName}
           onChange={(e) => setNewGifteeName(e.target.value)}
         />
-        <Button type="submit" variant="outline" data-testid="add-person-button">
-          Add person
+        <Button
+          type="submit"
+          variant="outline"
+          data-testid="add-person-button"
+          disabled={!newGifteeName.trim() || isAddingGiftee}
+        >
+          {isAddingGiftee ? "Adding..." : "Add person"}
         </Button>
       </form>
 
@@ -130,6 +163,7 @@ export default function Dashboard() {
           onDelete={async () => { }}
           onAddIdea={async () => { }}
           onDetailsUpdate={handleDetailsUpdate}
+          onGifteeDelete={handleGifteeDelete}
           initialTab="details"
         />
       )}
@@ -158,7 +192,9 @@ export default function Dashboard() {
                   </span>
                 )}
               </div>
-              <GifteeRow g={g} />
+              <GifteeRow g={g} onGifteeDeleted={(gifteeId) => {
+                setGiftees((prev) => prev.filter((person) => person.id !== gifteeId));
+              }} />
             </li>
           );
         })}
@@ -166,4 +202,3 @@ export default function Dashboard() {
     </div>
   );
 }
-

@@ -24,6 +24,7 @@ type ResponsiveIdeasDialogProps = {
     setOpen: (open: boolean) => void;
     onToggleBought: (ideaId: string) => Promise<void>;
     onDetailsUpdate: (updated: boolean, updatedGiftee?: Giftee) => void;
+    onGifteeDelete: (deleted: boolean, deletedGifteeId?: string) => void;
     onDelete: (ideaId: string) => Promise<void>;
     onAddIdea: (ideaName: string) => Promise<void>;
     initialTab: string;
@@ -36,11 +37,19 @@ export default function ResponsiveIdeasDialog({
     setOpen,
     onToggleBought,
     onDetailsUpdate,
+    onGifteeDelete,
     onDelete,
     onAddIdea,
     initialTab
 }: ResponsiveIdeasDialogProps) {
     const isDesktop = useMediaQuery("(min-width: 768px)");
+    const isDetailsView = initialTab === "details";
+    const dialogTitle = isDetailsView
+        ? `${giftee.name}'s Details`
+        : `${giftee.name}'s ${ideas.length} Ideas`;
+    const dialogDescription = isDetailsView
+        ? "Add birthday, notes, and contact details"
+        : "Manage gift ideas and get AI suggestions";
 
     if (isDesktop) {
         return (
@@ -49,10 +58,10 @@ export default function ResponsiveIdeasDialog({
                     <div className="p-6 pb-0">
                         <DialogHeader>
                             <DialogTitle>
-                                {giftee.name}'s {ideas.length} Ideas
+                                {dialogTitle}
                             </DialogTitle>
                             <DialogDescription>
-                                Manage gift ideas and get AI suggestions
+                                {dialogDescription}
                             </DialogDescription>
                         </DialogHeader>
                     </div>
@@ -65,6 +74,7 @@ export default function ResponsiveIdeasDialog({
                             onDelete={onDelete}
                             onAddIdea={onAddIdea}
                             onDetailsUpdate={onDetailsUpdate}
+                            onGifteeDelete={onGifteeDelete}
                         />
                     </div>
                 </DialogContent>
@@ -82,10 +92,10 @@ export default function ResponsiveIdeasDialog({
                 <div className="p-4 pb-0">
                     <DrawerHeader className="text-left px-0">
                         <DrawerTitle>
-                            {giftee.name}'s {ideas.length} Ideas
+                            {dialogTitle}
                         </DrawerTitle>
                         <DrawerDescription>
-                            Manage gift ideas and get AI suggestions
+                            {dialogDescription}
                         </DrawerDescription>
                     </DrawerHeader>
                 </div>
@@ -97,6 +107,7 @@ export default function ResponsiveIdeasDialog({
                         onDelete={onDelete}
                         onAddIdea={onAddIdea}
                         onDetailsUpdate={onDetailsUpdate}
+                        onGifteeDelete={onGifteeDelete}
                         initialTab={initialTab}
                     />
                 </div>
