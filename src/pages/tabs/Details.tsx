@@ -23,6 +23,7 @@ export default function DetailsTab({ giftee, onClose, onDelete }: DetailsTabProp
     const [bio, setBio] = useState(giftee.bio || "");
     const [isSaving, setIsSaving] = useState(false);
     const [isDeleting, setIsDeleting] = useState(false);
+    const [isConfirmingDelete, setIsConfirmingDelete] = useState(false);
     // Prepend '+' to phone number for PhoneInput component which requires the '+' prefix for proper country code display
     const [phoneNumber, setPhoneNumber] = useState(
         giftee.phone_number ? `+${giftee.phone_number}` : ""
@@ -34,6 +35,7 @@ export default function DetailsTab({ giftee, onClose, onDelete }: DetailsTabProp
         setAge("");
         setBio(giftee.bio || "");
         setPhoneNumber(giftee.phone_number ? `+${giftee.phone_number}` : "");
+        setIsConfirmingDelete(false);
 
         if (giftee.date_of_birth) {
             const dobDate = new Date(giftee.date_of_birth);
@@ -247,16 +249,44 @@ export default function DetailsTab({ giftee, onClose, onDelete }: DetailsTabProp
                 </Card>
 
                 <Card>
-                    <CardContent className="pt-6">
-                        <Button
-                            variant="destructive"
-                            className="w-full"
-                            onClick={handleDelete}
-                            disabled={isDeleting || isSaving}
-                            data-testid="delete-person-button"
-                        >
-                            {isDeleting ? "Deleting..." : "Delete Person"}
-                        </Button>
+                    <CardContent className="space-y-3 pt-6">
+                        {isConfirmingDelete ? (
+                            <>
+                                <p className="text-sm text-muted-foreground" data-testid="delete-person-confirmation">
+                                    Are you sure? This will permanently delete this person and their saved gift ideas.
+                                </p>
+                                <div className="flex gap-2">
+                                    <Button
+                                        variant="outline"
+                                        className="flex-1"
+                                        onClick={() => setIsConfirmingDelete(false)}
+                                        disabled={isDeleting}
+                                        data-testid="cancel-delete-person-button"
+                                    >
+                                        Cancel
+                                    </Button>
+                                    <Button
+                                        variant="destructive"
+                                        className="flex-1"
+                                        onClick={handleDelete}
+                                        disabled={isDeleting || isSaving}
+                                        data-testid="confirm-delete-person-button"
+                                    >
+                                        {isDeleting ? "Deleting..." : "Yes, Delete"}
+                                    </Button>
+                                </div>
+                            </>
+                        ) : (
+                            <Button
+                                variant="destructive"
+                                className="w-full"
+                                onClick={() => setIsConfirmingDelete(true)}
+                                disabled={isDeleting || isSaving}
+                                data-testid="delete-person-button"
+                            >
+                                Delete Person
+                            </Button>
+                        )}
                     </CardContent>
                 </Card>
             </div>
